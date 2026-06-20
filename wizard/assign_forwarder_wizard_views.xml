@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The Popup Form -->
+    <record id="view_assign_forwarder_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.transit.assign.forwarder.wizard.form</field>
+        <field name="model">ogi.transit.assign.forwarder.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Bulk Assign Forwarder">
+                <group>
+                    <field name="forwarder_id" options="{'no_create': True}"/>
+                </group>
+                <footer>
+                    <button name="action_apply" type="object" string="Assign" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- The Action Menu Binding -->
+    <record id="action_bulk_assign_forwarder" model="ir.actions.act_window">
+        <field name="name">Bulk Assign</field>
+        <field name="res_model">ogi.transit.assign.forwarder.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="ogi_transit.model_ogi_transit_container"/>
+        <field name="binding_view_types">list</field>
+    </record>
+</odoo>

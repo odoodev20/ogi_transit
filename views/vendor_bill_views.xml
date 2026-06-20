@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_ogi_vendor_bill" model="ir.sequence">
+            <field name="name">Vendor Bill Sequence</field>
+            <field name="code">ogi.transit.vendor.bill</field>
+            <field name="prefix"></field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+
+    <record id="view_ogi_transit_vendor_payment_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.transit.vendor.payment.wizard.form</field>
+        <field name="model">ogi.transit.vendor.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Register Payout">
+                <div class="alert alert-warning" role="alert">
+                    Warning: Confirming this payout will instantly withdraw funds from the corresponding Cash Register.
+                </div>
+                <group>
+                    <field name="bill_id" readonly="1" force_save="1"/>
+                    <label for="amount"/>
+                    <div class="o_row">
+                        <field name="amount" readonly="1" force_save="1"/>
+                        <field name="currency" invisible="1"/>
+                    </div>
+                    <field name="cashbox_id" options="{'no_create': True}"/>
+                </group>
+                <footer>
+                    <button name="action_register_payout" string="Confirm Payout" type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_transit_vendor_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Register Payout</field>
+        <field name="res_model">ogi.transit.vendor.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="view_ogi_vendor_bill_form" model="ir.ui.view">
+        <field name="name">ogi.transit.vendor.bill.form</field>
+        <field name="model">ogi.transit.vendor.bill</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_approve" string="Approve Bill" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    
+                    <button name="%(ogi_transit.action_ogi_transit_vendor_payment_wizard)d" string="Register Payout" type="action" class="btn-danger" invisible="state != 'issued'" context="{'default_bill_id': id}"/>
+                    
+                    <field name="state" widget="statusbar" statusbar_visible="draft,issued,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'"/>
+                            <field name="container_id" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="expense_type" readonly="state != 'draft'"/>
+                            <field name="currency" readonly="state != 'draft'"/>
+                            <field name="amount_total" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ogi_vendor_bill_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.vendor.bill.tree</field>
+        <field name="model">ogi.transit.vendor.bill</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'" decoration-danger="state == 'issued'" decoration-success="state == 'paid'">
+                <field name="name"/>
+                <field name="partner_id" widget="many2one_avatar"/>
+                <field name="container_id"/>
+                <field name="expense_type"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_ogi_vendor_bill" model="ir.actions.act_window">
+        <field name="name">Vendor Bills</field>
+        <field name="res_model">ogi.transit.vendor.bill</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_ogi_vendor_bills" name="Vendor Bills" parent="menu_ogi_finance" action="action_ogi_vendor_bill" sequence="40"/>
+</odoo>

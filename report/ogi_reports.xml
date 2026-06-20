@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_invoice_external" model="ir.actions.report">
+        <field name="name">External Invoice</field>
+        <field name="model">ogi.transit.invoice</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">ogi_transit.report_invoice_external_document</field>
+        <field name="report_file">ogi_transit.report_invoice_external_document</field>
+        <field name="print_report_name">'Invoice - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_ogi_transit_invoice"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_invoice_external_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: 'Plus Jakarta Sans', sans-serif; color: #374151;">
+                        
+                        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+                        <style>
+                            .ogi-mono { font-family: 'DM Mono', monospace; }
+                            .ogi-brand-text { color: #1D5F9E; }
+                            .ogi-bg-brand { background-color: #1D5F9E; color: white; }
+                            .ogi-table { width: 100%; margin-top: 30px; border-collapse: collapse; }
+                            .ogi-table th { background-color: #1D5F9E; color: white; padding: 15px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; }
+                            .ogi-table td { padding: 15px; border-bottom: 1px solid #e5e7eb; font-size: 1rem; }
+                            .ogi-meta-box { border-left: 4px solid #1D5F9E; background-color: #f3f4f6; padding: 15px; margin-top: 20px; border-radius: 0 8px 8px 0; }
+                            .ogi-totals { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; }
+                        </style>
+
+                        <div class="row align-items-center mt-4">
+                            <div class="col-6">
+                                <h1 style="font-weight: 800; font-size: 3rem; letter-spacing: -1px; margin-bottom: 0;" class="ogi-brand-text">INVOICE</h1>
+                                <p class="ogi-mono text-muted fs-5 mt-1"><t t-out="doc.name"/></p>
+                            </div>
+                            <div class="col-6 text-end">
+                                <img t-if="res_company.logo" t-att-src="image_data_uri(res_company.logo)" style="max-height: 60px;" alt="OGI Transit Logo"/>
+                                <h3 t-else="" class="ogi-brand-text" style="font-weight: 800; margin: 0;">OGI TRANSIT</h3>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-7">
+                                <h6 class="text-muted text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 5px;">Billed To</h6>
+                                <h3 style="font-weight: 700; color: #111827; margin-bottom: 5px;"><t t-out="doc.partner_id.name"/></h3>
+                                <p class="text-muted mb-0"><t t-out="doc.partner_id.phone_1"/></p>
+                            </div>
+                            <div class="col-5">
+                                <div class="row ogi-meta-box">
+                                    <div class="col-6">
+                                        <p class="mb-1" style="font-size: 0.8rem; text-transform: uppercase; color: #6b7280;">Container No.</p>
+                                        <p class="ogi-mono mb-0" style="font-weight: 500; color: #111827;"><t t-out="doc.container_id.name"/></p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="mb-1" style="font-size: 0.8rem; text-transform: uppercase; color: #6b7280;">Origin</p>
+                                        <p class="mb-0" style="font-weight: 600; color: #111827; text-transform: capitalize;"><t t-out="doc.container_id.origin"/></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table class="ogi-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-start" style="border-radius: 6px 0 0 0;">Description of Goods &amp; Services</th>
+                                    <th class="text-end" style="border-radius: 0 6px 0 0;">Amount (<t t-out="doc.currency"/>)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Logistics &amp; Transit Services</strong><br/>
+                                        <span class="text-muted" style="font-size: 0.9rem;"><t t-out="doc.goods_description or 'Standard transit logistics'"/></span>
+                                    </td>
+                                    <td class="text-end ogi-mono" style="font-size: 1.1rem;"><t t-out="doc.base_amount" t-options='{"widget": "float", "precision": 2}'/></td>
+                                </tr>
+                                <tr t-if="doc.bgda_amount > 0">
+                                    <td>
+                                        <strong>BGDA / Regulatory Fees</strong><br/>
+                                        <span class="text-muted" style="font-size: 0.9rem;">Mandatory customs &amp; intellectual property fees</span>
+                                    </td>
+                                    <td class="text-end ogi-mono" style="font-size: 1.1rem;"><t t-out="doc.bgda_amount" t-options='{"widget": "float", "precision": 2}'/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row justify-content-end mt-4">
+                            <div class="col-6">
+                                <div class="ogi-totals">
+                                    <table style="width: 100%;">
+                                        <tr>
+                                            <td class="text-muted pb-2">Total Amount</td>
+                                            <td class="text-end ogi-mono pb-2"><t t-out="doc.amount_total" t-options='{"widget": "float", "precision": 2}'/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted pb-3" style="border-bottom: 1px solid #d1d5db;">Amount Paid</td>
+                                            <td class="text-end ogi-mono pb-3" style="border-bottom: 1px solid #d1d5db;">-<t t-out="doc.amount_paid" t-options='{"widget": "float", "precision": 2}'/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pt-3"><h4 style="font-weight: 700; margin: 0;" class="ogi-brand-text">Balance Due</h4></td>
+                                            <td class="text-end pt-3">
+                                                <h4 class="ogi-mono" style="font-weight: 700; color: #dc3545; margin: 0;">
+                                                    <t t-out="doc.amount_residual" t-options='{"widget": "float", "precision": 2}'/> <t t-out="doc.currency"/>
+                                                </h4>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5 pt-4" style="border-top: 1px solid #e5e7eb;">
+                            <div class="col-12 text-center text-muted" style="font-size: 0.9rem;">
+                                <p><strong>Thank you for your business.</strong><br/>If you have any questions about this invoice, please contact OGI Transit support.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+
+    <record id="action_report_invoice_internal" model="ir.actions.report">
+        <field name="name">Internal Invoice &amp; CRM</field>
+        <field name="model">ogi.transit.invoice</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">ogi_transit.report_invoice_internal_document</field>
+        <field name="report_file">ogi_transit.report_invoice_internal_document</field>
+        
+        <field name="print_report_name">'Internal_Invoice - %s' % (object.name)</field>
+        
+        <field name="binding_model_id" ref="model_ogi_transit_invoice"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_invoice_internal_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+                        
+                        <div class="text-center p-3 mb-5" style="background-color: #dc3545; color: white; border-radius: 6px;">
+                            <h3 style="margin: 0; font-weight: 700; letter-spacing: 2px;">CONFIDENTIAL - INTERNAL RECORD</h3>
+                        </div>
+                        
+                        <div class="row align-items-center mb-5">
+                            <div class="col-6">
+                                <p class="text-muted mb-1 text-uppercase" style="font-size: 0.8rem;">Invoice Reference</p>
+                                <h3 style="font-family: 'DM Mono', monospace; font-weight: 700;"><t t-out="doc.name"/></h3>
+                                <h5 class="mt-3"><strong>Customer:</strong> <t t-out="doc.partner_id.name"/></h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <p class="text-danger mb-1 fw-bold text-uppercase" style="font-size: 0.9rem;">Total Unpaid Exposure</p>
+                                <h1 style="font-family: 'DM Mono', monospace; font-weight: 700; color: #dc3545; font-size: 2.5rem;">
+                                    <t t-out="doc.amount_residual" t-options='{"widget": "float", "precision": 2}'/> <span style="font-size: 1.5rem;"><t t-out="doc.currency"/></span>
+                                </h1>
+                            </div>
+                        </div>
+
+                        <div class="p-4" style="border: 2px dashed #dc3545; background-color: #fff5f5; border-radius: 8px;">
+                            <h4 style="color: #dc3545; font-weight: 700; margin-bottom: 20px;"><i class="fa fa-phone"></i> CRM Collection Data</h4>
+                            
+                            <div class="row fs-5 mb-3">
+                                <div class="col-4 text-muted fw-bold">Last Call Date:</div>
+                                <div class="col-8"><t t-out="doc.last_call_date or 'No calls logged yet'"/></div>
+                            </div>
+                            <div class="row fs-5 mb-3">
+                                <div class="col-4 text-muted fw-bold">Promise to Pay:</div>
+                                <div class="col-8" style="color: #1D5F9E; font-weight: 600;"><t t-out="doc.promise_to_pay_date or 'No date secured'"/></div>
+                            </div>
+                            <div class="row fs-5 mb-4">
+                                <div class="col-4 text-muted fw-bold">Active CRM Leads:</div>
+                                <div class="col-8"><t t-out="doc.crm_lead_count"/></div>
+                            </div>
+                            
+                            <hr style="border-color: #fca5a5;"/>
+                            
+                            <h5 class="text-muted fw-bold mt-3">Finance / Collection Notes:</h5>
+                            <p style="white-space: pre-line; background-color: white; padding: 15px; border-radius: 6px; border: 1px solid #fecaca;">
+                                <t t-out="doc.collection_notes or 'No notes recorded.'"/>
+                            </p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+
+    <record id="action_report_receipt" model="ir.actions.report">
+        <field name="name">Print Payment Receipt</field>
+        <field name="model">ogi.transit.transaction</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">ogi_transit.report_receipt_document</field>
+        <field name="report_file">ogi_transit.report_receipt_document</field>
+        
+        <field name="print_report_name">'Receipt - %s' % (object.name)</field>
+        
+        <field name="binding_model_id" ref="model_ogi_transit_transaction"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_receipt_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+                        
+                        <div style="border: 1px solid #e5e7eb; padding: 50px; border-radius: 12px; margin-top: 30px; position: relative; overflow: hidden;">
+                            
+                            <div style="position: absolute; top: 0; left: 0; right: 0; height: 8px; background-color: #059669;"></div>
+
+                            <div class="row align-items-center mb-5 mt-2">
+                                <div class="col-6">
+                                    <h1 style="color: #059669; font-weight: 800; letter-spacing: -1px; margin-bottom: 0;">OFFICIAL RECEIPT</h1>
+                                    <p style="font-family: 'DM Mono', monospace; font-size: 1.2rem; color: #6b7280; margin-top: 5px;"><t t-out="doc.name"/></p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <div style="display: inline-block; border: 3px solid #059669; color: #059669; font-weight: 800; font-size: 1.2rem; padding: 10px 20px; border-radius: 8px; text-transform: uppercase; transform: rotate(15deg); opacity: 0.8;">
+                                        PAYMENT RECEIVED
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4" style="background-color: #f9fafb; border-radius: 8px;">
+                                <div class="row fs-5 mb-4 align-items-center">
+                                    <div class="col-4 text-muted text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">Date Received</div>
+                                    <div class="col-8 fw-bold" style="color: #111827;"><t t-out="doc.date.strftime('%d %B %Y - %H:%M')"/></div>
+                                </div>
+                                <div class="row fs-5 mb-4 align-items-center">
+                                    <div class="col-4 text-muted text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">Received From</div>
+                                    <div class="col-8 fw-bold" style="color: #1D5F9E; font-size: 1.4rem;"><t t-out="doc.partner_id.name or 'General Transaction'"/></div>
+                                </div>
+                                <div class="row fs-5 mb-4 align-items-center">
+                                    <div class="col-4 text-muted text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">Amount Received</div>
+                                    <div class="col-8 fw-bold" style="font-family: 'DM Mono', monospace; font-size: 2rem; color: #059669;">
+                                        <t t-out="doc.amount" t-options='{"widget": "float", "precision": 2}'/> <span style="font-size: 1.2rem; color: #6b7280;"><t t-out="doc.currency"/></span>
+                                    </div>
+                                </div>
+                                <div class="row fs-5 mb-2 align-items-center">
+                                    <div class="col-4 text-muted text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">Payment Reference</div>
+                                    <div class="col-8 text-muted"><t t-out="doc.reason or 'General Deposit'"/></div>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 text-center text-muted" style="font-size: 0.9rem;">
+                                <p>This is a computer-generated receipt issued by OGI Transit. No signature is required.</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

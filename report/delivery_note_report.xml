@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="paperformat_delivery_note" model="report.paperformat">
+        <field name="name">Delivery Note Format</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_delivery_note" model="ir.actions.report">
+        <field name="name">Bon de Livraison (Delivery Note)</field>
+        <field name="model">ogi.transit.delivery.note</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">ogi_transit.report_delivery_note_template</field>
+        <field name="report_file">ogi_transit.report_delivery_note_template</field>
+        <field name="print_report_name">'BL - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_ogi_transit_delivery_note"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="ogi_transit.paperformat_delivery_note"/>
+    </record>
+
+    <!-- 2. The Main Document Template -->
+    <template id="report_delivery_note_document">
+        <!-- Using basic_layout to hide the default Odoo company header -->
+        <t t-call="web.basic_layout">
+            <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+            
+            <div class="page" style="font-family: 'Helvetica', 'Arial', sans-serif; color: #333;">
+                
+                <!-- 1. BLUE HEADER BLOCK -->
+                <div class="row m-0" style="background-color: #1a5f98; color: white; padding: 30px 20px; border-radius: 4px 4px 0 0;">
+                    <div class="col-6">
+                        <h2 style="font-weight: 900; margin-bottom: 5px; font-size: 28px; letter-spacing: -1px;">OGI TRANSIT</h2>
+                        <div style="font-size: 16px; opacity: 0.9;">Bon de Livraison</div>
+                    </div>
+                    <div class="col-6 text-end">
+                        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 5px;">Bon de Livraison</div>
+                        <h3 style="font-weight: bold; font-size: 24px; margin-bottom: 15px;"><span t-field="doc.name"/></h3>
+                        
+                        <!-- Dynamic Status Pill -->
+                        <span style="background-color: #fce49c; color: #b07d12; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
+                            <t t-if="doc.logistics_status == 'pending'">EN ATTENTE</t>
+                            <t t-elif="doc.logistics_status == 'unpacked'">DÉPOTAGE</t>
+                            <t t-elif="doc.logistics_status == 'storage'">STOCKAGE</t>
+                            <t t-elif="doc.logistics_status == 'retrieved'">RÉCUPÉRÉE</t>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 2. CLIENT INFO BLOCK (Right Aligned) -->
+                <div class="row mt-4">
+                    <div class="col-12 text-end" style="padding-right: 20px;">
+                        <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Client</div>
+                        <div style="font-size: 18px; font-weight: bold; margin-top: 3px; color: #111;"><span t-field="doc.partner_id.name"/></div>
+                        <div style="font-size: 14px; margin-top: 3px;"><span t-field="doc.partner_id.phone_1"/></div>
+                        <div style="margin-top: 8px;">
+                            <!-- Auto-generates a Client ID like CLI-00001247 based on DB ID -->
+                            <span style="background-color: #f0f0f0; color: #555; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-family: monospace; font-weight: bold;">
+                                <span t-esc="doc.partner_id.ref or ('CLI-%08d' % doc.partner_id.id)"/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. GREY DATA BAND -->
+                <div class="row mt-4" style="background-color: #f4f3f0; padding: 20px 10px; margin-left: 0; margin-right: 0;">
+                    <div class="col-4">
+                        <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px;">LOT</div>
+                        <div style="font-size: 16px; font-weight: bold; font-family: monospace; margin-top: 5px;"><span t-field="doc.container_id.bl_id.lot_id.name"/></div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px;">CONTENEUR</div>
+                        <div style="font-size: 16px; font-weight: bold; font-family: monospace; margin-top: 5px;"><span t-field="doc.container_id.name"/></div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px;">B/L</div>
+                        <div style="font-size: 16px; font-weight: bold; font-family: monospace; margin-top: 5px;"><span t-field="doc.container_id.bl_id.name"/></div>
+                    </div>
+                </div>
+
+                <!-- 4. LOGISTICS STEPPER -->
+                <div class="row mt-5 mb-5 text-center" style="font-size: 10px; font-weight: bold; color: #ccc;">
+                    <t t-set="s" t-value="doc.logistics_status"/>
+                    
+                    <div class="col-3">
+                        <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'pending' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'pending' else '#eee'};"></div>
+                        <span t-attf-style="color: #{'#eab308' if s == 'pending' else '#ccc'};">EN ATTENTE</span>
+                    </div>
+                    <div class="col-3">
+                        <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'unpacked' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'unpacked' else '#eee'};"></div>
+                        <span t-attf-style="color: #{'#eab308' if s == 'unpacked' else '#ccc'};">DÉPOTAGE</span>
+                    </div>
+                    <div class="col-3">
+                        <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'storage' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'storage' else '#eee'};"></div>
+                        <span t-attf-style="color: #{'#eab308' if s == 'storage' else '#ccc'};">STOCKAGE</span>
+                    </div>
+                    <div class="col-3">
+                        <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'retrieved' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'retrieved' else '#eee'};"></div>
+                        <span t-attf-style="color: #{'#eab308' if s == 'retrieved' else '#ccc'};">RÉCUPÉRÉE</span>
+                    </div>
+                </div>
+
+                <!-- 5. GOODS DETAILS TABLE -->
+                <div style="font-size: 11px; font-weight: bold; letter-spacing: 1px; margin-bottom: 10px; color: #555;">DÉTAIL DES MARCHANDISES</div>
+                <div style="border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+                    <table class="table table-borderless mb-0">
+                        <thead style="background-color: #f4f3f0; color: #999; font-size: 10px; text-transform: uppercase;">
+                            <tr>
+                                <th class="text-start" style="padding: 12px;">Description</th>
+                                <th class="text-center" style="padding: 12px;">QTY</th>
+                                <th class="text-end" style="padding: 12px;">CBM / Volume</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-start" style="padding: 15px; font-weight: bold; font-size: 15px;">
+                                    <span t-field="doc.pl_line_id.goods_description"/>
+                                </td>
+                                <td class="text-center" style="padding: 15px; font-family: monospace; font-size: 14px;">
+                                    <span t-field="doc.pl_line_id.qty"/> colis
+                                </td>
+                                <td class="text-end" style="padding: 15px; font-family: monospace; font-size: 14px;">
+                                    <span t-field="doc.pl_line_id.cbm_line"/> m³
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Evaluate Invoice Status for Stamp -->
+                <t t-set="usd_state" t-value="doc.pl_line_id.usd_invoice_id.state"/>
+                <t t-set="gnf_state" t-value="doc.pl_line_id.gnf_invoice_id.state"/>
+                <t t-set="pay_status" t-value="'NON PAYÉ'"/>
+                <t t-if="usd_state == 'paid' and gnf_state == 'paid'">
+                    <t t-set="pay_status" t-value="'PAYÉE'"/>
+                </t>
+                <t t-elif="usd_state in ['partial', 'paid'] or gnf_state in ['partial', 'paid']">
+                    <t t-set="pay_status" t-value="'PARTIELLEMENT PAYÉE'"/>
+                </t>
+
+                <!-- 6. THE ANGLED PAYMENT STAMP -->
+                <div style="position: relative; margin-top: 120px; text-align: center;">
+                    <div style="display: inline-block; transform: rotate(-15deg); border: 4px solid #DE7254; border-radius: 6px; padding: 15px 40px; color: #DE7254; opacity: 0.85;">
+                        <div style="font-size: 34px; font-weight: 900; letter-spacing: 1px;"><t t-esc="pay_status"/></div>
+                        <div style="font-size: 12px; border-top: 1px solid #DE7254; margin-top: 5px; padding-top: 5px; letter-spacing: 2px; font-weight: bold;">
+                            OGI TRANSIT • <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d %b %Y').upper()"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </t>
+    </template>
+
+    <!-- 3. The Report Wrapper -->
+    <template id="report_delivery_note_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="ogi_transit.report_delivery_note_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ogi_payment_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.invoice.payment.wizard.form</field>
+        <field name="model">ogi.invoice.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Register Payment">
+                <group>
+                    <group>
+                        <field name="invoice_id" readonly="1" force_save="1"/>
+                        <field name="payment_method"/>
+                        
+                        <field name="available_deposit" invisible="payment_method != 'deposit'"/>
+                        <field name="cashbox_id" invisible="payment_method == 'deposit'" required="payment_method != 'deposit'" options="{'no_create': True}"/>
+                    </group>
+                    <group>
+                        <label for="amount"/>
+                        <div class="o_row">
+                            <field name="amount" class="oe_inline"/>
+                            <field name="currency" class="oe_inline"/>
+                        </div>
+                        <field name="amount_residual"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_register_payment" string="Validate Payment" type="object" class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Register Payment</field>
+        <field name="res_model">ogi.invoice.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

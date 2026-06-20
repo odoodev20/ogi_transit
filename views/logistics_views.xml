@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+        <record id="seq_ogi_delivery_note" model="ir.sequence">
+            <field name="name">Delivery Note Sequence</field>
+            <field name="code">ogi.transit.delivery.note</field>
+            <field name="prefix">BL-%(year)s-</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+
+    <record id="view_ogi_container_form" model="ir.ui.view">
+        <field name="name">ogi.transit.container.form</field>
+        <field name="model">ogi.transit.container</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="has_pl_lines" invisible="1"/>
+                <header>
+                    <button name="%(ogi_transit.action_ogi_pl_import_wizard)d" string="Import Packing List" type="action" class="oe_highlight" invisible="type != 'lcl_home' or state == 'closed'" context="{'default_container_id': id}"/>
+                    
+                    <button name="action_calculate_prorata" string="Calculate Pro-rata" type="object" class="btn-secondary" invisible="type != 'lcl_home' or state in ('prep', 'created', 'closed') or not has_pl_lines"/>
+                    
+                    <button name="action_generate_invoices" string="Generate Invoices" type="object" class="btn-primary" invisible="(type == 'lcl_home' and not has_pl_lines) or type == 'fcl_home' or state in ('prep', 'created', 'closed')"/>
+                    
+                    <button name="action_issue_delivery_notes" string="Issue Delivery Notes" type="object" class="btn-warning" invisible="not can_issue_delivery_notes or state == 'closed'"/>
+                    
+                    <button name="action_lock_container" string="Lock Container File" type="object" class="btn-danger" icon="fa-lock" invisible="state == 'closed'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg" confirm="Are you sure? This will lock the container and prevent further modifications."/>
+                    
+                    <field name="state" widget="statusbar" statusbar_visible="created,arrived,ready,released,closed" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Container Number"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., MAEU1234567"/>
+                        </h1>
+                        <label for="container_label" string="Container Label"/>
+                        <h2>
+                            <field name="container_label" placeholder="Free text (e.g., 2026)"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="type"/>
+                            <field name="partner_id" invisible="type != 'fcl_awaye'" required="type == 'fcl_awaye'" widget="many2one_avatar"/>
+                            <field name="bl_id"/>
+                            <field name="origin" readonly="1" force_save="1"/>
+                            
+                            <!-- NEW: Forwarder assignment on the form -->
+                            <field name="forwarder_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="total_freight_usd" invisible="type == 'fcl_home'" readonly="type == 'lcl_home' and not has_pl_lines"/>
+                            
+                            <field name="total_customs_gnf" invisible="type == 'fcl_awaye'" readonly="type == 'lcl_home' and not has_pl_lines"/>
+                            <field name="total_freight_forwarder_gnf" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg" invisible="type == 'fcl_awaye'" readonly="type == 'lcl_home' and not has_pl_lines"/>
+                            <field name="total_cbm" invisible="type == 'fcl_awaye'"/>
+                            
+                            <field name="usd_invoice_id" invisible="type != 'fcl_awaye'" readonly="1" force_save="1"/>
+                        </group>
+                    </group>
+                    <notebook invisible="type != 'lcl_home'">
+                        <page string="Packing List" name="packing_list">
+                            <field name="pl_line_ids" readonly="1">
+                                <list create="0">
+                                    <field name="partner_id" widget="many2one_avatar" options="{'no_open': False, 'no_create': True}"/>
+                                    
+                                    <field name="mark"/>
+                                    <field name="goods_description"/>
+                                    <field name="qty"/>
+                                    <field name="cbm_line" sum="Total CBM"/>
+                                    
+                                    <field name="ins_fee" sum="Total INS" column_invisible="parent.origin == 'dubai'"/>
+                                    
+                                    <field name="bgda" sum="Total BGDA"/>
+                                    <field name="calculated_usd" sum="Total USD"/>
+                                    <field name="calculated_gnf" sum="Total GNF"/>
+                                    <field name="usd_invoice_id" widget="many2one" optional="show"/>
+                                    <field name="gnf_invoice_id" widget="many2one" optional="show"/>
+                                    
+                                    <field name="delivery_note_id" widget="many2one" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ogi_container_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.container.tree</field>
+        <field name="model">ogi.transit.container</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="type" widget="badge" decoration-info="type == 'fcl_awaye'" decoration-success="type == 'fcl_home'" decoration-warning="type == 'lcl_home'"/>
+                <field name="state" widget="badge"/>
+                <field name="forwarder_id" optional="show"/>
+                <field name="bl_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_ogi_container" model="ir.actions.act_window">
+        <field name="name">Containers</field>
+        <field name="res_model">ogi.transit.container</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_ogi_bl_form" model="ir.ui.view">
+        <field name="name">ogi.transit.bl.form</field>
+        <field name="model">ogi.transit.bl</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="B/L No."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="lot_id"/>
+                            <field name="lot_origin" invisible="1"/>
+                            <field name="shipping_company_id" options="{'no_create': False}"/>
+                            <field name="port_departure_id" domain="[('origin', '=', lot_origin)]" options="{'no_create': False}"/>
+                            <field name="port_arrival"/>
+                        </group>
+                        <group>
+                            <field name="departure_date"/>
+                            <field name="expected_arrival_date"/>
+                            <field name="actual_arrival_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Containers" name="containers">
+                            <field name="container_ids" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ogi_lot_form" model="ir.ui.view">
+        <field name="name">ogi.transit.lot.form</field>
+        <field name="model">ogi.transit.lot</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Lot No."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="origin"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="comment"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Bills of Lading" name="bls">
+                            <field name="bl_ids" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <menuitem id="menu_ogi_containers" name="Containers" parent="menu_ogi_operations" action="action_ogi_container" sequence="30"/>
+
+    <record id="action_ogi_lot" model="ir.actions.act_window">
+        <field name="name">Lots</field>
+        <field name="res_model">ogi.transit.lot</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_ogi_bl" model="ir.actions.act_window">
+        <field name="name">Bills of Lading</field>
+        <field name="res_model">ogi.transit.bl</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_ogi_lots" name="Lots" parent="menu_ogi_operations" action="action_ogi_lot" sequence="10"/>
+    <menuitem id="menu_ogi_bls" name="Bills of Lading" parent="menu_ogi_operations" action="action_ogi_bl" sequence="20"/>
+
+    <menuitem id="menu_ogi_configuration" name="Configuration" parent="menu_ogi_root" sequence="100"/>
+
+    <record id="view_ogi_shipping_company_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.shipping.company.tree</field>
+        <field name="model">ogi.transit.shipping.company</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_ogi_shipping_company" model="ir.actions.act_window">
+        <field name="name">Shipping Companies</field>
+        <field name="res_model">ogi.transit.shipping.company</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_ogi_shipping_company" name="Shipping Companies" parent="menu_ogi_configuration" action="action_ogi_shipping_company" sequence="10"/>
+
+    <record id="view_ogi_port_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.port.tree</field>
+        <field name="model">ogi.transit.port</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="origin"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_ogi_port" model="ir.actions.act_window">
+        <field name="name">Ports</field>
+        <field name="res_model">ogi.transit.port</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_by_origin': 1}</field>
+    </record>
+
+    <record id="view_ogi_port_search" model="ir.ui.view">
+        <field name="name">ogi.transit.port.search</field>
+        <field name="model">ogi.transit.port</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="origin"/>
+                <group expand="0" string="Group By">
+                    <filter string="Origin" name="group_by_origin" context="{'group_by': 'origin'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <menuitem id="menu_ogi_port" name="Ports" parent="menu_ogi_configuration" action="action_ogi_port" sequence="20"/>
+
+    <record id="view_ogi_delivery_note_form" model="ir.ui.view">
+        <field name="name">ogi.transit.delivery.note.form</field>
+        <field name="model">ogi.transit.delivery.note</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="%(ogi_transit.action_report_delivery_note)d" string="Print Delivery Note" type="action" class="btn-primary" icon="fa-print"/>
+                    <field name="logistics_status" widget="statusbar" statusbar_visible="pending,unpacked,storage,retrieved" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Logistics Information">
+                            <field name="container_id" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                        </group>
+                        <group string="Associated Data">
+                            <field name="pl_line_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Operator Comments">
+                        <field name="operator_note" nolabel="1" placeholder="Type any specific delivery instructions or physical damage notes here..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+</odoo>

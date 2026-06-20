@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sequence for Transactions -->
+    <data noupdate="1">
+        <record id="seq_ogi_transaction" model="ir.sequence">
+            <field name="name">Cash Transaction Sequence</field>
+            <field name="code">ogi.transit.transaction</field>
+            <field name="prefix">TXN-%(year)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+
+    <!-- CASHBOX VIEWS -->
+    <record id="view_ogi_cashbox_form" model="ir.ui.view">
+        <field name="name">ogi.transit.cashbox.form</field>
+        <field name="model">ogi.transit.cashbox</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g., Dubai USD Vault"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="origin"/>
+                            <field name="currency"/>
+                        </group>
+                        <group>
+                            <field name="balance" decoration-bf="1" decoration-success="balance &gt; 0" decoration-danger="balance &lt; 0" widget="monetary"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Transaction Ledger">
+                            <field name="transaction_ids" readonly="1">
+                                <list decoration-success="type == 'in'" decoration-danger="type == 'out'">
+                                    <field name="date"/>
+                                    <field name="name"/>
+                                    <field name="partner_id" widget="many2one_avatar"/>
+                                    <field name="type"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ogi_cashbox_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.cashbox.tree</field>
+        <field name="model">ogi.transit.cashbox</field>
+        <!-- Removed create="0" so users can actually create their registers -->
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="origin"/>
+                <field name="currency"/>
+                <field name="balance" decoration-bf="1" decoration-success="balance &gt; 0" decoration-danger="balance &lt; 0"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- TRANSACTION VIEWS -->
+    <record id="view_ogi_transaction_form" model="ir.ui.view">
+        <field name="name">ogi.transit.transaction.form</field>
+        <field name="model">ogi.transit.transaction</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="%(ogi_transit.action_report_receipt)d" string="Print Receipt" type="action" class="btn-primary" icon="fa-print" invisible="state != 'done' or type != 'in'"/>
+                    
+                    <button name="action_confirm" string="Confirm" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state == 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="cashbox_id" options="{'no_create': True, 'no_open': True}" readonly="state != 'draft'"/>
+                            <field name="type" readonly="state != 'draft'"/>
+                            <label for="amount"/>
+                            <div class="o_row">
+                                <field name="amount" readonly="state != 'draft'"/>
+                                <field name="currency"/>
+                            </div>
+                        </group>
+                        <group>
+                            <!-- Wallet Integration Fields -->
+                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'"/>
+                            <field name="is_wallet_transaction" readonly="state != 'draft'"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="reason" readonly="state != 'draft'"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ogi_transaction_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.transaction.tree</field>
+        <field name="model">ogi.transit.transaction</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'cancelled'" decoration-success="type == 'in' and state == 'done'" decoration-danger="type == 'out' and state == 'done'">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="cashbox_id"/>
+                <field name="partner_id" widget="many2one_avatar" optional="show"/>
+                <field name="type"/>
+                <field name="amount"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- CASH AUDIT VIEWS -->
+    <record id="view_ogi_cash_audit_form" model="ir.ui.view">
+        <field name="name">ogi.transit.cash.audit.form</field>
+        <field name="model">ogi.transit.cash.audit</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_validate_audit" string="Validate Audit" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,validated"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="cashbox_id" readonly="state != 'draft'"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="expected_balance"/>
+                            <field name="actual_counted" readonly="state != 'draft'"/>
+                            <field name="difference" decoration-danger="difference != 0" decoration-success="difference == 0"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Required if there is a discrepancy..." readonly="state != 'draft'"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTIONS AND MENUS -->
+    <record id="action_ogi_cashbox" model="ir.actions.act_window">
+        <field name="name">Cash Registers</field>
+        <field name="res_model">ogi.transit.cashbox</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_ogi_transaction" model="ir.actions.act_window">
+        <field name="name">Cash Transactions</field>
+        <field name="res_model">ogi.transit.transaction</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_ogi_cash_audit" model="ir.actions.act_window">
+        <field name="name">Daily Cash Audits</field>
+        <field name="res_model">ogi.transit.cash.audit</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_ogi_finance" name="Finance" parent="menu_ogi_root" sequence="20" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+    
+    <menuitem id="menu_ogi_cashboxes" name="Cash Registers" parent="menu_ogi_finance" action="action_ogi_cashbox" sequence="10"/>
+    <menuitem id="menu_ogi_transactions" name="Transactions" parent="menu_ogi_finance" action="action_ogi_transaction" sequence="20"/>
+    <menuitem id="menu_ogi_cash_audits" name="Cash Audits" parent="menu_ogi_finance" action="action_ogi_cash_audit" sequence="30"/>
+</odoo>

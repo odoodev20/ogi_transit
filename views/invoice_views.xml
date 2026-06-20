@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_ogi_invoice" model="ir.sequence">
+            <field name="name">OGI Invoice Sequence</field>
+            <field name="code">ogi.transit.invoice</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+
+    <record id="view_ogi_invoice_form" model="ir.ui.view">
+        <field name="name">ogi.transit.invoice.form</field>
+        <field name="model">ogi.transit.invoice</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="%(ogi_transit.action_report_invoice_external)d" string="Print External Invoice" type="action" class="btn-primary" icon="fa-print" invisible="state == 'draft'"/>
+                    <button name="%(ogi_transit.action_report_invoice_internal)d" string="Print Internal Record" type="action" class="btn-secondary" icon="fa-lock" invisible="state == 'draft'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+                    
+                    <button name="action_issue" string="Issue Invoice" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Register Payment" type="action" class="btn-success" invisible="state not in ['issued', 'partial']"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state == 'canceled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,issued,partial,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_crm_leads" icon="fa-handshake-o" invisible="crm_lead_count == 0">
+                            <field string="CRM Leads" name="crm_lead_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'"/>
+                            <field name="container_id" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="invoice_type" readonly="state != 'draft'"/>
+                            <field name="currency" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Details">
+                        <field name="goods_description" readonly="state != 'draft'"/>
+                    </group>
+
+                    <group string="CRM / Collection Tracking" invisible="state in ['draft', 'paid', 'canceled']">
+                        <group>
+                            <field name="last_call_date"/>
+                            <field name="promise_to_pay_date"/>
+                        </group>
+                        <group>
+                            <field name="collection_notes" placeholder="Log details of phone calls with the customer here..."/>
+                        </group>
+                    </group>
+                    
+                    <group class="oe_subtotal_footer oe_right">
+                        <field name="base_amount" invisible="currency != 'GNF' or bgda_amount == 0" string="Transit Amount"/>
+                        <field name="bgda_amount" invisible="currency != 'GNF' or bgda_amount == 0"/>
+                        
+                        <field name="amount_total" readonly="state != 'draft'" class="oe_subtotal_footer_separator"/>
+                        <field name="amount_paid"/>
+                        <field name="amount_residual" class="oe_subtotal_footer_separator"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ogi_invoice_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.invoice.tree</field>
+        <field name="model">ogi.transit.invoice</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'" decoration-success="state == 'paid'" decoration-muted="state == 'canceled'">
+                <field name="name"/>
+                <field name="partner_id" widget="many2one_avatar"/>
+                <field name="container_id"/>
+                <field name="currency"/>
+                <field name="amount_total"/>
+                <field name="amount_residual"/>
+                <field name="state" widget="badge"/>
+                
+                <field name="crm_lead_count" column_invisible="1"/>
+                
+                <button name="action_create_crm_opportunity" string="Send to CRM" type="object" icon="fa-handshake-o" class="btn-warning" invisible="state in ('draft', 'paid', 'canceled') or crm_lead_count &gt; 0"/>
+                <button name="action_view_crm_leads" string="View in CRM" type="object" icon="fa-external-link" class="btn-info" invisible="crm_lead_count == 0"/>
+                
+                <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Pay" type="action" icon="fa-money" class="btn-success" invisible="state in ('draft', 'paid', 'canceled')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_ogi_invoice" model="ir.actions.act_window">
+        <field name="name">Customer Invoices</field>
+        <field name="res_model">ogi.transit.invoice</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_ogi_invoices" name="Invoices" parent="menu_ogi_finance" action="action_ogi_invoice" sequence="30"/>
+
+    <record id="view_ogi_invoice_collection_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.invoice.collection.tree</field>
+        <field name="model">ogi.transit.invoice</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="amount_residual &gt; 0">
+                <field name="name"/>
+                <field name="partner_id" widget="many2one_avatar"/>
+                <field name="amount_residual" sum="Total Unpaid" decoration-bf="1"/>
+                <field name="currency"/>
+                <field name="state" widget="badge" decoration-warning="state == 'partial'"/>
+                
+                <field name="crm_lead_count" column_invisible="1"/>
+                
+                <button name="action_create_crm_opportunity" string="Send to CRM" type="object" icon="fa-handshake-o" class="btn-warning" invisible="crm_lead_count &gt; 0"/>
+                <button name="action_view_crm_leads" string="View in CRM" type="object" icon="fa-external-link" class="btn-info" invisible="crm_lead_count == 0"/>
+                
+                <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Pay" type="action" icon="fa-money" class="btn-success" invisible="state in ('draft', 'paid', 'canceled')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_ogi_invoice_collection" model="ir.actions.act_window">
+        <field name="name">Unpaid Follow-ups</field>
+        <field name="res_model">ogi.transit.invoice</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['draft', 'issued', 'partial'])]</field>
+        <field name="view_id" ref="view_ogi_invoice_collection_tree"/>
+    </record>
+
+    <menuitem id="menu_ogi_invoice_collection" name="Unpaid Follow-ups" parent="menu_ogi_finance" action="action_ogi_invoice_collection" sequence="35"/>
+    
+</odoo>

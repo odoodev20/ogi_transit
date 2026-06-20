@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_ogi_root" name="OGI Transit" web_icon="ogi_transit,static/description/icon.png"/>
+    <menuitem id="menu_ogi_operations" name="Operations" parent="menu_ogi_root" sequence="10"/>
+</odoo>

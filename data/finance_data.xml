@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_ogi_transaction" model="ir.sequence">
+        <field name="name">Cash Transaction Sequence</field>
+        <field name="code">ogi.transit.transaction</field>
+        <field name="prefix">TX/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <data noupdate="1">
+        <record id="cashbox_usd_china" model="ogi.transit.cashbox">
+            <field name="name">USD China</field>
+            <field name="currency">USD</field>
+            <field name="origin">china</field>
+        </record>
+        
+        <record id="cashbox_usd_dubai" model="ogi.transit.cashbox">
+            <field name="name">USD Dubai</field>
+            <field name="currency">USD</field>
+            <field name="origin">dubai</field>
+        </record>
+        
+        <record id="cashbox_gnf_china" model="ogi.transit.cashbox">
+            <field name="name">GNF China</field>
+            <field name="currency">GNF</field>
+            <field name="origin">china</field>
+        </record>
+        
+        <record id="cashbox_gnf_dubai" model="ogi.transit.cashbox">
+            <field name="name">GNF Dubai</field>
+            <field name="currency">GNF</field>
+            <field name="origin">dubai</field>
+        </record>
+    </data>
+</odoo>

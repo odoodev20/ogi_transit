@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ogi_dashboard_form" model="ir.ui.view">
+        <field name="name">ogi.transit.dashboard.form</field>
+        <field name="model">ogi.transit.dashboard</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="1" delete="0">
+                <sheet>
+                    <div style="background-color: #1a5f98; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h1 style="margin: 0;">OGI Transit Command Center</h1>
+                        <p style="margin: 0; opacity: 0.8;">Live Corporate Snapshot</p>
+                    </div>
+
+                    <!-- CASHBOX AUDIT ALERT -->
+                    <div class="alert alert-danger fw-bold" role="alert" invisible="not cashbox_alert_message" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                        <i class="fa fa-warning" title="Warning Alert" aria-label="Warning Alert"></i> <field name="cashbox_alert_message" readonly="1"/>
+                    </div>
+
+                    <!-- ADMIN CONFIG -->
+                    <group groups="ogi_transit.group_ogi_admin" string="System Configuration">
+                        <field name="audit_days_threshold"/>
+                    </group>
+
+                    <!-- KPI CARDS GRID -->
+                    <div class="row text-center mt-4">
+                        
+                        <!-- Active Containers -->
+                        <div class="col-4 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_logistics">
+                            <div style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; background-color: #f8f9fa;">
+                                <h4 style="color: #555;">Active Containers</h4>
+                                <h2 style="color: #2c3e50; font-weight: bold;"><field name="active_containers"/></h2>
+                            </div>
+                        </div>
+
+                        <!-- Cargo Balance -->
+                        <div class="col-4 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics">
+                            <div style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; background-color: #e3f2fd;">
+                                <h4 style="color: #0277bd;">Cargo Balance (China)</h4>
+                                <h2 style="color: #01579b; font-weight: bold;"><field name="balance_cargo_china"/></h2>
+                            </div>
+                        </div>
+                        <div class="col-4 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics">
+                            <div style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; background-color: #e3f2fd;">
+                                <h4 style="color: #0277bd;">Cargo Balance (Dubai)</h4>
+                                <h2 style="color: #01579b; font-weight: bold;"><field name="balance_cargo_dubai"/></h2>
+                            </div>
+                        </div>
+
+                        <!-- Vaults -->
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <div style="border: 2px solid #28a745; border-radius: 8px; padding: 20px; background-color: #eafaf1;">
+                                <h4 style="color: #1e7e34;">Total Vaults (USD)</h4>
+                                <h2 style="color: #28a745; font-weight: bold;">$<field name="total_cash_usd" widget="monetary"/></h2>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <div style="border: 2px solid #28a745; border-radius: 8px; padding: 20px; background-color: #eafaf1;">
+                                <h4 style="color: #1e7e34;">Total Vaults (GNF)</h4>
+                                <h2 style="color: #28a745; font-weight: bold;">Fr <field name="total_cash_gnf" widget="monetary"/></h2>
+                            </div>
+                        </div>
+
+                        <!-- Open Debts -->
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <div style="border: 1px solid #dc3545; border-radius: 8px; padding: 20px; background-color: #fdf5f6;">
+                                <h4 style="color: #c82333;">Unpaid Invoices (USD)</h4>
+                                <h2 style="color: #dc3545; font-weight: bold;">$<field name="unpaid_invoices_usd" widget="monetary"/></h2>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <div style="border: 1px solid #dc3545; border-radius: 8px; padding: 20px; background-color: #fdf5f6;">
+                                <h4 style="color: #c82333;">Unpaid Invoices (GNF)</h4>
+                                <h2 style="color: #dc3545; font-weight: bold;">Fr <field name="unpaid_invoices_gnf" widget="monetary"/></h2>
+                            </div>
+                        </div>
+
+                        <!-- Margins & Forwarders -->
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant">
+                            <div style="border: 1px solid #6f42c1; border-radius: 8px; padding: 20px; background-color: #f3e5f5;">
+                                <h4 style="color: #6a1b9a;">Gross Margin (GNF)</h4>
+                                <h2 style="color: #4a148c; font-weight: bold;">Fr <field name="marge_brute_gnf" widget="monetary"/></h2>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <div style="border: 1px solid #fd7e14; border-radius: 8px; padding: 20px; background-color: #fff3cd;">
+                                <h4 style="color: #d39e00;">Unpaid Freight Forwarders</h4>
+                                <h2 style="color: #fd7e14; font-weight: bold;"><field name="transitaires_non_soldes"/> Bills</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LISTS / TABLES -->
+                    <notebook>
+                        <page string="Field Merchandise" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_operator">
+                            <field name="terrain_delivery_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="container_id"/>
+                                    <field name="logistics_status" widget="badge" decoration-warning="logistics_status == 'unpacked'" decoration-info="logistics_status == 'storage'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="DRAFT Invoices" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <field name="draft_invoice_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="currency"/>
+                                    <field name="amount_total"/>
+                                    <field name="state" widget="badge" decoration-info="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Recent Containers" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator">
+                            <field name="recent_container_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="type"/>
+                                    <field name="origin"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_dashboard" model="ir.actions.server">
+        <field name="name">Command Center</field>
+        <field name="model_id" ref="model_ogi_transit_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">
+action = model.get_master_dashboard()
+        </field>
+    </record>
+
+    <menuitem id="menu_ogi_dashboard" name="Command Center" parent="menu_ogi_root" action="action_ogi_dashboard" sequence="1" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator"/>
+</odoo>

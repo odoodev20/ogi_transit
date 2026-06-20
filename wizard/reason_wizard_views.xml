@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ogi_reason_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.reason.wizard.form</field>
+        <field name="model">ogi.reason.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Provide Reason">
+                <group>
+                    <field name="reason" placeholder="You must provide a reason for this cancellation..."/>
+                    <field name="transaction_id" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_cancel" string="Confirm Cancellation" type="object" class="btn-danger"/>
+                    <button string="Discard" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
