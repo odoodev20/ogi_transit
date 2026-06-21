@@ -5,15 +5,44 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
+            
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="action_approve_phone_change" string="Approve Phone Change" type="object" class="btn-success" invisible="not pending_phone" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+                </header>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                
+                <button type="object" name="action_view_ogi_invoices" class="oe_stat_button" icon="fa-pencil-square-o" invisible="contact_type != 'customer'">
+                    <div class="o_stat_info">
+                        <span class="o_stat_value"><field name="ogi_display_total"/></span>
+                        <span class="o_stat_text">Total Invoiced</span>
+                    </div>
+                </button>
+
+                <button type="object" name="action_view_ogi_bills" class="oe_stat_button" icon="fa-file-text-o" invisible="contact_type == 'customer'">
+                    <div class="o_stat_info">
+                        <span class="o_stat_value"><field name="ogi_display_total"/></span>
+                        <span class="o_stat_text">Total Billed</span>
+                    </div>
+                </button>
+
+                <button type="object" name="action_view_ogi_receipts" class="oe_stat_button" icon="fa-money">
+                    <field name="ogi_receipt_count" widget="statinfo" string="Payments"/>
+                </button>
+
+            </xpath>
+
             <xpath expr="//field[@name='vat']" position="after">
-                
                 <field name="contact_type"/>
-                
                 <field name="phone_1" required="1"/>
                 <field name="phone_2"/>
                 
-                <field name="is_freight_forwarder" invisible="1"/>
+                <field name="pending_phone" placeholder="Propose new number here..."/>
+                <field name="old_phone" invisible="not old_phone"/>
                 
+                <field name="is_freight_forwarder" invisible="1"/>
             </xpath>
         </field>
     </record>
@@ -35,4 +64,16 @@
             </xpath>
         </field>
     </record>
+
+    <record id="view_partner_form_inherit_ogi_hide_native" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.ogi.hide.native</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.partner_view_buttons"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_view_partner_invoices']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>

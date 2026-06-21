@@ -21,6 +21,7 @@
                     
                     <button name="action_issue" string="Issue Invoice" type="object" class="oe_highlight" invisible="state != 'draft'"/>
                     <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Register Payment" type="action" class="btn-success" invisible="state not in ['issued', 'partial']"/>
+                    <button name="%(ogi_transit.action_ogi_invoice_reminder_wizard)d" string="Log Reminder" type="action" class="btn-warning" icon="fa-phone" invisible="state in ('draft', 'paid', 'canceled')" context="{'default_invoice_id': id}"/>
                     <button name="action_cancel" string="Cancel" type="object" invisible="state == 'canceled'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,issued,partial,paid"/>
                 </header>
@@ -121,6 +122,7 @@
                 <button name="action_view_crm_leads" string="View in CRM" type="object" icon="fa-external-link" class="btn-info" invisible="crm_lead_count == 0"/>
                 
                 <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Pay" type="action" icon="fa-money" class="btn-success" invisible="state in ('draft', 'paid', 'canceled')"/>
+                <button name="%(ogi_transit.action_ogi_invoice_reminder_wizard)d" string="Log Reminder" type="action" icon="fa-phone" class="btn-warning" context="{'default_invoice_id': id}"/>
             </list>
         </field>
     </record>

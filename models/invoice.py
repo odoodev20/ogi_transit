@@ -116,5 +116,18 @@ class OgiTransitInvoice(models.Model):
             inv.state = 'issued'
 
     def action_cancel(self):
-        for inv in self:
-            inv.state = 'canceled'
+        self.ensure_one()
+        
+        # Security Block: Prevent canceling an invoice if money has already been collected
+        if self.amount_paid > 0:
+            raise ValidationError("Validation Error: You cannot cancel an invoice that has already received payments. Please reverse or refund the payments in the Finance menu first.")
+            
+        # Stop the instant cancellation and launch the mandatory reason popup instead
+        return {
+            'name': 'Mandatory Reason for Cancellation',
+            'type': 'ir.actions.act_window',
+            'res_model': 'ogi.reason.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_invoice_id': self.id}
+        }

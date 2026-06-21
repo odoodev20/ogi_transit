@@ -7,34 +7,62 @@ class OgiTransitVendorBill(models.Model):
     _inherit = ['mail.thread']
 
     name = fields.Char(string='Bill Reference', required=True, copy=False, readonly=True, default='Draft')
-    container_id = fields.Many2one('ogi.transit.container', string='Container', required=True, tracking=True)
+    
+    # REMOVED: required=True from database level so "Other Supplier" bills can skip it
+    container_id = fields.Many2one('ogi.transit.container', string='Container', tracking=True)
     partner_id = fields.Many2one('res.partner', string='Vendor', required=True, tracking=True)
 
+    # UPDATED: New Invoice Types
     expense_type = fields.Selection([
-        ('freight', 'Shipping Line / Freight (USD)'),
-        ('customs', 'Customs Authority (GNF)'),
-        ('forwarder', 'Freight Forwarder (GNF)'),
-        ('other', 'Other Expenses')
-    ], string='Expense Type', required=True, tracking=True)
+        ('freight', 'Freight (USD)'),
+        ('customs', 'Customs Clearance (GNF)'),
+        ('bgda', 'BGDA (GNF)'),
+        ('other', 'Other Supplier')
+    ], string='Invoice Type', required=True, tracking=True)
 
     currency = fields.Selection([('USD', 'USD'), ('GNF', 'GNF')], string='Currency', required=True, tracking=True)
     amount_total = fields.Float(string='Total Amount', required=True, tracking=True)
-    
+
     state = fields.Selection([
         ('draft', 'Draft'),
         ('issued', 'Approved'),
         ('paid', 'Paid')
     ], string='Status', default='draft', tracking=True)
 
-    # ==========================================
-    # NEW: Auto-select currency based on Expense Type
-    # ==========================================
-    @api.onchange('expense_type')
-    def _onchange_expense_type(self):
+    # NEW: Strictly enforce Container rules dynamically
+    @api.constrains('expense_type', 'container_id')
+    def _check_mandatory_container(self):
+        for bill in self:
+            if bill.expense_type in ['freight', 'customs', 'bgda'] and not bill.container_id:
+                raise ValidationError("Validation Error: The Container field is mandatory for Freight, Customs Clearance, and BGDA invoices.")
+
+    # NEW: Dynamic Auto-Assignment Engine
+    @api.onchange('expense_type', 'container_id')
+    def _onchange_expense_and_container(self):
+        # 1. Handle Currency
         if self.expense_type == 'freight':
             self.currency = 'USD'
-        elif self.expense_type in ['customs', 'forwarder']:
+        elif self.expense_type in ['customs', 'bgda']:
             self.currency = 'GNF'
+
+        # 2. Handle Dynamic Partner Auto-Assignment
+        if self.expense_type and self.container_id:
+            # Freight (USD) -> Find Cargo China or Cargo Dubai
+            if self.expense_type == 'freight':
+                if self.container_id.origin == 'china':
+                    cargo = self.env['res.partner'].search([('contact_type', '=', 'china_cargo')], limit=1)
+                    self.partner_id = cargo.id if cargo else False
+                elif self.container_id.origin == 'dubai':
+                    cargo = self.env['res.partner'].search([('contact_type', '=', 'dubai_cargo')], limit=1)
+                    self.partner_id = cargo.id if cargo else False
+            
+            # Customs or BGDA -> Assigned Freight Forwarder
+            elif self.expense_type in ['customs', 'bgda']:
+                self.partner_id = self.container_id.forwarder_id.id if self.container_id.forwarder_id else False
+
+        # If user clears expense type or selects 'other', wipe the partner so they can pick manually
+        if self.expense_type == 'other' or not self.expense_type:
+            self.partner_id = False
 
     def action_approve(self):
         for bill in self:
@@ -62,9 +90,6 @@ class OgiVendorPaymentWizard(models.TransientModel):
         domain="[('currency', '=', currency)]"
     )
 
-    # ==========================================
-    # NEW: Forces the current bill's ID into the popup
-    # ==========================================
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
@@ -82,7 +107,7 @@ class OgiVendorPaymentWizard(models.TransientModel):
             'type': 'out',
             'amount': self.amount,
             'partner_id': self.bill_id.partner_id.id,
-            'reference': f"Payout for Vendor Bill: {self.bill_id.name}"
+            'reason': f"Payout for Vendor Bill: {self.bill_id.name}" # FIXED: Changed 'reference' to 'reason'
         })
         txn.action_confirm() 
 

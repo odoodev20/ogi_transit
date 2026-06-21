@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_ogi_root" name="OGI Transit" web_icon="ogi_transit,static/description/icon.png"/>
-    <menuitem id="menu_ogi_operations" name="Operations" parent="menu_ogi_root" sequence="10"/>
+    <menuitem id="menu_ogi_root" name="OGI Transit" web_icon="ogi_transit,static/description/icon.png"
+              groups="ogi_transit.group_ogi_operator,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+
+    <menuitem id="menu_ogi_operations" name="Operations" parent="menu_ogi_root" sequence="10"
+              groups="ogi_transit.group_ogi_operator,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
 </odoo>

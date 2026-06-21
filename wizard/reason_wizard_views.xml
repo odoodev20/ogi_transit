@@ -8,6 +8,8 @@
                 <group>
                     <field name="reason" placeholder="You must provide a reason for this cancellation..."/>
                     <field name="transaction_id" invisible="1"/>
+                    
+                    <field name="invoice_id" invisible="1"/>
                 </group>
                 <footer>
                     <button name="action_confirm_cancel" string="Confirm Cancellation" type="object" class="btn-danger"/>

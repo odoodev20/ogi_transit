@@ -3,3 +3,4 @@ from . import payment_wizard
 from . import pl_import_wizard
 from . import vendor_payment_wizard
 from . import assign_forwarder_wizard
+from . import reminder_wizard

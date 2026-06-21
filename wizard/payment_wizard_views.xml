@@ -9,9 +9,9 @@
                     <group>
                         <field name="invoice_id" readonly="1" force_save="1"/>
                         <field name="payment_method"/>
-                        
                         <field name="available_deposit" invisible="payment_method != 'deposit'"/>
-                        <field name="cashbox_id" invisible="payment_method == 'deposit'" required="payment_method != 'deposit'" options="{'no_create': True}"/>
+                        
+                        <field name="cashbox_id" invisible="payment_method == 'deposit'" readonly="1" force_save="1"/>
                     </group>
                     <group>
                         <label for="amount"/>
@@ -36,5 +36,4 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-
 </odoo>

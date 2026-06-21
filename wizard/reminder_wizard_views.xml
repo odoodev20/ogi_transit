@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ogi_invoice_reminder_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.invoice.reminder.wizard.form</field>
+        <field name="model">ogi.invoice.reminder.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Log Customer Reminder">
+                <group>
+                    <field name="invoice_id" readonly="1" force_save="1"/>
+                    <field name="call_date"/>
+                    <field name="result" widget="radio" options="{'horizontal': true}"/>
+                    <field name="promise_date" invisible="result != 'promise'" required="result == 'promise'"/>
+                </group>
+                <group>
+                    <field name="notes" placeholder="Summarize the discussion..."/>
+                </group>
+                <footer>
+                    <button name="action_log_reminder" string="Save Reminder" type="object" class="btn-primary" icon="fa-save"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_invoice_reminder_wizard" model="ir.actions.act_window">
+        <field name="name">Log Reminder</field>
+        <field name="res_model">ogi.invoice.reminder.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- ========================================== -->
+    <!-- EXTERNAL INVOICE REPORT                    -->
+    <!-- ========================================== -->
     <record id="action_report_invoice_external" model="ir.actions.report">
         <field name="name">External Invoice</field>
         <field name="model">ogi.transit.invoice</field>
@@ -122,16 +125,16 @@
         </t>
     </template>
 
-
+    <!-- ========================================== -->
+    <!-- INTERNAL INVOICE REPORT                    -->
+    <!-- ========================================== -->
     <record id="action_report_invoice_internal" model="ir.actions.report">
         <field name="name">Internal Invoice &amp; CRM</field>
         <field name="model">ogi.transit.invoice</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">ogi_transit.report_invoice_internal_document</field>
         <field name="report_file">ogi_transit.report_invoice_internal_document</field>
-        
         <field name="print_report_name">'Internal_Invoice - %s' % (object.name)</field>
-        
         <field name="binding_model_id" ref="model_ogi_transit_invoice"/>
         <field name="binding_type">report</field>
     </record>
@@ -190,66 +193,122 @@
         </t>
     </template>
 
-
+    <!-- ========================================== -->
+    <!-- NEW: TRANSACTION RECEIPT REPORT            -->
+    <!-- ========================================== -->
     <record id="action_report_receipt" model="ir.actions.report">
         <field name="name">Print Payment Receipt</field>
         <field name="model">ogi.transit.transaction</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">ogi_transit.report_receipt_document</field>
         <field name="report_file">ogi_transit.report_receipt_document</field>
-        
         <field name="print_report_name">'Receipt - %s' % (object.name)</field>
-        
         <field name="binding_model_id" ref="model_ogi_transit_transaction"/>
         <field name="binding_type">report</field>
     </record>
 
     <template id="report_receipt_document">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
+            <t t-foreach="docs" t-as="o">
                 <t t-call="web.basic_layout">
-                    <div class="page" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-                        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+                    <!-- PDF-Optimized CSS -->
+                    <style>
+                        .ogi-receipt { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; page-break-inside: avoid; }
                         
-                        <div style="border: 1px solid #e5e7eb; padding: 50px; border-radius: 12px; margin-top: 30px; position: relative; overflow: hidden;">
-                            
-                            <div style="position: absolute; top: 0; left: 0; right: 0; height: 8px; background-color: #059669;"></div>
-
-                            <div class="row align-items-center mb-5 mt-2">
+                        .ogi-header { background-color: #205c95; color: white; padding: 25px 30px; }
+                        .ogi-title-left { font-size: 20px; font-weight: 900; margin: 0; letter-spacing: 1px; }
+                        .ogi-title-right { font-size: 14px; font-weight: 800; color: #e65025; margin: 0; text-transform: uppercase; letter-spacing: 1px; text-align: right; }
+                        .ogi-divider { border-top: 1px solid rgba(255,255,255,0.2); margin: 15px 0; }
+                        .ogi-ref { font-size: 24px; font-weight: 700; margin: 0; }
+                        .ogi-date { font-size: 12px; opacity: 0.8; margin-top: 3px; }
+                        
+                        .ogi-amount-sec { padding: 30px 20px; text-align: center; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; }
+                        .ogi-amount-label { font-size: 11px; font-weight: 700; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+                        .ogi-amount-val { font-size: 42px; font-weight: 700; margin: 0; color: #1f2937; letter-spacing: 1px; }
+                        .ogi-currency { font-size: 18px; font-weight: 800; color: #059669; margin-top: 5px; margin-bottom: 15px; }
+                        .ogi-badge { background-color: #d1fae5; color: #065f46; padding: 6px 15px; border-radius: 20px; font-weight: 700; font-size: 13px; display: inline-block; }
+                        
+                        .ogi-method-sec { background-color: #f9fafb; padding: 20px; text-align: center; border: 1px solid #e5e7eb; }
+                        .ogi-method-title { font-size: 16px; font-weight: 800; margin: 0; color: #1f2937; }
+                        .ogi-method-sub { font-size: 12px; color: #6b7280; margin-top: 5px; margin-bottom: 0; }
+                        
+                        .ogi-details-sec { padding: 25px 30px; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; }
+                        .ogi-sec-title { font-size: 11px; font-weight: 800; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; }
+                        .ogi-label { font-size: 11px; color: #6b7280; margin: 0 0 2px 0; text-transform: uppercase;}
+                        .ogi-value { font-size: 14px; font-weight: 700; color: #1f2937; margin: 0 0 15px 0; }
+                    </style>
+                    
+                    <div class="page ogi-receipt">
+                        <!-- HEADER -->
+                        <div class="ogi-header">
+                            <div class="row">
+                                <div class="col-6"><p class="ogi-title-left">OGI TRANSIT</p></div>
+                                <div class="col-6"><p class="ogi-title-right">
+                                    <t t-if="o.type == 'in'">Reçu de Paiement</t>
+                                    <t t-else="">Reçu de Décaissement</t>
+                                </p></div>
+                            </div>
+                            <div class="ogi-divider"/>
+                            <div>
+                                <p class="ogi-ref"><span t-field="o.name"/></p>
+                                <p class="ogi-date"><span t-field="o.date" t-options='{"widget": "datetime"}'/></p>
+                            </div>
+                        </div>
+                        
+                        <!-- AMOUNT -->
+                        <div class="ogi-amount-sec">
+                            <p class="ogi-amount-label">
+                                <t t-if="o.type == 'in'">Montant Encaissé</t>
+                                <t t-else="">Montant Décaissé</t>
+                            </p>
+                            <p class="ogi-amount-val">
+                                <!-- Formats the number with spaces (e.g., 8 400 000) -->
+                                <span t-esc="'{0:,.0f}'.format(o.amount).replace(',', ' ')"/>
+                            </p>
+                            <p class="ogi-currency">
+                                <t t-if="o.cashbox_id"><span t-field="o.cashbox_id.currency"/></t>
+                                <t t-else="">GNF/USD</t>
+                            </p>
+                            <div class="ogi-badge">
+                                <i class="fa fa-check-circle" style="margin-right: 5px;"/>
+                                <t t-if="o.type == 'in'">Facture soldée</t>
+                                <t t-else="">Paiement effectué</t>
+                            </div>
+                        </div>
+                        
+                        <!-- METHOD -->
+                        <div class="ogi-method-sec">
+                            <p class="ogi-method-title">
+                                <i class="fa fa-money" style="margin-right: 8px;"/> 
+                                <t t-if="o.cashbox_id"><span t-field="o.cashbox_id.name"/></t>
+                                <t t-else="">Customer Deposit Wallet</t>
+                            </p>
+                            <p class="ogi-method-sub">Espèces remises en main propre / Transfert validé en système</p>
+                        </div>
+                        
+                        <!-- DOSSIER DETAILS -->
+                        <div class="ogi-details-sec">
+                            <p class="ogi-sec-title">Dossier / Motif</p>
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="ogi-label">Motif / Référence de la Transaction</p>
+                                    <p class="ogi-value" style="margin-bottom: 0;"><span t-field="o.reason"/></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CLIENT -->
+                        <div class="ogi-details-sec" style="border-top: none;">
+                            <p class="ogi-sec-title">Client / Partenaire</p>
+                            <div class="row">
                                 <div class="col-6">
-                                    <h1 style="color: #059669; font-weight: 800; letter-spacing: -1px; margin-bottom: 0;">OFFICIAL RECEIPT</h1>
-                                    <p style="font-family: 'DM Mono', monospace; font-size: 1.2rem; color: #6b7280; margin-top: 5px;"><t t-out="doc.name"/></p>
+                                    <p class="ogi-label">Nom</p>
+                                    <p class="ogi-value" style="margin-bottom: 0;"><span t-field="o.partner_id.name"/></p>
                                 </div>
-                                <div class="col-6 text-end">
-                                    <div style="display: inline-block; border: 3px solid #059669; color: #059669; font-weight: 800; font-size: 1.2rem; padding: 10px 20px; border-radius: 8px; text-transform: uppercase; transform: rotate(15deg); opacity: 0.8;">
-                                        PAYMENT RECEIVED
-                                    </div>
+                                <div class="col-6">
+                                    <p class="ogi-label">Téléphone</p>
+                                    <p class="ogi-value" style="margin-bottom: 0;"><span t-field="o.partner_id.phone_1"/></p>
                                 </div>
-                            </div>
-
-                            <div class="p-4" style="background-color: #f9fafb; border-radius: 8px;">
-                                <div class="row fs-5 mb-4 align-items-center">
-                                    <div class="col-4 text-muted text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">Date Received</div>
-                                    <div class="col-8 fw-bold" style="color: #111827;"><t t-out="doc.date.strftime('%d %B %Y - %H:%M')"/></div>
-                                </div>
-                                <div class="row fs-5 mb-4 align-items-center">
-                                    <div class="col-4 text-muted text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">Received From</div>
-                                    <div class="col-8 fw-bold" style="color: #1D5F9E; font-size: 1.4rem;"><t t-out="doc.partner_id.name or 'General Transaction'"/></div>
-                                </div>
-                                <div class="row fs-5 mb-4 align-items-center">
-                                    <div class="col-4 text-muted text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">Amount Received</div>
-                                    <div class="col-8 fw-bold" style="font-family: 'DM Mono', monospace; font-size: 2rem; color: #059669;">
-                                        <t t-out="doc.amount" t-options='{"widget": "float", "precision": 2}'/> <span style="font-size: 1.2rem; color: #6b7280;"><t t-out="doc.currency"/></span>
-                                    </div>
-                                </div>
-                                <div class="row fs-5 mb-2 align-items-center">
-                                    <div class="col-4 text-muted text-uppercase" style="font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">Payment Reference</div>
-                                    <div class="col-8 text-muted"><t t-out="doc.reason or 'General Deposit'"/></div>
-                                </div>
-                            </div>
-
-                            <div class="mt-5 text-center text-muted" style="font-size: 0.9rem;">
-                                <p>This is a computer-generated receipt issued by OGI Transit. No signature is required.</p>
                             </div>
                         </div>
                     </div>

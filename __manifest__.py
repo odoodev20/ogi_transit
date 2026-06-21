@@ -5,7 +5,7 @@
     'author': 'Hasibul Islam',
     'website': 'https://hasibulislam.odoo.com',
     'summary': 'Core operations for OGI Transit: Lots, B/L, Containers',
-    'depends': ['base', 'mail', 'contacts', 'crm'],
+    'depends': ['base', 'mail', 'contacts', 'crm', 'account'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -14,6 +14,7 @@
         'wizard/payment_wizard_views.xml',
         'wizard/assign_forwarder_wizard_views.xml',
         'wizard/pl_import_wizard_views.xml',
+        'wizard/reminder_wizard_views.xml',
         'report/delivery_note_report.xml',
         'report/ogi_reports.xml',
         'views/res_partner_views.xml',

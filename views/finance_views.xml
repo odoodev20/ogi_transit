@@ -9,6 +9,14 @@
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
         </record>
+        <record id="seq_ogi_inter_cash_loan" model="ir.sequence">
+            <field name="name">Inter-Cash Loan Sequence</field>
+            <field name="code">ogi.transit.inter.cash.loan</field>
+            <field name="prefix">LOAN-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
     </data>
 
     <!-- CASHBOX VIEWS -->
@@ -92,13 +100,13 @@
                             </div>
                         </group>
                         <group>
-                            <!-- Wallet Integration Fields -->
-                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'"/>
-                            <field name="is_wallet_transaction" readonly="state != 'draft'"/>
+                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'" required="1"/>
+                            <field name="is_wallet_transaction" readonly="1" force_save="1"/>
                             <field name="date" readonly="state != 'draft'"/>
                         </group>
                     </group>
                     <group>
+                        <field name="receipt_number" readonly="state != 'draft'" required="1"/>
                         <field name="reason" readonly="state != 'draft'"/>
                     </group>
                 </sheet>
@@ -176,9 +184,60 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <record id="view_ogi_inter_cash_loan_form" model="ir.ui.view">
+        <field name="name">ogi.transit.inter.cash.loan.form</field>
+        <field name="model">ogi.transit.inter.cash.loan</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" string="Confirm Loan" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_repay" string="Confirm Repayment" type="object" class="btn-success" invisible="state != 'confirmed'" confirm="Are you sure you want to repay this loan? This will reverse the funds."/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,repaid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Transfer Routing">
+                            <field name="source_cashbox_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="dest_cashbox_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                        </group>
+                        <group string="Financials">
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="reason" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ogi_inter_cash_loan_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.inter.cash.loan.tree</field>
+        <field name="model">ogi.transit.inter.cash.loan</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'" decoration-warning="state == 'confirmed'" decoration-success="state == 'repaid'">
+                <field name="name"/>
+                <field name="source_cashbox_id"/>
+                <field name="dest_cashbox_id"/>
+                <field name="amount"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_ogi_inter_cash_loan" model="ir.actions.act_window">
+        <field name="name">Internal Loans</field>
+        <field name="res_model">ogi.transit.inter.cash.loan</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
     <menuitem id="menu_ogi_finance" name="Finance" parent="menu_ogi_root" sequence="20" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
     
     <menuitem id="menu_ogi_cashboxes" name="Cash Registers" parent="menu_ogi_finance" action="action_ogi_cashbox" sequence="10"/>
     <menuitem id="menu_ogi_transactions" name="Transactions" parent="menu_ogi_finance" action="action_ogi_transaction" sequence="20"/>
     <menuitem id="menu_ogi_cash_audits" name="Cash Audits" parent="menu_ogi_finance" action="action_ogi_cash_audit" sequence="30"/>
+    <menuitem id="menu_ogi_inter_cash_loans" name="Internal Loans" parent="menu_ogi_finance" action="action_ogi_inter_cash_loan" sequence="25"/>
 </odoo>

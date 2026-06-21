@@ -48,4 +48,5 @@
             <field name="implied_ids" eval="[(6, 0, [ref('base.group_user')])]"/>
         </record>
     </data>
+    
 </odoo>

@@ -20,9 +20,9 @@
                 <header>
                     <button name="%(ogi_transit.action_ogi_pl_import_wizard)d" string="Import Packing List" type="action" class="oe_highlight" invisible="type != 'lcl_home' or state == 'closed'" context="{'default_container_id': id}"/>
                     
-                    <button name="action_calculate_prorata" string="Calculate Pro-rata" type="object" class="btn-secondary" invisible="type != 'lcl_home' or state in ('prep', 'created', 'closed') or not has_pl_lines"/>
+                    <button name="action_calculate_prorata" string="Calculate Pro-rata" type="object" class="btn-secondary" invisible="type != 'lcl_home' or state in ('prep', 'created', 'closed') or not has_pl_lines" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance"/>
                     
-                    <button name="action_generate_invoices" string="Generate Invoices" type="object" class="btn-primary" invisible="(type == 'lcl_home' and not has_pl_lines) or type == 'fcl_home' or state in ('prep', 'created', 'closed')"/>
+                    <button name="action_generate_invoices" string="Generate Invoices" type="object" class="btn-primary" invisible="(type == 'lcl_home' and not has_pl_lines) or state in ('prep', 'created', 'closed')" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance"/>
                     
                     <button name="action_issue_delivery_notes" string="Issue Delivery Notes" type="object" class="btn-warning" invisible="not can_issue_delivery_notes or state == 'closed'"/>
                     
@@ -44,21 +44,26 @@
                     <group>
                         <group>
                             <field name="type"/>
-                            <field name="partner_id" invisible="type != 'fcl_awaye'" required="type == 'fcl_awaye'" widget="many2one_avatar"/>
+                            <field name="partner_id" invisible="type not in ('fcl_awaye', 'fcl_home')" required="type in ('fcl_awaye', 'fcl_home')" widget="many2one_avatar"/>
                             <field name="bl_id"/>
                             <field name="origin" readonly="1" force_save="1"/>
                             
-                            <!-- NEW: Forwarder assignment on the form -->
                             <field name="forwarder_id" options="{'no_create': True}"/>
                         </group>
                         <group>
-                            <field name="total_freight_usd" invisible="type == 'fcl_home'" readonly="type == 'lcl_home' and not has_pl_lines"/>
+                            <field name="total_freight_usd" invisible="type == 'fcl_home' and 1==0" readonly="type == 'lcl_home' and not has_pl_lines" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                             
-                            <field name="total_customs_gnf" invisible="type == 'fcl_awaye'" readonly="type == 'lcl_home' and not has_pl_lines"/>
+                            <field name="total_customs_gnf" invisible="type == 'fcl_awaye'" readonly="type == 'lcl_home' and not has_pl_lines" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                            
                             <field name="total_freight_forwarder_gnf" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg" invisible="type == 'fcl_awaye'" readonly="type == 'lcl_home' and not has_pl_lines"/>
-                            <field name="total_cbm" invisible="type == 'fcl_awaye'"/>
                             
-                            <field name="usd_invoice_id" invisible="type != 'fcl_awaye'" readonly="1" force_save="1"/>
+                            <field name="total_cbm" invisible="type != 'lcl_home'"/>
+                            
+                            <field name="usd_invoice_id" invisible="type not in ('fcl_awaye', 'fcl_home')" readonly="1" force_save="1" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                            
+                            <field name="gnf_invoice_id" invisible="type != 'fcl_home'" readonly="1" force_save="1" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                            
+                            <field name="delivery_note_id" invisible="type != 'fcl_home'" readonly="1" force_save="1"/>
                         </group>
                     </group>
                     <notebook invisible="type != 'lcl_home'">
@@ -72,13 +77,17 @@
                                     <field name="qty"/>
                                     <field name="cbm_line" sum="Total CBM"/>
                                     
-                                    <field name="ins_fee" sum="Total INS" column_invisible="parent.origin == 'dubai'"/>
+                                    <field name="ins_fee" sum="Total INS" column_invisible="parent.origin == 'dubai'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     
-                                    <field name="bgda" sum="Total BGDA"/>
-                                    <field name="calculated_usd" sum="Total USD"/>
-                                    <field name="calculated_gnf" sum="Total GNF"/>
-                                    <field name="usd_invoice_id" widget="many2one" optional="show"/>
-                                    <field name="gnf_invoice_id" widget="many2one" optional="show"/>
+                                    <field name="bgda" sum="Total BGDA" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    
+                                    <field name="calculated_usd" sum="Total USD" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    
+                                    <field name="calculated_gnf" sum="Total GNF" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    
+                                    <field name="usd_invoice_id" widget="many2one" optional="show" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    
+                                    <field name="gnf_invoice_id" widget="many2one" optional="show" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     
                                     <field name="delivery_note_id" widget="many2one" optional="show"/>
                                 </list>
