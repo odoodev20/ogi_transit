@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields, api, _
 
 class AssignForwarderWizard(models.TransientModel):
     _name = 'ogi.transit.assign.forwarder.wizard'

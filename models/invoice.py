@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 class CrmLead(models.Model):
@@ -118,11 +118,11 @@ class OgiTransitInvoice(models.Model):
     def action_cancel(self):
         self.ensure_one()
         
-        # Security Block: Prevent canceling an invoice if money has already been collected
-        if self.amount_paid > 0:
-            raise ValidationError("Validation Error: You cannot cancel an invoice that has already received payments. Please reverse or refund the payments in the Finance menu first.")
-            
-        # Stop the instant cancellation and launch the mandatory reason popup instead
+        # REMOVED: The Validation Error that previously blocked paid invoices.
+        # The system will now allow the cancellation and automatically refund 
+        # the amount_paid via the Reason Wizard.
+        
+        # Launch the mandatory reason popup
         return {
             'name': 'Mandatory Reason for Cancellation',
             'type': 'ir.actions.act_window',

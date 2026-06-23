@@ -32,5 +32,17 @@
             <field name="currency">GNF</field>
             <field name="origin">dubai</field>
         </record>
+
+        <record id="cashbox_china_transfer" model="ogi.transit.cashbox">
+            <field name="name">China Transfer Register</field>
+            <field name="currency">USD</field>
+            <field name="origin">china</field>
+        </record>
+        
+        <record id="cashbox_dubai_transfer" model="ogi.transit.cashbox">
+            <field name="name">Dubai Transfer Register</field>
+            <field name="currency">USD</field>
+            <field name="origin">dubai</field>
+        </record>
     </data>
 </odoo>

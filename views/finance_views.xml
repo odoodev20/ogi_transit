@@ -100,7 +100,7 @@
                             </div>
                         </group>
                         <group>
-                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'" required="1"/>
+                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'" required="is_wallet_transaction"/>
                             <field name="is_wallet_transaction" readonly="1" force_save="1"/>
                             <field name="date" readonly="state != 'draft'"/>
                         </group>
@@ -190,9 +190,13 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_confirm" string="Confirm Loan" type="object" class="oe_highlight" invisible="state != 'draft'"/>
-                    <button name="action_repay" string="Confirm Repayment" type="object" class="btn-success" invisible="state != 'confirmed'" confirm="Are you sure you want to repay this loan? This will reverse the funds."/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,repaid"/>
+                    <button name="action_confirm" string="Entrust Funds" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    
+                    <button name="action_mark_sent" string="Confirm Received at Destination" type="object" class="btn-success" invisible="state != 'entrusted'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+                    
+                    <button name="action_repay" string="Reverse Transfer" type="object" class="btn-warning" invisible="state not in ('entrusted', 'sent')" confirm="Are you sure you want to reverse this transfer?"/>
+                    
+                    <field name="state" widget="statusbar" statusbar_visible="draft,entrusted,sent,repaid"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -206,6 +210,9 @@
                         <group string="Financials">
                             <field name="amount" readonly="state != 'draft'"/>
                             <field name="reason" readonly="state != 'draft'"/>
+                            <field name="receipt_number" readonly="state != 'draft'"/>
+                            
+                            <field name="destination_receipt_number" invisible="state == 'draft'" required="state == 'entrusted'" readonly="state in ('sent', 'repaid')"/>
                         </group>
                     </group>
                 </sheet>
@@ -218,7 +225,7 @@
         <field name="name">ogi.transit.inter.cash.loan.tree</field>
         <field name="model">ogi.transit.inter.cash.loan</field>
         <field name="arch" type="xml">
-            <list decoration-info="state == 'draft'" decoration-warning="state == 'confirmed'" decoration-success="state == 'repaid'">
+            <list decoration-info="state == 'draft'" decoration-warning="state == 'entrusted'" decoration-success="state == 'sent'">
                 <field name="name"/>
                 <field name="source_cashbox_id"/>
                 <field name="dest_cashbox_id"/>
@@ -234,10 +241,10 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <menuitem id="menu_ogi_finance" name="Finance" parent="menu_ogi_root" sequence="20" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+    <menuitem id="menu_ogi_finance" name="Finance" parent="menu_ogi_root" sequence="20" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_operator"/>
     
-    <menuitem id="menu_ogi_cashboxes" name="Cash Registers" parent="menu_ogi_finance" action="action_ogi_cashbox" sequence="10"/>
-    <menuitem id="menu_ogi_transactions" name="Transactions" parent="menu_ogi_finance" action="action_ogi_transaction" sequence="20"/>
-    <menuitem id="menu_ogi_cash_audits" name="Cash Audits" parent="menu_ogi_finance" action="action_ogi_cash_audit" sequence="30"/>
-    <menuitem id="menu_ogi_inter_cash_loans" name="Internal Loans" parent="menu_ogi_finance" action="action_ogi_inter_cash_loan" sequence="25"/>
+    <menuitem id="menu_ogi_cashboxes" name="Cash Registers" parent="menu_ogi_finance" action="action_ogi_cashbox" sequence="10" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+    <menuitem id="menu_ogi_transactions" name="Transactions" parent="menu_ogi_finance" action="action_ogi_transaction" sequence="20"/> 
+    <menuitem id="menu_ogi_cash_audits" name="Cash Audits" parent="menu_ogi_finance" action="action_ogi_cash_audit" sequence="30" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+    <menuitem id="menu_ogi_inter_cash_loans" name="Internal Loans" parent="menu_ogi_finance" action="action_ogi_inter_cash_loan" sequence="25" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
 </odoo>

@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 class OgiTransitCashbox(models.Model):
@@ -42,9 +42,10 @@ class OgiTransitTransaction(models.Model):
     receipt_number = fields.Char(string='Received/Sent Number', tracking=True, help="External receipt, transfer ID, or reference number.")
     
     # Link to Customer Wallets
-    partner_id = fields.Many2one('res.partner', string='Customer / Partner', required=True, tracking=True)
+    partner_id = fields.Many2one('res.partner', string='Customer / Partner', tracking=True)
     is_wallet_transaction = fields.Boolean(string='Update Customer Wallet?', default=True, help="Check this to automatically increase/decrease the customer's deposit wallet.")
-    
+
+    invoice_id = fields.Many2one('ogi.transit.invoice', string='Related Invoice', readonly=True)    
 
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -143,12 +144,13 @@ class OgiTransitCashAudit(models.Model):
                 audit.name = f"AUDIT/{audit.cashbox_id.name}/{audit.date}"
             audit.state = 'validated'
 
+
 # ==========================================
 # NEW: INTER-CASH LOAN / INTERNAL TRANSFER ENGINE
 # ==========================================
 class OgiTransitInterCashLoan(models.Model):
     _name = 'ogi.transit.inter.cash.loan'
-    _description = 'Inter-Cashbox Loan'
+    _description = 'Inter-Cashbox Transfer'
     _inherit = ['mail.thread']
 
     name = fields.Char(string='Reference', required=True, copy=False, readonly=True, default='New')
@@ -158,10 +160,17 @@ class OgiTransitInterCashLoan(models.Model):
     amount = fields.Float(string='Amount', required=True, tracking=True)
     reason = fields.Char(string='Reason for Transfer', required=True, tracking=True)
     
+    receipt_number = fields.Char(string='Transfer Receipt / Ref No.', required=True, tracking=True)
+    
+    # NEW: Step 2 verification field
+    destination_receipt_number = fields.Char(string='Destination Receipt No.', tracking=True)
+    
+    # UPDATED: Statuses split into Entrusted (In Transit) and Sent (At Destination)
     state = fields.Selection([
         ('draft', 'Draft'),
-        ('confirmed', 'Active Loan'),
-        ('repaid', 'Repaid')
+        ('entrusted', 'Entrusted (In Transit)'),
+        ('sent', 'Sent (Confirmed at Destination)'),
+        ('repaid', 'Repaid/Reversed')
     ], string='Status', default='draft', tracking=True)
 
     @api.model_create_multi
@@ -174,75 +183,85 @@ class OgiTransitInterCashLoan(models.Model):
     def action_confirm(self):
         for loan in self:
             if loan.amount <= 0:
-                raise ValidationError("The loan amount must be greater than zero.")
-            
+                raise ValidationError("The amount must be greater than zero.")
             if loan.source_cashbox_id == loan.dest_cashbox_id:
                 raise ValidationError("Validation Error: The Source and Destination registers must be different.")
-
-            # BUG FIX 1 (TC-US9.4-02): Block cross-currency transfers
             if loan.source_cashbox_id.currency != loan.dest_cashbox_id.currency:
-                raise ValidationError(
-                    f"Validation Error: Cross-currency transfers are strictly prohibited. "
-                    f"You cannot transfer {loan.source_cashbox_id.currency} into a {loan.dest_cashbox_id.currency} register."
-                )
-                
+                raise ValidationError("Validation Error: Cross-currency transfers are strictly prohibited.")
             if loan.source_cashbox_id.balance < loan.amount:
-                raise ValidationError(f"Insufficient funds in {loan.source_cashbox_id.name} to issue this loan.")
+                raise ValidationError(f"Insufficient funds in {loan.source_cashbox_id.name} to issue this transfer.")
 
-            # BUG FIX 3 (TC-US9.4-01): Debit Source, Credit Destination automatically
             Transaction = self.env['ogi.transit.transaction']
             
-            # Debit Source
+            # Debit Source & Credit Destination instantly
             Transaction.create({
                 'cashbox_id': loan.source_cashbox_id.id,
                 'type': 'out',
                 'amount': loan.amount,
-                'reason': f"Inter-Cash Loan to {loan.dest_cashbox_id.name}",
-                'receipt_number': loan.name, # Fulfills the mandatory receipt number rule!
-                'state': 'done'
+                'reason': _("Transfer to %s") % (loan.dest_cashbox_id.name),
+                'receipt_number': loan.receipt_number,
+                'state': 'done',
+                'is_wallet_transaction': False
             })
             
-            # Credit Destination
             Transaction.create({
                 'cashbox_id': loan.dest_cashbox_id.id,
                 'type': 'in',
                 'amount': loan.amount,
-                'reason': f"Inter-Cash Loan from {loan.source_cashbox_id.name}",
-                'receipt_number': loan.name,
-                'state': 'done'
+                'reason': _("Transfer from %s") % (loan.source_cashbox_id.name),
+                'receipt_number': loan.receipt_number,
+                'state': 'done',
+                'is_wallet_transaction': False
             })
             
-            loan.state = 'confirmed'
+            # Step 1 Complete: Funds are physically entrusted and in transit
+            loan.state = 'entrusted'
+
+    # NEW: Strict Step 2 execution
+    def action_mark_sent(self):
+        from odoo.exceptions import AccessError
+        for loan in self:
+            # Strictly enforce US 9.3 Rights and Permissions
+            is_manager = self.env.user.has_group('ogi_transit.group_ogi_gerant')
+            is_ceo = self.env.user.has_group('ogi_transit.group_ogi_pdg')
+            
+            if not (is_manager or is_ceo):
+                raise AccessError("Access Denied: Only a Manager or CEO can confirm that funds have securely arrived at their destination.")
+            
+            if not loan.destination_receipt_number:
+                raise ValidationError("Validation Error: You must enter the 'Destination Receipt No.' to prove the funds arrived.")
+            
+            loan.state = 'sent'
 
     def action_repay(self):
         for loan in self:
-            if loan.state != 'confirmed':
-                raise ValidationError("Only active loans can be repaid.")
+            if loan.state not in ('entrusted', 'sent'):
+                raise ValidationError("Only active transfers can be reversed.")
             
             if loan.dest_cashbox_id.balance < loan.amount:
-                raise ValidationError(f"Insufficient funds! {loan.dest_cashbox_id.name} does not have enough balance to repay this loan.")
+                raise ValidationError(f"Insufficient funds! {loan.dest_cashbox_id.name} does not have enough balance to reverse this transfer.")
 
-            # BUG FIX 2 (TC-US9.4-03): Reverse the flow to repay the loan
             Transaction = self.env['ogi.transit.transaction']
             
-            # Withdraw from Destination (Repaying)
+            # Reverse the flow
             Transaction.create({
                 'cashbox_id': loan.dest_cashbox_id.id,
                 'type': 'out',
                 'amount': loan.amount,
-                'reason': f"Loan Repayment to {loan.source_cashbox_id.name}",
-                'receipt_number': f"REPAY-{loan.name}",
-                'state': 'done'
+                'reason': _("Transfer Reversal to %s") % (loan.source_cashbox_id.name),
+                'receipt_number': f"REVERSE-{loan.receipt_number}",
+                'state': 'done',
+                'is_wallet_transaction': False
             })
             
-            # Deposit back to Source (Reimbursed)
             Transaction.create({
                 'cashbox_id': loan.source_cashbox_id.id,
                 'type': 'in',
                 'amount': loan.amount,
-                'reason': f"Loan Repayment from {loan.dest_cashbox_id.name}",
-                'receipt_number': f"REPAY-{loan.name}",
-                'state': 'done'
+                'reason': _("Transfer Reversal from %s") % (loan.dest_cashbox_id.name),
+                'receipt_number': f"REVERSE-{loan.receipt_number}",
+                'state': 'done',
+                'is_wallet_transaction': False
             })
             
             loan.state = 'repaid'

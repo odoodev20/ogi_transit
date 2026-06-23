@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ========================================== -->
-    <!-- EXTERNAL INVOICE REPORT                    -->
-    <!-- ========================================== -->
     <record id="action_report_invoice_external" model="ir.actions.report">
         <field name="name">External Invoice</field>
         <field name="model">ogi.transit.invoice</field>
@@ -125,9 +122,6 @@
         </t>
     </template>
 
-    <!-- ========================================== -->
-    <!-- INTERNAL INVOICE REPORT                    -->
-    <!-- ========================================== -->
     <record id="action_report_invoice_internal" model="ir.actions.report">
         <field name="name">Internal Invoice &amp; CRM</field>
         <field name="model">ogi.transit.invoice</field>
@@ -193,9 +187,6 @@
         </t>
     </template>
 
-    <!-- ========================================== -->
-    <!-- NEW: TRANSACTION RECEIPT REPORT            -->
-    <!-- ========================================== -->
     <record id="action_report_receipt" model="ir.actions.report">
         <field name="name">Print Payment Receipt</field>
         <field name="model">ogi.transit.transaction</field>
@@ -211,7 +202,6 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.basic_layout">
-                    <!-- PDF-Optimized CSS -->
                     <style>
                         .ogi-receipt { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; page-break-inside: avoid; }
                         
@@ -239,7 +229,6 @@
                     </style>
                     
                     <div class="page ogi-receipt">
-                        <!-- HEADER -->
                         <div class="ogi-header">
                             <div class="row">
                                 <div class="col-6"><p class="ogi-title-left">OGI TRANSIT</p></div>
@@ -255,14 +244,12 @@
                             </div>
                         </div>
                         
-                        <!-- AMOUNT -->
                         <div class="ogi-amount-sec">
                             <p class="ogi-amount-label">
                                 <t t-if="o.type == 'in'">Montant Encaissé</t>
                                 <t t-else="">Montant Décaissé</t>
                             </p>
                             <p class="ogi-amount-val">
-                                <!-- Formats the number with spaces (e.g., 8 400 000) -->
                                 <span t-esc="'{0:,.0f}'.format(o.amount).replace(',', ' ')"/>
                             </p>
                             <p class="ogi-currency">
@@ -276,7 +263,6 @@
                             </div>
                         </div>
                         
-                        <!-- METHOD -->
                         <div class="ogi-method-sec">
                             <p class="ogi-method-title">
                                 <i class="fa fa-money" style="margin-right: 8px;"/> 
@@ -286,31 +272,84 @@
                             <p class="ogi-method-sub">Espèces remises en main propre / Transfert validé en système</p>
                         </div>
                         
-                        <!-- DOSSIER DETAILS -->
-                        <div class="ogi-details-sec">
-                            <p class="ogi-sec-title">Dossier / Motif</p>
-                            <div class="row">
-                                <div class="col-12">
-                                    <p class="ogi-label">Motif / Référence de la Transaction</p>
-                                    <p class="ogi-value" style="margin-bottom: 0;"><span t-field="o.reason"/></p>
+                        <t t-if="o.invoice_id">
+                            <div class="ogi-details-sec">
+                                <p class="ogi-sec-title">Dossier</p>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="ogi-label">Conteneur</p>
+                                        <p class="ogi-value"><span t-field="o.invoice_id.container_id.name"/></p>
+                                        
+                                        <p class="ogi-label">Type</p>
+                                        <p class="ogi-value">
+                                            <span t-if="o.invoice_id.container_id.type == 'lcl_home'">LCL + Home</span>
+                                            <span t-elif="o.invoice_id.container_id.type == 'fcl_home'">FCL + Home</span>
+                                            <span t-elif="o.invoice_id.container_id.type == 'fcl_awaye'">FCL + Awaye</span>
+                                            <span t-if="o.invoice_id.container_id.origin"> • <t t-esc="str(o.invoice_id.container_id.origin).capitalize()"/></span>
+                                        </p>
+                                        
+                                        <p class="ogi-label">N° FACTURE</p>
+                                        <p class="ogi-value" style="margin-bottom: 0;"><span t-field="o.invoice_id.name"/></p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="ogi-label">B/L</p>
+                                        <p class="ogi-value"><span t-field="o.invoice_id.container_id.bl_id.name"/></p>
+                                        
+                                        <p class="ogi-label">Lot</p>
+                                        <p class="ogi-value"><span t-field="o.invoice_id.container_id.bl_id.lot_id.name"/></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- CLIENT -->
-                        <div class="ogi-details-sec" style="border-top: none;">
-                            <p class="ogi-sec-title">Client / Partenaire</p>
-                            <div class="row">
-                                <div class="col-6">
-                                    <p class="ogi-label">Nom</p>
-                                    <p class="ogi-value" style="margin-bottom: 0;"><span t-field="o.partner_id.name"/></p>
-                                </div>
-                                <div class="col-6">
-                                    <p class="ogi-label">Téléphone</p>
-                                    <p class="ogi-value" style="margin-bottom: 0;"><span t-field="o.partner_id.phone_1"/></p>
+                            
+                            <div class="ogi-details-sec" style="border-top: none;">
+                                <p class="ogi-sec-title">Client</p>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="ogi-label">Nom</p>
+                                        <p class="ogi-value" style="margin-bottom: 0;"><span t-field="o.partner_id.name"/></p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="ogi-label">Mark</p>
+                                        <t t-set="pl_lines" t-value="o.invoice_id.container_id.pl_line_ids.filtered(lambda l: l.partner_id.id == o.partner_id.id)"/>
+                                        <p class="ogi-value" style="margin-bottom: 0;">
+                                            <t t-if="pl_lines"><span t-esc="pl_lines[0].mark"/></t>
+                                            <t t-else="">N/A</t>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </t>
+                        <t t-else="">
+                            <!-- Fallback for general cash deposits and Internal Loans -->
+                            <div class="ogi-details-sec">
+                                <p class="ogi-sec-title">Dossier / Motif</p>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <p class="ogi-label">Motif / Référence de la Transaction</p>
+                                        <p class="ogi-value" style="margin-bottom: 0;"><span t-field="o.reason"/></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ogi-details-sec" style="border-top: none;">
+                                <p class="ogi-sec-title">Client / Partenaire</p>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="ogi-label">Nom</p>
+                                        <p class="ogi-value" style="margin-bottom: 0;">
+                                            <t t-if="o.partner_id"><span t-field="o.partner_id.name"/></t>
+                                            <t t-else="">Transfert Interne / OGI</t>
+                                        </p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="ogi-label">Téléphone</p>
+                                        <p class="ogi-value" style="margin-bottom: 0;">
+                                            <t t-if="o.partner_id"><span t-field="o.partner_id.phone_1"/></t>
+                                            <t t-else="">N/A</t>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
                     </div>
                 </t>
             </t>

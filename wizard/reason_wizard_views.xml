@@ -6,13 +6,13 @@
         <field name="arch" type="xml">
             <form string="Provide Reason">
                 <group>
-                    <field name="reason" placeholder="You must provide a reason for this cancellation..."/>
-                    <field name="transaction_id" invisible="1"/>
+                    <field name="reason" placeholder="You must provide a reason for this action..."/>
                     
+                    <field name="transaction_id" invisible="1"/>
                     <field name="invoice_id" invisible="1"/>
-                </group>
+                    <field name="delivery_id" invisible="1"/> </group>
                 <footer>
-                    <button name="action_confirm_cancel" string="Confirm Cancellation" type="object" class="btn-danger"/>
+                    <button name="action_confirm_cancel" string="Confirm" type="object" class="btn-danger"/>
                     <button string="Discard" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

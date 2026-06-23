@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from markupsafe import Markup
 
 # 1. NEW MODEL: Dedicated Role Audit Log Table

@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from markupsafe import Markup
 
@@ -15,10 +15,12 @@ class OgiInvoicePaymentWizard(models.TransientModel):
         ('deposit', 'Customer Deposit Wallet')
     ], string='Payment Method', required=True, default='cash')
     
+    # NEW: Field to capture the Receipt/Transfer ID from the user
+    receipt_number = fields.Char(string='Receipt/Transfer ID')
+    
     currency = fields.Selection(related='invoice_id.currency', string='Currency', readonly=True)
     amount_residual = fields.Float(related='invoice_id.amount_residual', string='Amount Due', readonly=True)
     
-    # UPDATED: Now a computed field driven by Origin and Currency
     cashbox_id = fields.Many2one(
         'ogi.transit.cashbox', 
         string='Deposit Into Register', 
@@ -28,7 +30,6 @@ class OgiInvoicePaymentWizard(models.TransientModel):
     
     available_deposit = fields.Float(string='Available Wallet Balance', compute='_compute_available_deposit')
 
-    # NEW: Automatically determine the correct register
     @api.depends('invoice_id', 'currency', 'payment_method')
     def _compute_cashbox_id(self):
         for wiz in self:
@@ -40,7 +41,6 @@ class OgiInvoicePaymentWizard(models.TransientModel):
                 origin = wiz.invoice_id.container_id.origin
                 currency = wiz.currency
 
-                # Query the database for the exact matching vault
                 cashbox = self.env['ogi.transit.cashbox'].search([
                     ('origin', '=', origin),
                     ('currency', '=', currency)
@@ -72,11 +72,14 @@ class OgiInvoicePaymentWizard(models.TransientModel):
     def action_register_payment(self):
         if self.amount <= 0:
             raise ValidationError("The payment amount must be strictly greater than zero.")
+            
+        # NEW: Stop the user early if they forgot the receipt number
+        if self.payment_method != 'deposit' and not self.receipt_number:
+            raise ValidationError("You must enter a 'Received/Sent Number' (Receipt/Transfer ID) before confirming this transaction.")
         
         partner = self.invoice_id.partner_id
         is_usd = self.currency == 'USD'
 
-        # SCENARIO A: Paying with the Virtual Wallet
         if self.payment_method == 'deposit':
             if self.amount > self.amount_residual:
                 raise ValidationError("You cannot apply more deposit than the invoice balance due.")
@@ -93,9 +96,7 @@ class OgiInvoicePaymentWizard(models.TransientModel):
             self.invoice_id.message_post(body=Markup(f"<strong>Deposit Applied:</strong> {self.amount} {self.currency} deducted from customer wallet."))
             return
 
-        # SCENARIO B: Paying with Physical Funds
         if not self.cashbox_id:
-            # UPDATED: Better error message if the required vault doesn't exist
             origin_str = str(self.invoice_id.container_id.origin).capitalize()
             raise ValidationError(f"Configuration Error: Could not find an active '{origin_str} {self.currency}' Cash Register. Please create one in the Finance menu first.")
 
@@ -122,12 +123,15 @@ class OgiInvoicePaymentWizard(models.TransientModel):
         if overpayment > 0:
             ref_text += f" + Deposit ({overpayment})"
 
+        # UPDATED: Pass the receipt_number into the Transaction creation
         txn = self.env['ogi.transit.transaction'].create({
             'cashbox_id': self.cashbox_id.id,
             'type': 'in',
             'amount': self.amount,
             'partner_id': partner.id,
-            'reason': f"{ref_text} via {method_label}"
+            'reason': f"{ref_text} via {method_label}",
+            'invoice_id': self.invoice_id.id,
+            'receipt_number': self.receipt_number  # <--- NEW MAPPING
         })
         
         txn.action_confirm()

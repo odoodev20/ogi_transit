@@ -9,8 +9,13 @@
                     <group>
                         <field name="invoice_id" readonly="1" force_save="1"/>
                         <field name="payment_method"/>
-                        <field name="available_deposit" invisible="payment_method != 'deposit'"/>
                         
+                        <!-- NEW: Visible field for the Receipt/Transfer ID -->
+                        <field name="receipt_number" 
+                               invisible="payment_method == 'deposit'" 
+                               required="payment_method != 'deposit'"/>
+                               
+                        <field name="available_deposit" invisible="payment_method != 'deposit'"/>
                         <field name="cashbox_id" invisible="payment_method == 'deposit'" readonly="1" force_save="1"/>
                     </group>
                     <group>

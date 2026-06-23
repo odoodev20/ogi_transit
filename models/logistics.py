@@ -1,6 +1,7 @@
 import re
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from odoo.tools import float_round
 from markupsafe import Markup
 
 # ==========================================
@@ -19,8 +20,24 @@ class OgiTransitPort(models.Model):
     name = fields.Char(string='Port Name', required=True)
     origin = fields.Selection([
         ('china', 'China'),
-        ('dubai', 'Dubai')
-    ], string='Origin Country', required=True)
+        ('dubai', 'Dubai'),
+        ('guinea', 'Guinea (Destination)') # NEW: Allows configuration of arrival ports
+    ], string='Country / Region', required=True)
+
+# ==========================================
+# NEW: GOODS LOCATION REPOSITORY
+# ==========================================
+class OgiTransitLocation(models.Model):
+    _name = 'ogi.transit.location'
+    _description = 'Goods Location'
+    _inherit = ['mail.thread']
+
+    name = fields.Char(string='Location Name', required=True, tracking=True)
+    type = fields.Selection([
+        ('store', 'Store'),
+        ('warehouse', 'Warehouse')
+    ], string='Location Type', required=True, default='warehouse', tracking=True)
+
 
 # ==========================================
 # NEW DELIVERY NOTE MODEL
@@ -32,7 +49,6 @@ class OgiTransitDeliveryNote(models.Model):
 
     name = fields.Char(string='Reference', required=True, copy=False, default='Draft', tracking=True)
     
-    # UPDATED: Detached related fields to support direct FCL Home creation
     pl_line_id = fields.Many2one('ogi.transit.pl.line', string='Packing List Line', ondelete='cascade')
     container_id = fields.Many2one('ogi.transit.container', string='Container', required=True, tracking=True)
     partner_id = fields.Many2one('res.partner', string='Customer', required=True, tracking=True)
@@ -46,12 +62,96 @@ class OgiTransitDeliveryNote(models.Model):
     
     operator_note = fields.Text(string='Delivery Notes / Comments', tracking=True)
 
+    # ==========================================
+    # NEW: Payment Tracking & Authorization Fields
+    # ==========================================
+    payment_status = fields.Selection([
+        ('unpaid', 'Unpaid'),
+        ('partially_paid', 'Partially Paid'),
+        ('paid', 'Paid')
+    ], string='Payment Status', compute='_compute_payment_status', store=True)
+
+    is_authorized = fields.Boolean(string="Authorized for Unpaid Delivery", default=False, tracking=True, copy=False)
+    authorization_reason = fields.Char(string="Authorization Reason", tracking=True, copy=False)
+    authorized_by_id = fields.Many2one('res.users', string="Authorized By", tracking=True, copy=False)
+
+    
+    location_id = fields.Many2one('ogi.transit.location', string='Storage Location', tracking=True)
+
+    
+    goods_description = fields.Char(string='Description of Goods', compute='_compute_goods_description', store=True)
+    
+    
+    @api.depends('pl_line_id', 'container_id')
+    def _compute_goods_description(self):
+        for note in self:
+            if note.pl_line_id:
+                note.goods_description = note.pl_line_id.goods_description
+            elif note.container_id and note.container_id.type in ['fcl_awaye', 'fcl_home']:
+                note.goods_description = note.container_id.goods_description
+            else:
+                note.goods_description = ""
+
+    @api.depends('container_id', 'partner_id')
+    def _compute_payment_status(self):
+        for note in self:
+            # Find all active invoices for this specific customer on this container
+            invoices = self.env['ogi.transit.invoice'].search([
+                ('container_id', '=', note.container_id.id),
+                ('partner_id', '=', note.partner_id.id),
+                ('state', '!=', 'canceled')
+            ])
+            
+            if not invoices:
+                note.payment_status = 'unpaid'
+                continue
+
+            total_amount = sum(invoices.mapped('amount_total'))
+            total_paid = sum(invoices.mapped('amount_paid'))
+
+            if total_paid >= total_amount and total_amount > 0:
+                note.payment_status = 'paid'
+            elif total_paid > 0:
+                note.payment_status = 'partially_paid'
+            else:
+                note.payment_status = 'unpaid'
+
+    def action_authorize_unpaid(self):
+        self.ensure_one()
+        # Launch the mandatory reason popup for Managers
+        return {
+            'name': 'Authorize Unpaid Delivery',
+            'type': 'ir.actions.act_window',
+            'res_model': 'ogi.reason.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_delivery_id': self.id}
+        }
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if not vals.get('name') or vals.get('name') in ('Draft', 'New Note'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('ogi.transit.delivery.note') or 'BL-ERROR'
         return super(OgiTransitDeliveryNote, self).create(vals_list)
+
+    
+    def write(self, vals):
+        for note in self:
+            # 1. Enforce Location rule for 'storage' (Stockage)
+            effective_status = vals.get('logistics_status', note.logistics_status)
+            effective_location = vals.get('location_id', note.location_id.id)
+
+            if effective_status == 'storage' and not effective_location:
+                raise ValidationError("Validation Error: You must select a Storage Location before moving the delivery note to 'In Storage' (Stockage).")
+            
+            # 2. Enforce Payment Authorization rule for 'retrieved'
+            if effective_status == 'retrieved':
+                is_auth = vals.get('is_authorized', note.is_authorized)
+                if note.payment_status != 'paid' and not is_auth:
+                    raise ValidationError("Security Control: You cannot deliver goods that are 'Unpaid' or 'Partially Paid'. A Manager must authorize this exception first.")
+                    
+        return super(OgiTransitDeliveryNote, self).write(vals)
 
 # ==========================================
 # INHERITS FOR EXISTING MODELS
@@ -140,7 +240,9 @@ class OgiTransitBL(models.Model):
     shipping_company_id = fields.Many2one('ogi.transit.shipping.company', string='Shipping Company')
     port_departure_id = fields.Many2one('ogi.transit.port', string='Port of Departure')
     
-    port_arrival = fields.Char(string='Port of Arrival', required=True)
+    # UPDATED: Changed from a Char text field to a Many2one Dropdown!
+    port_arrival_id = fields.Many2one('ogi.transit.port', string='Port of Arrival', required=True)
+    
     departure_date = fields.Date(string='Departure Date', required=True)
     expected_arrival_date = fields.Date(string='Expected Arrival Date', required=True)
     actual_arrival_date = fields.Date(string='Actual Arrival Date')
@@ -165,6 +267,7 @@ class OgiTransitBL(models.Model):
                 if duplicate:
                     raise ValidationError("Validation Error: The Bill of Lading Number must be unique! A B/L with this number already exists in the system.")
 
+
 class OgiTransitContainer(models.Model):
     _name = 'ogi.transit.container'
     _description = 'Container'
@@ -187,6 +290,14 @@ class OgiTransitContainer(models.Model):
         ('released', 'Released'),
         ('closed', 'Closed (Locked)')
     ], string='Status', default='created', tracking=True)
+
+    # ADD inside OgiTransitContainer class:
+    container_size = fields.Selection([
+        ('20', '20"'),
+        ('40', '40"')
+    ], string='Container Size', required=True, tracking=True)
+    
+    goods_description = fields.Char(string='Description of Goods', tracking=True)
     
     bl_id = fields.Many2one('ogi.transit.bl', string='Bill of Lading', required=True, ondelete='restrict')
     origin = fields.Selection(related='bl_id.lot_id.origin', string='Origin', readonly=True)
@@ -220,13 +331,16 @@ class OgiTransitContainer(models.Model):
             if record.name and not re.match(r'^[A-Z]{4}\d{7}$', record.name):
                 raise ValidationError("Invalid Container Number. The ISO format must be exactly 4 uppercase letters followed by 7 digits (e.g., MAEU1234567).")
 
-    # UPDATED: Enforce requirements for FCL Awaye AND FCL Home
-    @api.constrains('type', 'partner_id', 'total_freight_usd', 'total_customs_gnf')
+    # REPLACE existing method in OgiTransitContainer:
+    @api.constrains('type', 'partner_id', 'total_freight_usd', 'total_customs_gnf', 'goods_description')
     def _check_fcl_required_fields(self):
         for container in self:
             if container.type in ['fcl_awaye', 'fcl_home']:
                 if not container.partner_id:
                     raise ValidationError("Validation Error: The 'Customer' field is mandatory for FCL containers.")
+                # NEW REQUIREMENT ADDED HERE:
+                if not container.goods_description:
+                    raise ValidationError("Validation Error: The 'Description of Goods' field is mandatory for FCL containers.")
                 if container.total_freight_usd <= 0:
                     raise ValidationError("Validation Error: The 'Total Freight (USD)' must be strictly greater than zero.")
             if container.type == 'fcl_home':
@@ -243,23 +357,33 @@ class OgiTransitContainer(models.Model):
         for container in self:
             container.total_cbm = sum(container.pl_line_ids.mapped('cbm_line'))
 
+    
     def action_calculate_prorata(self):
         for container in self:
             if container.total_cbm <= 0:
                 raise ValidationError("Total CBM/Line must be greater than zero to calculate prorated amounts.")
             
             for line in container.pl_line_ids:
+                # USD Calculation: Prorated based on Freight USD
                 base_usd = (container.total_freight_usd / container.total_cbm) * line.cbm_line
-                base_gnf = (container.total_customs_gnf / container.total_cbm) * line.cbm_line
                 
+                # BUG FIX: GNF Calculation now correctly uses the Freight Forwarder Cost (GNF)
+                # Formula: (Line CBM / Total CBM) * Total Freight Forwarder Cost (GNF)
+                base_gnf = (container.total_freight_forwarder_gnf / container.total_cbm) * line.cbm_line
+                
+                # Add individual customer-specific fees
                 ins = line.ins_fee if container.origin == 'china' else 0.0
                 raw_usd = base_usd + ins
                 raw_gnf = base_gnf + line.bgda
                 
-                line.calculated_usd = round(raw_usd)
-                line.calculated_gnf = round(raw_gnf / 5000.0) * 5000
+                # Apply Odoo's native financial rounding
+                line.calculated_usd = float_round(raw_usd, precision_digits=0, rounding_method='HALF-UP')
+                
+                # Apply rounding to the nearest 5,000 for GNF
+                line.calculated_gnf = float_round(raw_gnf, precision_rounding=5000, rounding_method='HALF-UP')
 
-    # UPDATED: Now generates invoices for all 3 container types
+
+    # REPLACE existing method in OgiTransitContainer:
     def action_generate_invoices(self):
         for container in self:
             Invoice = self.env['ogi.transit.invoice']
@@ -278,13 +402,13 @@ class OgiTransitContainer(models.Model):
                     'invoice_type': 'fcl_usd',
                     'currency': 'USD',
                     'amount_total': container.total_freight_usd,
-                    'goods_description': f"FCL Awaye Freight - {container.name}",
+                    'goods_description': container.goods_description, # UPDATED: Dynamic Description
                     'state': 'draft'
                 })
                 container.usd_invoice_id = inv_usd.id
                 container.message_post(body=Markup("<strong>Success:</strong> 1 DRAFT USD invoice was generated for this FCL Awaye container."))
 
-            # NEW: FCL HOME LOGIC
+            # FCL HOME LOGIC
             elif container.type == 'fcl_home':
                 if not container.forwarder_id:
                     raise ValidationError("Validation Error: A Freight Forwarder (Transitaire) MUST be assigned before generating invoices.")
@@ -297,7 +421,7 @@ class OgiTransitContainer(models.Model):
                         'invoice_type': 'fcl_usd',
                         'currency': 'USD',
                         'amount_total': container.total_freight_usd,
-                        'goods_description': f"FCL Home Freight - {container.name}",
+                        'goods_description': container.goods_description, # UPDATED: Dynamic Description
                         'state': 'draft'
                     })
                     container.usd_invoice_id = inv_usd.id
@@ -310,7 +434,7 @@ class OgiTransitContainer(models.Model):
                         'invoice_type': 'fcl_gnf',
                         'currency': 'GNF',
                         'amount_total': container.total_customs_gnf,
-                        'goods_description': f"FCL Home Customs Clearance - {container.name}",
+                        'goods_description': container.goods_description, # UPDATED: Dynamic Description
                         'state': 'draft'
                     })
                     container.gnf_invoice_id = inv_gnf.id
@@ -319,7 +443,7 @@ class OgiTransitContainer(models.Model):
                 if invoices_created > 0:
                     container.message_post(body=Markup(f"<strong>Success:</strong> {invoices_created} DRAFT invoice(s) generated for this FCL Home container."))
                 
-            # LCL HOME LOGIC
+            # LCL HOME LOGIC (Remains the same, pulls from pl_line)
             elif container.type == 'lcl_home':
                 if not container.pl_line_ids or any(line.calculated_usd == 0 and line.calculated_gnf == 0 for line in container.pl_line_ids):
                     raise ValidationError("Please run 'Calculate Pro-rata' to preview the amounts before generating invoices.")

@@ -44,10 +44,15 @@
                     <group>
                         <group>
                             <field name="type"/>
+                            
+                            <field name="container_size"/>
+                            
                             <field name="partner_id" invisible="type not in ('fcl_awaye', 'fcl_home')" required="type in ('fcl_awaye', 'fcl_home')" widget="many2one_avatar"/>
+                            
+                            <field name="goods_description" invisible="type == 'lcl_home'" required="type in ('fcl_awaye', 'fcl_home')"/>
+                            
                             <field name="bl_id"/>
                             <field name="origin" readonly="1" force_save="1"/>
-                            
                             <field name="forwarder_id" options="{'no_create': True}"/>
                         </group>
                         <group>
@@ -120,6 +125,9 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <!-- ========================================== -->
+    <!-- B/L VIEWS (Form & Tree)                    -->
+    <!-- ========================================== -->
     <record id="view_ogi_bl_form" model="ir.ui.view">
         <field name="name">ogi.transit.bl.form</field>
         <field name="model">ogi.transit.bl</field>
@@ -137,7 +145,8 @@
                             <field name="lot_origin" invisible="1"/>
                             <field name="shipping_company_id" options="{'no_create': False}"/>
                             <field name="port_departure_id" domain="[('origin', '=', lot_origin)]" options="{'no_create': False}"/>
-                            <field name="port_arrival"/>
+                            
+                            <field name="port_arrival_id" options="{'no_create': False}"/>
                         </group>
                         <group>
                             <field name="departure_date"/>
@@ -156,6 +165,28 @@
         </field>
     </record>
 
+    <record id="view_ogi_bl_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.bl.tree</field>
+        <field name="model">ogi.transit.bl</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="lot_id" optional="show"/>
+                <field name="shipping_company_id" optional="show"/>
+                <field name="port_departure_id" optional="show"/>
+                
+                <field name="port_arrival_id" optional="show"/>
+                
+                <field name="departure_date" optional="show"/>
+                <field name="expected_arrival_date" optional="show"/>
+                <field name="actual_arrival_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- LOT VIEWS (Form & Tree)                    -->
+    <!-- ========================================== -->
     <record id="view_ogi_lot_form" model="ir.ui.view">
         <field name="name">ogi.transit.lot.form</field>
         <field name="model">ogi.transit.lot</field>
@@ -187,6 +218,19 @@
         </field>
     </record>
 
+    <record id="view_ogi_lot_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.lot.tree</field>
+        <field name="model">ogi.transit.lot</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="origin" optional="show"/>
+                <field name="date" optional="show"/>
+                <field name="comment" optional="show"/>
+            </list>
+        </field>
+    </record>
+
     <menuitem id="menu_ogi_containers" name="Containers" parent="menu_ogi_operations" action="action_ogi_container" sequence="30"/>
 
     <record id="action_ogi_lot" model="ir.actions.act_window">
@@ -204,7 +248,7 @@
     <menuitem id="menu_ogi_lots" name="Lots" parent="menu_ogi_operations" action="action_ogi_lot" sequence="10"/>
     <menuitem id="menu_ogi_bls" name="Bills of Lading" parent="menu_ogi_operations" action="action_ogi_bl" sequence="20"/>
 
-    <menuitem id="menu_ogi_configuration" name="Configuration" parent="menu_ogi_root" sequence="100"/>
+    <menuitem id="menu_ogi_configuration" name="Configuration" parent="menu_ogi_root" sequence="100" groups="ogi_transit.group_ogi_admin,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant"/>
 
     <record id="view_ogi_shipping_company_tree" model="ir.ui.view">
         <field name="name">ogi.transit.shipping.company.tree</field>
@@ -265,9 +309,18 @@
             <form>
                 <header>
                     <button name="%(ogi_transit.action_report_delivery_note)d" string="Print Delivery Note" type="action" class="btn-primary" icon="fa-print"/>
+                    
+                    <button name="action_authorize_unpaid" string="Authorize Unpaid Delivery" type="object" class="btn-warning"
+                            invisible="payment_status == 'paid' or is_authorized == True"
+                            groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+                            
                     <field name="logistics_status" widget="statusbar" statusbar_visible="pending,unpacked,storage,retrieved" options="{'clickable': '1'}"/>
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Paid" bg_color="text-bg-success" invisible="payment_status != 'paid'"/>
+                    <widget name="web_ribbon" title="Partially Paid" bg_color="text-bg-warning" invisible="payment_status != 'partially_paid'"/>
+                    <widget name="web_ribbon" title="Unpaid" bg_color="text-bg-danger" invisible="payment_status != 'unpaid'"/>
+
                     <div class="oe_title">
                         <h1><field name="name" readonly="1"/></h1>
                     </div>
@@ -275,9 +328,21 @@
                         <group string="Logistics Information">
                             <field name="container_id" readonly="1"/>
                             <field name="partner_id" readonly="1"/>
+                            
+                            <field name="location_id" invisible="logistics_status not in ('storage', 'retrieved')" required="logistics_status == 'storage'"/>
                         </group>
-                        <group string="Associated Data">
-                            <field name="pl_line_id" readonly="1"/>
+                        <group string="Financial Status">
+                            <field name="payment_status" widget="badge"
+                                   decoration-success="payment_status == 'paid'"
+                                   decoration-warning="payment_status == 'partially_paid'"
+                                   decoration-danger="payment_status == 'unpaid'"/>
+                                   
+                            <field name="is_authorized" readonly="1" invisible="not is_authorized"/>
+                            <field name="authorized_by_id" readonly="1" invisible="not is_authorized"/>
+                            <field name="authorization_reason" readonly="1" invisible="not is_authorized"/>
+                            
+                            <field name="pl_line_id" readonly="1" invisible="not pl_line_id"/>
+                            <field name="goods_description" readonly="1"/>
                         </group>
                     </group>
                     <group string="Operator Comments">
@@ -288,5 +353,44 @@
             </form>
         </field>
     </record>
+
+    <record id="view_ogi_location_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.location.tree</field>
+        <field name="model">ogi.transit.location</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="type" widget="badge" decoration-info="type == 'store'" decoration-success="type == 'warehouse'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ogi_location_form" model="ir.ui.view">
+        <field name="name">ogi.transit.location.form</field>
+        <field name="model">ogi.transit.location</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g., Warehouse A"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="type"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_location" model="ir.actions.act_window">
+        <field name="name">Locations</field>
+        <field name="res_model">ogi.transit.location</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_ogi_location" name="Locations" parent="menu_ogi_configuration" action="action_ogi_location" sequence="25" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
 
 </odoo>
