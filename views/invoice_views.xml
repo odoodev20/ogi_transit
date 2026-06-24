@@ -90,6 +90,9 @@
                 <field name="state" widget="badge"/>
                 
                 <field name="crm_lead_count" column_invisible="1"/>
+
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
                 
                 <button name="action_create_crm_opportunity" string="Send to CRM" type="object" icon="fa-handshake-o" class="btn-warning" invisible="state in ('draft', 'paid', 'canceled') or crm_lead_count &gt; 0"/>
                 <button name="action_view_crm_leads" string="View in CRM" type="object" icon="fa-external-link" class="btn-info" invisible="crm_lead_count == 0"/>
@@ -120,6 +123,9 @@
                 <field name="amount_residual" sum="Total Unpaid" decoration-bf="1"/>
                 <field name="currency"/>
                 <field name="state" widget="badge" decoration-warning="state == 'partial'"/>
+
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
                 
                 <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Pay" type="action" icon="fa-money" class="btn-success" invisible="state in ('draft', 'paid', 'canceled')"/>
                 <button name="%(ogi_transit.action_ogi_invoice_reminder_wizard)d" string="Log Reminder" type="action" icon="fa-phone" class="btn-warning" context="{'default_invoice_id': id}"/>

@@ -34,7 +34,8 @@ class OgiTransitVendorBill(models.Model):
     def _check_mandatory_container(self):
         for bill in self:
             if bill.expense_type in ['freight', 'customs', 'bgda'] and not bill.container_id:
-                raise ValidationError("Validation Error: The Container field is mandatory for Freight, Customs Clearance, and BGDA invoices.")
+                # REFACTORED: Exception wrapped in _()
+                raise ValidationError(_("Validation Error: The Container field is mandatory for Freight, Customs Clearance, and BGDA invoices."))
 
     # NEW: Dynamic Auto-Assignment Engine
     @api.onchange('expense_type', 'container_id')
@@ -69,7 +70,8 @@ class OgiTransitVendorBill(models.Model):
             if bill.name == 'Draft':
                 seq = self.env['ir.sequence'].next_by_code('ogi.transit.vendor.bill') or '0000'
                 year = fields.Date.today().year
-                bill.name = f"VB-{bill.currency}-{year}-{seq}"
+                # REFACTORED: Used %s formatting. No _() needed here as it is a reference code.
+                bill.name = "VB-%s-%s-%s" % (bill.currency, year, seq)
             bill.state = 'issued'
 
 # ==========================================
@@ -99,7 +101,8 @@ class OgiVendorPaymentWizard(models.TransientModel):
 
     def action_register_payout(self):
         if self.cashbox_id.balance < self.amount:
-            raise ValidationError(f"Insufficient Funds! The {self.cashbox_id.name} register only has {self.cashbox_id.balance} {self.currency} available.")
+            # REFACTORED: Converted f-string to %s and wrapped in _()
+            raise ValidationError(_("Insufficient Funds! The %s register only has %s %s available.") % (self.cashbox_id.name, self.cashbox_id.balance, self.currency))
 
         Transaction = self.env['ogi.transit.transaction']
         txn = Transaction.create({
@@ -107,9 +110,11 @@ class OgiVendorPaymentWizard(models.TransientModel):
             'type': 'out',
             'amount': self.amount,
             'partner_id': self.bill_id.partner_id.id,
-            'reason': f"Payout for Vendor Bill: {self.bill_id.name}" # FIXED: Changed 'reference' to 'reason'
+            # REFACTORED: Converted f-string to %s and wrapped in _()
+            'reason': _("Payout for Vendor Bill: %s") % self.bill_id.name # FIXED: Changed 'reference' to 'reason'
         })
         txn.action_confirm() 
 
         self.bill_id.state = 'paid'
-        self.bill_id.message_post(body=f"<strong>Payout Registered</strong><br/>{self.amount} {self.currency} was withdrawn from {self.cashbox_id.name}.")
+        # REFACTORED: Converted f-string to %s and wrapped in _()
+        self.bill_id.message_post(body=_("<strong>Payout Registered</strong><br/>%s %s was withdrawn from %s.") % (self.amount, self.currency, self.cashbox_id.name))

@@ -95,6 +95,7 @@
                                     <field name="gnf_invoice_id" widget="many2one" optional="show" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     
                                     <field name="delivery_note_id" widget="many2one" optional="show"/>
+
                                 </list>
                             </field>
                         </page>
@@ -115,6 +116,10 @@
                 <field name="state" widget="badge"/>
                 <field name="forwarder_id" optional="show"/>
                 <field name="bl_id"/>
+
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
+
             </list>
         </field>
     </record>
@@ -180,6 +185,9 @@
                 <field name="departure_date" optional="show"/>
                 <field name="expected_arrival_date" optional="show"/>
                 <field name="actual_arrival_date" optional="hide"/>
+
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
             </list>
         </field>
     </record>
@@ -227,6 +235,9 @@
                 <field name="origin" optional="show"/>
                 <field name="date" optional="show"/>
                 <field name="comment" optional="show"/>
+                
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
             </list>
         </field>
     </record>

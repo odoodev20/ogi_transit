@@ -1,0 +1,2955 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ogi_transit
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-24 15:12+0000\n"
+"PO-Revision-Date: 2026-06-24 15:12+0000\n"
+"Last-Translator: \n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: ogi_transit
+#: model:ir.actions.report,print_report_name:ogi_transit.action_report_delivery_note
+msgid "'BL - %s' % (object.name)"
+msgstr "'BL - %s' % (object.name)"
+
+#. module: ogi_transit
+#: model:ir.actions.report,print_report_name:ogi_transit.action_report_invoice_internal
+msgid "'Internal_Invoice - %s' % (object.name)"
+msgstr "'Facture_Interne - %s' % (object.name)"
+
+#. module: ogi_transit
+#: model:ir.actions.report,print_report_name:ogi_transit.action_report_invoice_external
+msgid "'Invoice - %s' % (object.name)"
+msgstr "'Facture - %s' % (object.name)"
+
+#. module: ogi_transit
+#: model:ir.actions.report,print_report_name:ogi_transit.action_report_receipt
+msgid "'Receipt - %s' % (object.name)"
+msgstr "'Reçu - %s' % (object.name)"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__container_size__20
+msgid "20\""
+msgstr "20\""
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__container_size__40
+msgid "40\""
+msgstr "40\""
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid ""
+"<br/>\n"
+"                            <strong>Reason:</strong>"
+msgstr ""
+"<br/>\n"
+"                            <strong>Motif :</strong>"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_pl_import_wizard_form
+msgid ""
+"<i class=\"fa fa-exclamation-triangle\"/> Warning: No 'BGDA' column detected in Column H (Row 8).<br/>\n"
+"                    <span style=\"font-weight: normal;\">If you proceed, all BGDA amounts will be imported as 0.0.</span>"
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle\"/> Avertissement : Aucune colonne 'BGDA' détectée dans la colonne H (Ligne 8).<br/>\n"
+"                    <span style=\"font-weight: normal;\">Si vous continuez, tous les montants BGDA seront importés comme 0.0.</span>"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_internal_document
+msgid "<i class=\"fa fa-phone\"/> CRM Collection Data"
+msgstr "<i class=\"fa fa-phone\"/> Données de Recouvrement CRM"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "<i class=\"fa fa-warning\" title=\"Warning Alert\" aria-label=\"Warning Alert\"/>"
+msgstr "<i class=\"fa fa-warning\" title=\"Alerte\" aria-label=\"Alerte\"/>"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_partner_form_inherit_ogi
+msgid "<span class=\"o_stat_text\">Total Billed</span>"
+msgstr "<span class=\"o_stat_text\">Total Facturé</span>"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_partner_form_inherit_ogi
+msgid "<span class=\"o_stat_text\">Total Invoiced</span>"
+msgstr "<span class=\"o_stat_text\">Total Facturé</span>"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "<strong>Authorized by:</strong>"
+msgstr "<strong>Autorisé par :</strong>"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid ""
+"<strong>BGDA / Regulatory Fees</strong><br/>\n"
+"                                        <span class=\"text-muted\" style=\"font-size: 0.9rem;\">Mandatory customs &amp; intellectual property fees</span>"
+msgstr ""
+"<strong>BGDA / Frais Réglementaires</strong><br/>\n"
+"                                        <span class=\"text-muted\" style=\"font-size: 0.9rem;\">Frais de douane obligatoires &amp; propriété intellectuelle</span>"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_internal_document
+msgid "<strong>Customer:</strong>"
+msgstr "<strong>Client :</strong>"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "<strong>Logistics &amp; Transit Services</strong><br/>"
+msgstr "<strong>Services de Logistique &amp; Transit</strong><br/>"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid ""
+"<strong>Thank you for your business.</strong><br/>If you have any questions "
+"about this invoice, please contact OGI Transit support."
+msgstr ""
+"<strong>Merci pour votre confiance.</strong><br/>Si vous avez des questions "
+"concernant cette facture, veuillez contacter le support OGI Transit."
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/models/dashboard.py:0
+msgid ""
+"ALERT: The following cash registers have not been audited in %s days: %s"
+msgstr "ALERTE : Les caisses suivantes n'ont pas été auditées depuis %s jours : %s"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_needaction
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_needaction
+msgid "Action Needed"
+msgstr "Action Requise"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_internal_document
+msgid "Active CRM Leads:"
+msgstr "Pistes CRM Actives :"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__balance_cargo_china
+msgid "Active Cargo (China)"
+msgstr "Cargaison Active (Chine)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__balance_cargo_dubai
+msgid "Active Cargo (Dubai)"
+msgstr "Cargaison Active (Dubaï)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__active_containers
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Active Containers"
+msgstr "Conteneurs Actifs"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_ids
+msgid "Activities"
+msgstr "Activités"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_exception_decoration
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_exception_decoration
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_exception_decoration
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_exception_decoration
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Décoration d'Exception d'Activité"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_state
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_state
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_state
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_state
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_state
+msgid "Activity State"
+msgstr "Statut de l'Activité"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_type_icon
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_type_icon
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_type_icon
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_type_icon
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Icône du Type d'Activité"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__actual_arrival_date
+msgid "Actual Arrival Date"
+msgstr "Date d'Arrivée Réelle"
+
+#. module: ogi_transit
+#: model:res.groups,name:ogi_transit.group_ogi_admin
+msgid "Admin (System Config)"
+msgstr "Admin (Configuration Système)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__amount
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__amount
+msgid "Amount"
+msgstr "Montant"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "Amount ("
+msgstr "Montant ("
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__amount_residual
+msgid "Amount Due"
+msgstr "Montant Dû"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__amount_paid
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "Amount Paid"
+msgstr "Montant Payé"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__amount_paid
+msgid "Amount Repaid"
+msgstr "Montant Remboursé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_vendor_bill_form
+msgid "Approve Bill"
+msgstr "Approuver la Facture"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_partner_form_inherit_ogi
+msgid "Approve Phone Change"
+msgstr "Approuver le Changement de Numéro"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_vendor_bill__state__issued
+msgid "Approved"
+msgstr "Approuvé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid ""
+"Are you sure? This will lock the container and prevent further "
+"modifications."
+msgstr ""
+"Êtes-vous sûr ? Cela verrouillera le conteneur et empêchera toute "
+"modification ultérieure."
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__state__arrived
+msgid "Arrived"
+msgstr "Arrivé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_assign_forwarder_wizard_form
+msgid "Assign"
+msgstr "Assigner"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_attachment_count
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_attachment_count
+msgid "Attachment Count"
+msgstr "Nombre de Pièces Jointes"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__audit_days_threshold
+msgid "Audit Alert Threshold (Days)"
+msgstr "Seuil d'Alerte d'Audit (Jours)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__date
+msgid "Audit Date"
+msgstr "Date d'Audit"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__notes
+msgid "Audit Notes"
+msgstr "Notes d'Audit"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__name
+msgid "Audit Reference"
+msgstr "Référence de l'Audit"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__authorization_reason
+msgid "Authorization Reason"
+msgstr "Motif d'Autorisation"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_delivery_note_form
+msgid "Authorize Unpaid Delivery"
+msgstr "Autoriser la Livraison Impayée"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__authorized_by_id
+msgid "Authorized By"
+msgstr "Autorisé Par"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__is_authorized
+msgid "Authorized for Unpaid Delivery"
+msgstr "Autorisé pour Livraison Impayée"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_res_partner__old_phone
+#: model:ir.model.fields,help:ogi_transit.field_res_users__old_phone
+msgid ""
+"Automatically stores the old phone number in read-only mode after a change "
+"is approved."
+msgstr ""
+"Stocke automatiquement l'ancien numéro de téléphone en mode lecture seule après "
+"l'approbation d'un changement."
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__available_deposit
+msgid "Available Wallet Balance"
+msgstr "Solde du Portefeuille Disponible"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "B/L"
+msgstr "B/L"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__name
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_bl_form
+msgid "B/L No."
+msgstr "N° de B/L"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__bgda
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_vendor_bill__expense_type__bgda
+msgid "BGDA (GNF)"
+msgstr "BGDA (GNF)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__bgda_amount
+msgid "BGDA Amount"
+msgstr "Montant BGDA"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__amount_residual
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "Balance Due"
+msgstr "Reste à Payer"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__name
+msgid "Bill Reference"
+msgstr "Référence de la Facture"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_bl
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__bl_id
+msgid "Bill of Lading"
+msgstr "Connaissement (BL)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "Billed To"
+msgstr "Facturé à"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Bills"
+msgstr "Factures Fournisseur"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_bl
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__bl_ids
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_bls
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_lot_form
+msgid "Bills of Lading"
+msgstr "Connaissements (BLs)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "Bon de Livraison"
+msgstr "Bon de Livraison"
+
+#. module: ogi_transit
+#: model:ir.actions.report,name:ogi_transit.action_report_delivery_note
+msgid "Bon de Livraison (Delivery Note)"
+msgstr "Bon de Livraison (Delivery Note)"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_bulk_assign_forwarder
+msgid "Bulk Assign"
+msgstr "Assignation en Masse"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_assign_forwarder_wizard
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_assign_forwarder_wizard_form
+msgid "Bulk Assign Forwarder"
+msgstr "Assigner un Transitaire en Masse"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__state__canceled
+msgid "CANCELED"
+msgstr "ANNULÉE"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__cbm_line
+msgid "CBM / Line"
+msgstr "CBM / Ligne"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "CBM / Volume"
+msgstr "CBM / Volume"
+
+#. module: ogi_transit
+#: model:res.groups,name:ogi_transit.group_ogi_pdg
+msgid "CEO"
+msgstr "PDG"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_internal_document
+msgid "CONFIDENTIAL - INTERNAL RECORD"
+msgstr "CONFIDENTIEL - DOSSIER INTERNE"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "CONTENEUR"
+msgstr "CONTENEUR"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+msgid "CRM / Collection Tracking"
+msgstr "CRM / Suivi de Recouvrement"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__crm_lead_ids
+msgid "CRM Follow-ups"
+msgstr "Suivis CRM"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+msgid "CRM Leads"
+msgstr "Pistes CRM"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Calculate Pro-rata"
+msgstr "Calculer le Prorata"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__call_date
+msgid "Call Date"
+msgstr "Date d'Appel"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__result
+msgid "Call Result (Status)"
+msgstr "Résultat de l'Appel (Statut)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__can_issue_delivery_notes
+msgid "Can Issue Delivery Notes"
+msgstr "Peut Émettre des Bons de Livraison"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_assign_forwarder_wizard_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_reminder_wizard_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_loan_repayment_wizard_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_payment_wizard_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_pl_import_wizard_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_transaction_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_transit_vendor_payment_wizard_form
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_transaction__state__cancelled
+msgid "Cancelled"
+msgstr "Annulé"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_reason_wizard
+msgid "Capture Mandatory Reason"
+msgstr "Capturer le Motif Obligatoire"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Cargo Balance (China)"
+msgstr "Solde Cargaison (Chine)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Cargo Balance (Dubai)"
+msgstr "Solde Cargaison (Dubaï)"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_invoice_payment_wizard__payment_method__cash
+msgid "Cash"
+msgstr "Espèces"
+
+#. module: ogi_transit
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_cash_audits
+msgid "Cash Audits"
+msgstr "Audits de Caisse"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__cashbox_id
+msgid "Cash Register"
+msgstr "Caisse"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__name
+msgid "Cash Register Name"
+msgstr "Nom de la Caisse"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_cashbox
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_cashboxes
+msgid "Cash Registers"
+msgstr "Caisses"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_transaction
+msgid "Cash Transaction"
+msgstr "Transaction en Espèces"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_transaction
+msgid "Cash Transactions"
+msgstr "Transactions en Espèces"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__cashbox_alert_message
+msgid "Cashbox Alert Message"
+msgstr "Message d'Alerte de Caisse"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_role_log__admin_id
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_users_form_inherit_ogi_audit
+msgid "Changed By"
+msgstr "Modifié Par"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_invoice_payment_wizard__payment_method__check
+msgid "Check"
+msgstr "Chèque"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_transaction__is_wallet_transaction
+msgid ""
+"Check this to automatically increase/decrease the customer's deposit wallet."
+msgstr ""
+"Cochez ceci pour augmenter/diminuer automatiquement le portefeuille de dépôt du client."
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_cashbox__origin__china
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_lot__origin__china
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_port__origin__china
+msgid "China"
+msgstr "Chine"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__res_partner__contact_type__china_cargo
+msgid "China Cargo"
+msgstr "Cargo Chine"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Client"
+msgstr "Client"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Client / Partenaire"
+msgstr "Client / Partenaire"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__state__closed
+msgid "Closed (Locked)"
+msgstr "Fermé (Verrouillé)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__collection_notes
+msgid "Collection Notes"
+msgstr "Notes de Recouvrement"
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/models/dashboard.py:0
+#: model:ir.actions.server,name:ogi_transit.action_ogi_dashboard
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_dashboard
+msgid "Command Center"
+msgstr "Centre de Commandement"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__comment
+msgid "Comment"
+msgstr "Commentaire"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_shipping_company__name
+msgid "Company Name"
+msgstr "Nom de la Compagnie"
+
+#. module: ogi_transit
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_configuration
+msgid "Configuration"
+msgstr "Configuration"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_reason_wizard_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_transaction_form
+msgid "Confirm"
+msgstr "Confirmer"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_pl_import_wizard_form
+msgid "Confirm & Import Anyway"
+msgstr "Confirmer & Importer Quand Même"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_transit_vendor_payment_wizard_form
+msgid "Confirm Payout"
+msgstr "Confirmer le Décaissement"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_inter_cash_loan_form
+msgid "Confirm Received at Destination"
+msgstr "Confirmer la Réception à Destination"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_loan_repayment_wizard_form
+msgid "Confirm Repayment"
+msgstr "Confirmer le Remboursement"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_res_partner
+msgid "Contact"
+msgstr "Contact"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__contact_type
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__contact_type
+msgid "Contact Type"
+msgstr "Type de Contact"
+
+#. module: ogi_transit
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_contacts
+msgid "Contacts"
+msgstr "Contacts"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_container
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__container_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__container_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__container_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__container_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__container_id
+msgid "Container"
+msgstr "Conteneur"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__container_label
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Container Label"
+msgstr "Étiquette du Conteneur"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "Container No."
+msgstr "N° de Conteneur"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__name
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Container Number"
+msgstr "Numéro du Conteneur"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__total_customs_gnf
+msgid "Container Service Price (GNF)"
+msgstr "Prix de Service du Conteneur (GNF)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__container_size
+msgid "Container Size"
+msgstr "Taille du Conteneur"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__type
+msgid "Container Type"
+msgstr "Type de Conteneur"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_container
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__container_ids
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_containers
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_bl_form
+msgid "Containers"
+msgstr "Conteneurs"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Conteneur"
+msgstr "Conteneur"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_port__origin
+msgid "Country / Region"
+msgstr "Pays / Région"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__state__created
+msgid "Created"
+msgstr "Créé"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_assign_forwarder_wizard__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_port__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_role_log__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_shipping_company__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__create_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_assign_forwarder_wizard__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_port__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_role_log__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_shipping_company__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__create_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_bl_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_cashbox_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_cashbox_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_inter_cash_loan_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_collection_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_lot_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_transaction_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_vendor_bill_tree
+msgid "Creation Date"
+msgstr "Date de Création"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__crm_lead_count
+msgid "Crm Lead Count"
+msgstr "Nombre de Pistes CRM"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__currency
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__currency
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__currency
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__currency
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__currency
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__currency
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__currency
+msgid "Currency"
+msgstr "Devise"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__balance
+msgid "Current Balance"
+msgstr "Solde Actuel"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__partner_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__partner_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__partner_id
+#: model:ir.model.fields.selection,name:ogi_transit.selection__res_partner__contact_type__customer
+msgid "Customer"
+msgstr "Client"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__partner_id
+msgid "Customer (FCL)"
+msgstr "Client (FCL)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__partner_id
+msgid "Customer / Partner"
+msgstr "Client / Partenaire"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_invoice_payment_wizard__payment_method__deposit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Customer Deposit Wallet"
+msgstr "Portefeuille de Dépôt Client"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_invoice
+msgid "Customer Invoice"
+msgstr "Facture Client"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_invoice
+msgid "Customer Invoices"
+msgstr "Factures Client"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_vendor_bill__expense_type__customs
+msgid "Customs Clearance (GNF)"
+msgstr "Dédouanement (GNF)"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__state__draft
+msgid "DRAFT"
+msgstr "BROUILLON"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "DRAFT Invoices"
+msgstr "Factures BROUILLON"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_cash_audit
+msgid "Daily Cash Audit"
+msgstr "Audit de Caisse Quotidien"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_cash_audit
+msgid "Daily Cash Audits"
+msgstr "Audits de Caisse Quotidiens"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__date
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_users_form_inherit_ogi_audit
+msgid "Date"
+msgstr "Date"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_delivery_note
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__delivery_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__delivery_note_id
+msgid "Delivery Note"
+msgstr "Bon de Livraison"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__operator_note
+msgid "Delivery Notes / Comments"
+msgstr "Notes de Livraison / Commentaires"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__departure_date
+msgid "Departure Date"
+msgstr "Date de Départ"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__deposit_gnf
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__deposit_gnf
+msgid "Deposit Balance (GNF)"
+msgstr "Solde Dépôt (GNF)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__deposit_usd
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__deposit_usd
+msgid "Deposit Balance (USD)"
+msgstr "Solde Dépôt (USD)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__cashbox_id
+msgid "Deposit Into Register"
+msgstr "Déposer en Caisse"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "Description"
+msgstr "Description"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__goods_description
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__goods_description
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__goods_description
+msgid "Description of Goods"
+msgstr "Description des Marchandises"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "Description of Goods &amp; Services"
+msgstr "Description des Marchandises &amp; Services"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__destination_receipt_number
+msgid "Destination Receipt No."
+msgstr "N° Reçu Destination"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__dest_cashbox_id
+msgid "Destination Register"
+msgstr "Caisse de Destination"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+msgid "Details"
+msgstr "Détails"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__difference
+msgid "Difference"
+msgstr "Différence"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_reason_wizard_form
+msgid "Discard"
+msgstr "Ignorer"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_assign_forwarder_wizard__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_port__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_role_log__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_shipping_company__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__display_name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__display_name
+msgid "Display Name"
+msgstr "Nom d'Affichage"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_transaction__state__done
+msgid "Done"
+msgstr "Terminé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Dossier"
+msgstr "Dossier"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Dossier / Motif"
+msgstr "Dossier / Motif"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_cash_audit__state__draft
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_inter_cash_loan__state__draft
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_transaction__state__draft
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_vendor_bill__state__draft
+msgid "Draft"
+msgstr "Brouillon"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__draft_invoice_ids
+msgid "Draft Invoice"
+msgstr "Facture Brouillon"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_cashbox__origin__dubai
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_lot__origin__dubai
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_port__origin__dubai
+msgid "Dubai"
+msgstr "Dubaï"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__res_partner__contact_type__dubai_cargo
+msgid "Dubai Cargo"
+msgstr "Cargo Dubaï"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "DÉPOTAGE"
+msgstr "DÉPOTAGE"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "DÉTAIL DES MARCHANDISES"
+msgstr "DÉTAIL DES MARCHANDISES"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "EN ATTENTE"
+msgstr "EN ATTENTE"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_inter_cash_loan_form
+msgid "Entrust Funds"
+msgstr "Confier les Fonds"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_inter_cash_loan__state__entrusted
+msgid "Entrusted (In Transit)"
+msgstr "Confié (En Transit)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Espèces remises en main propre / Transfert validé en système"
+msgstr "Espèces remises en main propre / Transfert validé en système"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__import_file
+msgid "Excel File"
+msgstr "Fichier Excel"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__expected_arrival_date
+msgid "Expected Arrival Date"
+msgstr "Date d'Arrivée Prévue"
+
+#. module: ogi_transit
+#: model:ir.actions.report,name:ogi_transit.action_report_invoice_external
+msgid "External Invoice"
+msgstr "Facture Externe"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_transaction__receipt_number
+msgid "External receipt, transfer ID, or reference number."
+msgstr "Reçu externe, ID de transfert, ou numéro de référence."
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "FCL"
+msgstr "FCL"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__type__fcl_awaye
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "FCL + Awaye"
+msgstr "FCL + Awaye"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__type__fcl_home
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "FCL + Home"
+msgstr "FCL + Domicile"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__invoice_type__fcl_gnf
+msgid "FCL Customs Clearance (GNF)"
+msgstr "Dédouanement FCL (GNF)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__delivery_note_id
+msgid "FCL Delivery Note"
+msgstr "Bon de Livraison FCL"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__invoice_type__fcl_usd
+msgid "FCL Freight (USD)"
+msgstr "Fret FCL (USD)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__gnf_invoice_id
+msgid "FCL GNF Invoice"
+msgstr "Facture FCL GNF"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__usd_invoice_id
+msgid "FCL USD Invoice"
+msgstr "Facture FCL USD"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Facture soldée"
+msgstr "Facture soldée"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Field Merchandise"
+msgstr "Marchandise sur Terrain"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__file_name
+msgid "File Name"
+msgstr "Nom du Fichier"
+
+#. module: ogi_transit
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_finance
+msgid "Finance"
+msgstr "Finance"
+
+#. module: ogi_transit
+#: model:res.groups,name:ogi_transit.group_ogi_finance
+msgid "Finance / Cashier"
+msgstr "Finance / Caissier"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_internal_document
+msgid "Finance / Collection Notes:"
+msgstr "Notes Finance / Recouvrement :"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_delivery_note_form
+msgid "Financial Status"
+msgstr "Statut Financier"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_inter_cash_loan_form
+msgid "Financials"
+msgstr "Finances"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_follower_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_follower_ids
+msgid "Followers"
+msgstr "Abonnés"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_partner_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Abonnés (Partenaires)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__activity_type_icon
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__activity_type_icon
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__activity_type_icon
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__activity_type_icon
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Icône Font awesome ex. fa-tasks"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Free text (e.g., 2026)"
+msgstr "Texte libre (ex., 2026)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__container_label
+msgid "Free text label (e.g. 2026)"
+msgstr "Étiquette en texte libre (ex. 2026)"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_vendor_bill__expense_type__freight
+msgid "Freight (USD)"
+msgstr "Fret (USD)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_assign_forwarder_wizard__forwarder_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__forwarder_id
+#: model:ir.model.fields.selection,name:ogi_transit.selection__res_partner__contact_type__freight_forwarder
+msgid "Freight Forwarder"
+msgstr "Transitaire"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__total_freight_forwarder_gnf
+msgid "Freight Forwarder Cost (GNF)"
+msgstr "Coût du Transitaire (GNF)"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_cashbox__currency__gnf
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__currency__gnf
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_vendor_bill__currency__gnf
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "GNF"
+msgstr "GNF"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__gnf_invoice_id
+msgid "GNF Invoice"
+msgstr "Facture GNF"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "GNF/USD"
+msgstr "GNF/USD"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Generate Invoices"
+msgstr "Générer les Factures"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__goods_description
+msgid "Goods Description"
+msgstr "Description de la Marchandise"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_location
+msgid "Goods Location"
+msgstr "Emplacement de la Marchandise"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__marge_brute_gnf
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Gross Margin (GNF)"
+msgstr "Marge Brute (GNF)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_port_search
+msgid "Group By"
+msgstr "Regrouper par"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_port__origin__guinea
+msgid "Guinea (Destination)"
+msgstr "Guinée (Destination)"
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/models/dashboard.py:0
+msgid "HQ Master Dashboard"
+msgstr "Tableau de Bord Principal du Siège"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__has_bgda_warning
+msgid "Has Bgda Warning"
+msgstr "A un Avertissement Bgda"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__has_message
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__has_message
+msgid "Has Message"
+msgstr "A un Message"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__has_pl_lines
+msgid "Has Pl Lines"
+msgstr "A des Lignes PL"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_assign_forwarder_wizard__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_port__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_role_log__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_shipping_company__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__ins_fee
+msgid "INS Fee (USD)"
+msgstr "Frais INS (USD)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "INVOICE"
+msgstr "FACTURE"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__state__issued
+msgid "ISSUED"
+msgstr "ÉMISE"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_exception_icon
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_exception_icon
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_exception_icon
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_exception_icon
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_exception_icon
+msgid "Icon"
+msgstr "Icône"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__activity_exception_icon
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__activity_exception_icon
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__activity_exception_icon
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__activity_exception_icon
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Icône pour indiquer une activité d'exception."
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cash_audit__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cashbox__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_inter_cash_loan__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_location__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_transaction__message_needaction
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_vendor_bill__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si coché, de nouveaux messages requièrent votre attention."
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cash_audit__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cash_audit__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cashbox__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cashbox__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_inter_cash_loan__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_inter_cash_loan__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_location__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_location__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_transaction__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_transaction__message_has_sms_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_vendor_bill__message_has_error
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_vendor_bill__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si coché, certains messages ont une erreur de livraison."
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__ignore_bgda_warning
+msgid "Ignore Bgda Warning"
+msgstr "Ignorer l'Avertissement Bgda"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_pl_import_wizard
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_pl_import_wizard_form
+msgid "Import Packing List"
+msgstr "Importer la Packing List"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_delivery_note__logistics_status__storage
+msgid "In Storage"
+msgstr "En Stockage"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__state__prep
+msgid "In preparation"
+msgstr "En préparation"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_transaction__type__in
+msgid "Incoming (+)"
+msgstr "Entrant (+)"
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/wizard/payment_wizard.py:0
+msgid ""
+"Insufficient funds! %s does not have enough balance to make this repayment."
+msgstr ""
+"Fonds insuffisants ! %s n'a pas un solde suffisant pour effectuer ce remboursement."
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_inter_cash_loan
+msgid "Inter-Cashbox Transfer"
+msgstr "Transfert Inter-Caisses"
+
+#. module: ogi_transit
+#: model:ir.actions.report,name:ogi_transit.action_report_invoice_internal
+msgid "Internal Invoice & CRM"
+msgstr "Facture Interne & CRM"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_inter_cash_loan
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_inter_cash_loans
+msgid "Internal Loans"
+msgstr "Prêts Internes"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__invoice_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__invoice_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__invoice_id
+msgid "Invoice"
+msgstr "Facture"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__name
+msgid "Invoice No."
+msgstr "N° de Facture"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_internal_document
+msgid "Invoice Reference"
+msgstr "Référence de Facture"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__invoice_type
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__expense_type
+msgid "Invoice Type"
+msgstr "Type de Facture"
+
+#. module: ogi_transit
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_invoices
+msgid "Invoices"
+msgstr "Factures"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_is_follower
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_is_follower
+msgid "Is Follower"
+msgstr "Est Abonné"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__is_freight_forwarder
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__is_freight_forwarder
+msgid "Is Freight Forwarder"
+msgstr "Est Transitaire"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Issue Delivery Notes"
+msgstr "Émettre les Bons de Livraison"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+msgid "Issue Invoice"
+msgstr "Émettre la Facture"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__type__lcl_home
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "LCL + Home"
+msgstr "LCL + Domicile"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__invoice_type__lcl_gnf
+msgid "LCL Customs Clearance (GNF)"
+msgstr "Dédouanement LCL (GNF)"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__invoice_type__lcl_usd
+msgid "LCL Freight (USD)"
+msgstr "Fret LCL (USD)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "LOT"
+msgstr "LOT"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_internal_document
+msgid "Last Call Date:"
+msgstr "Date du Dernier Appel :"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__last_call_date
+msgid "Last Collection Call"
+msgstr "Dernier Appel de Recouvrement"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_assign_forwarder_wizard__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_port__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_role_log__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_shipping_company__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__write_uid
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Dernière Mise à Jour par"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_pl_import_wizard__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_assign_forwarder_wizard__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_port__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_role_log__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_shipping_company__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__write_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__write_date
+msgid "Last Updated on"
+msgstr "Dernière Mise à Jour le"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_crm_lead
+msgid "Lead/Opportunity"
+msgstr "Piste/Opportunité"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__name
+msgid "Line Reference"
+msgstr "Référence de Ligne"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_crm_lead__ogi_invoice_id
+msgid "Linked Transit Invoice"
+msgstr "Facture de Transit Liée"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Live Corporate Snapshot"
+msgstr "Aperçu de l'Entreprise en Direct"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__loan_id
+msgid "Loan"
+msgstr "Prêt"
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/wizard/payment_wizard.py:0
+msgid "Loan Repayment from %s"
+msgstr "Remboursement de Prêt de %s"
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/wizard/payment_wizard.py:0
+msgid "Loan Repayment to %s"
+msgstr "Remboursement de Prêt à %s"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__name
+msgid "Location Name"
+msgstr "Nom de l'Emplacement"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__type
+msgid "Location Type"
+msgstr "Type d'Emplacement"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_location
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_location
+msgid "Locations"
+msgstr "Emplacements"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Lock Container File"
+msgstr "Verrouiller le Fichier du Conteneur"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_invoice_reminder_wizard
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_reminder_wizard_form
+msgid "Log Customer Reminder"
+msgstr "Enregistrer un Rappel Client"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_invoice_reminder_wizard
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_collection_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+msgid "Log Reminder"
+msgstr "Enregistrer un Rappel"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+msgid "Log details of phone calls with the customer here..."
+msgstr "Enregistrez ici les détails des appels avec le client..."
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_delivery_note_form
+msgid "Logistics Information"
+msgstr "Informations Logistiques"
+
+#. module: ogi_transit
+#: model:res.groups,name:ogi_transit.group_ogi_logistics
+msgid "Logistics Manager"
+msgstr "Manager Logistique"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__logistics_status
+msgid "Logistics Status"
+msgstr "Statut Logistique"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Lot"
+msgstr "Lot"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__name
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_lot_form
+msgid "Lot No."
+msgstr "N° de Lot"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__lot_origin
+msgid "Lot Origin"
+msgstr "Origine du Lot"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_lot
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_lots
+msgid "Lots"
+msgstr "Lots"
+
+#. module: ogi_transit
+#: model:res.groups,name:ogi_transit.group_ogi_gerant
+msgid "Manager"
+msgstr "Gérant"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__reason
+msgid "Mandatory Reason"
+msgstr "Motif Obligatoire"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__mark
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Mark"
+msgstr "Marque"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_dashboard
+msgid "Master KPI Dashboard"
+msgstr "Tableau de Bord Principal des KPI"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_has_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_has_error
+msgid "Message Delivery error"
+msgstr "Erreur d'Envoi du Message"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_ids
+msgid "Messages"
+msgstr "Messages"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_invoice_payment_wizard__payment_method__mobile
+msgid "Mobile Money"
+msgstr "Mobile Money"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_bl_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_cashbox_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_cashbox_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_inter_cash_loan_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_collection_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_lot_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_transaction_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_vendor_bill_tree
+msgid "Modification Date"
+msgstr "Date de Modification"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Montant Décaissé"
+msgstr "Montant Décaissé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Montant Encaissé"
+msgstr "Montant Encaissé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Motif / Référence de la Transaction"
+msgstr "Motif / Référence de la Transaction"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Mon Échéance d'Activité"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "N/A"
+msgstr "N/A"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "Prochain Événement d'Activité Calendrier"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_date_deadline
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_date_deadline
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_date_deadline
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_date_deadline
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Prochaine Échéance d'Activité"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_summary
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_summary
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_summary
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_summary
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_summary
+msgid "Next Activity Summary"
+msgstr "Résumé de la Prochaine Activité"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_type_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_type_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_type_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_type_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_type_id
+msgid "Next Activity Type"
+msgstr "Type de la Prochaine Activité"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_invoice_reminder_wizard__result__no_answer
+msgid "No Answer / Unreachable"
+msgstr "Sans Réponse / Injoignable"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Nom"
+msgstr "Nom"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_needaction_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Nombre d'Actions"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_has_error_counter
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_has_error_counter
+msgid "Number of errors"
+msgstr "Nombre d'erreurs"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cash_audit__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cashbox__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_inter_cash_loan__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_location__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_transaction__message_needaction_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_vendor_bill__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Nombre de messages nécessitant une action"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cash_audit__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cashbox__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_inter_cash_loan__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_location__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_transaction__message_has_error_counter
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_vendor_bill__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Nombre de messages avec erreur de livraison"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "N° FACTURE"
+msgstr "N° FACTURE"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "OGI TRANSIT"
+msgstr "OGI TRANSIT"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "OGI TRANSIT •"
+msgstr "OGI TRANSIT •"
+
+#. module: ogi_transit
+#: model:ir.module.category,name:ogi_transit.module_category_ogi_transit
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_root
+msgid "OGI Transit"
+msgstr "OGI Transit"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "OGI Transit Command Center"
+msgstr "Centre de Commandement OGI Transit"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "OGI Transit Logo"
+msgstr "Logo OGI Transit"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__ogi_bill_count
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__ogi_bill_count
+msgid "Ogi Bill Count"
+msgstr "Nombre de Factures Fournisseur Ogi"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__ogi_invoice_count
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__ogi_invoice_count
+msgid "Ogi Invoice Count"
+msgstr "Nombre de Factures Client Ogi"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__ogi_receipt_count
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__ogi_receipt_count
+msgid "Ogi Receipt Count"
+msgstr "Nombre de Reçus Ogi"
+
+#. module: ogi_transit
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_operations
+msgid "Operations"
+msgstr "Opérations"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_delivery_note_form
+msgid "Operator Comments"
+msgstr "Commentaires Opérateur"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__origin
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__origin
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__origin
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_port_search
+msgid "Origin"
+msgstr "Origine"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_vendor_bill__expense_type__other
+msgid "Other Supplier"
+msgstr "Autre Fournisseur"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__res_partner__contact_type__other
+msgid "Other Suppliers"
+msgstr "Autres Fournisseurs"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_transaction__type__out
+msgid "Outgoing (-)"
+msgstr "Sortant (-)"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__state__paid
+msgid "PAID IN FULL"
+msgstr "PAYÉ INTÉGRALEMENT"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__state__partial
+msgid "PARTIALLY PAID"
+msgstr "PARTIELLEMENT PAYÉ"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Packing List"
+msgstr "Colisage / Packing List"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_pl_import_wizard
+msgid "Packing List Import Wizard"
+msgstr "Assistant d'Import de Packing List"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_pl_line
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__pl_line_id
+msgid "Packing List Line"
+msgstr "Ligne de Packing List"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__pl_line_ids
+msgid "Packing List Lines"
+msgstr "Lignes de Packing List"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_delivery_note__payment_status__paid
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_inter_cash_loan__state__paid
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_vendor_bill__state__paid
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_delivery_note_form
+msgid "Paid"
+msgstr "Payé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Paiement effectué"
+msgstr "Paiement effectué"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__lot_id
+msgid "Parent Lot"
+msgstr "Lot Parent"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_delivery_note__payment_status__partially_paid
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_inter_cash_loan__state__partial
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_delivery_note_form
+msgid "Partially Paid"
+msgstr "Partiellement Payé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_collection_tree
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_tree
+msgid "Pay"
+msgstr "Payer"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__amount
+msgid "Payment Amount"
+msgstr "Montant du Paiement"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__payment_method
+msgid "Payment Method"
+msgstr "Mode de Paiement"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_invoice_reminder_wizard__result__promise
+msgid "Payment Promise"
+msgstr "Promesse de Paiement"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__payment_status
+msgid "Payment Status"
+msgstr "Statut du Paiement"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_partner_form_inherit_ogi
+msgid "Payments"
+msgstr "Paiements"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__amount
+msgid "Payout Amount"
+msgstr "Montant du Décaissement"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__pending_deliveries
+msgid "Pending Deliveries"
+msgstr "Livraisons en Attente"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__pending_phone
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__pending_phone
+msgid "Pending Phone Request"
+msgstr "Demande de Numéro en Attente"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_delivery_note__logistics_status__pending
+msgid "Pending at Port"
+msgstr "En Attente au Port"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__phone_1
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__phone_1
+msgid "Phone 1"
+msgstr "Téléphone 1"
+
+#. module: ogi_transit
+#: model:ir.model.constraint,message:ogi_transit.constraint_res_partner_phone_1_unique
+msgid ""
+"Phone 1 must be unique in the database. This is the primary identifier."
+msgstr ""
+"Le Téléphone 1 doit être unique dans la base. C'est l'identifiant principal."
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__phone_2
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__phone_2
+msgid "Phone 2"
+msgstr "Téléphone 2"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__actual_counted
+msgid "Physical Cash Counted"
+msgstr "Espèces Physiques Comptées"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_cashbox
+msgid "Physical Cash Register"
+msgstr "Caisse Physique"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_pl_import_wizard_form
+msgid ""
+"Please upload the standard LCL Packing List Excel file. The system will "
+"automatically update the Master Financial totals and create missing "
+"customers using their Phone Number."
+msgstr ""
+"Veuillez uploader le fichier Excel standard de la Packing List LCL. Le système "
+"mettra automatiquement à jour les totaux financiers et créera les "
+"clients manquants en utilisant leur Numéro de Téléphone."
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_port__name
+msgid "Port Name"
+msgstr "Nom du Port"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_port
+msgid "Port Repository"
+msgstr "Référentiel des Ports"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__port_arrival_id
+msgid "Port of Arrival"
+msgstr "Port d'Arrivée"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__port_departure_id
+msgid "Port of Departure"
+msgstr "Port de Départ"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_port
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_port
+msgid "Ports"
+msgstr "Ports"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__old_phone
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__old_phone
+msgid "Previous Phone"
+msgstr "Ancien Téléphone"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_delivery_note_form
+msgid "Print Delivery Note"
+msgstr "Imprimer le Bon de Livraison"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+msgid "Print External Invoice"
+msgstr "Imprimer la Facture Externe"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+msgid "Print Internal Record"
+msgstr "Imprimer le Dossier Interne"
+
+#. module: ogi_transit
+#: model:ir.actions.report,name:ogi_transit.action_report_receipt
+msgid "Print Payment Receipt"
+msgstr "Imprimer le Reçu de Paiement"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_transaction_form
+msgid "Print Receipt"
+msgstr "Imprimer le Reçu"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__calculated_gnf
+msgid "Pro-rata Customs (GNF)"
+msgstr "Prorata Douane (GNF)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__calculated_usd
+msgid "Pro-rata Freight (USD)"
+msgstr "Prorata Fret (USD)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_pl_import_wizard_form
+msgid "Process File"
+msgstr "Traiter le Fichier"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__promise_date
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__promise_to_pay_date
+msgid "Promise to Pay Date"
+msgstr "Date de Promesse de Paiement"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_internal_document
+msgid "Promise to Pay:"
+msgstr "Promesse de Paiement :"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_res_partner__pending_phone
+#: model:ir.model.fields,help:ogi_transit.field_res_users__pending_phone
+msgid "Propose a new primary phone number here."
+msgstr "Proposer un nouveau numéro de téléphone principal ici."
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_partner_form_inherit_ogi
+msgid "Propose new number here..."
+msgstr "Proposer un nouveau numéro ici..."
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_reason_wizard_form
+msgid "Provide Reason"
+msgstr "Fournir un Motif"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__qty
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "QTY"
+msgstr "QTE"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__rating_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__rating_ids
+msgid "Ratings"
+msgstr "Évaluations"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__state__ready
+msgid "Ready for release"
+msgstr "Prêt pour la livraison"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__reason
+msgid "Reason / Memo"
+msgstr "Motif / Mémo"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__reason
+msgid "Reason for Transfer"
+msgstr "Motif du Transfert"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_payment_wizard__receipt_number
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__receipt_number
+msgid "Receipt/Transfer ID"
+msgstr "ID de Reçu/Transfert"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__receipt_number
+msgid "Received/Sent Number"
+msgstr "Numéro Reçu/Envoyé"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__recent_container_ids
+msgid "Recent Container"
+msgstr "Conteneur Récent"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Recent Containers"
+msgstr "Conteneurs Récents"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__name
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__name
+msgid "Reference"
+msgstr "Référence"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_invoice_reminder_wizard__result__refusal
+msgid "Refusal / Dispute"
+msgstr "Refus / Litige"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_invoice_payment_wizard
+msgid "Register Invoice Payment"
+msgstr "Enregistrer le Paiement de la Facture"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_loan_repayment_wizard
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_loan_repayment_wizard_form
+msgid "Register Loan Repayment"
+msgstr "Enregistrer un Remboursement de Prêt"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_payment_wizard
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_payment_wizard_form
+msgid "Register Payment"
+msgstr "Enregistrer le Paiement"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_transit_vendor_payment_wizard
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_transit_vendor_payment_wizard_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_vendor_bill_form
+msgid "Register Payout"
+msgstr "Enregistrer un Décaissement"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_loan_repayment_wizard
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_inter_cash_loan_form
+msgid "Register Repayment"
+msgstr "Enregistrer le Remboursement"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_vendor_payment_wizard
+msgid "Register Vendor Payout"
+msgstr "Enregistrer le Décaissement Fournisseur"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__cashbox_id
+msgid "Register to Audit"
+msgstr "Caisse à Auditer"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__invoice_id
+msgid "Related Invoice"
+msgstr "Facture Liée"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_container__state__released
+msgid "Released"
+msgstr "Libéré"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__amount_residual
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__amount_residual
+msgid "Remaining Balance"
+msgstr "Solde Restant"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_loan_repayment_wizard__amount
+msgid "Repayment Amount"
+msgstr "Montant du Remboursement"
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/wizard/payment_wizard.py:0
+msgid "Repayment amount must be strictly greater than zero."
+msgstr "Le montant du remboursement doit être strictement supérieur à zéro."
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_cash_audit_form
+msgid "Required if there is a discrepancy..."
+msgstr "Requis s'il y a un écart..."
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__activity_user_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__activity_user_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__activity_user_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__activity_user_id
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__activity_user_id
+msgid "Responsible User"
+msgstr "Utilisateur Responsable"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_delivery_note__logistics_status__retrieved
+msgid "Retrieved by Customer"
+msgstr "Récupéré par le Client"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Reçu de Décaissement"
+msgstr "Reçu de Décaissement"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Reçu de Paiement"
+msgstr "Reçu de Paiement"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__ogi_role_log_ids
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_users_form_inherit_ogi_audit
+msgid "Role Audit Trail"
+msgstr "Piste d'Audit des Rôles"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_role_log__details
+msgid "Role Changes"
+msgstr "Modifications de Rôle"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "RÉCUPÉRÉE"
+msgstr "RÉCUPÉRÉE"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__message_has_sms_error
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Erreur d'envoi SMS"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "STOCKAGE"
+msgstr "STOCKAGE"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_reminder_wizard_form
+msgid "Save Reminder"
+msgstr "Sauvegarder le Rappel"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_tree
+msgid "Send to CRM"
+msgstr "Envoyer au CRM"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_inter_cash_loan__state__sent
+msgid "Sent (Active)"
+msgstr "Envoyé (Actif)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_dashboard__audit_days_threshold
+msgid "Set by Admin"
+msgstr "Défini par l'Admin"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_shipping_company
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_shipping_company
+msgid "Shipping Companies"
+msgstr "Compagnies Maritimes"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__shipping_company_id
+msgid "Shipping Company"
+msgstr "Compagnie Maritime"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_shipping_company
+msgid "Shipping Company Repository"
+msgstr "Référentiel des Compagnies Maritimes"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__source_cashbox_id
+msgid "Source Register"
+msgstr "Caisse Source"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__state
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__state
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__state
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__state
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__state
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__state
+msgid "Status"
+msgstr "Statut"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__activity_state
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__activity_state
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__activity_state
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__activity_state
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Statut basé sur les activités\n"
+"En retard : L'échéance est déjà dépassée\n"
+"Aujourd'hui : L'activité est pour aujourd'hui\n"
+"Planifiée : Activités futures."
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__location_id
+msgid "Storage Location"
+msgstr "Emplacement de Stockage"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_location__type__store
+msgid "Store"
+msgstr "Magasin"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_reminder_wizard_form
+msgid "Summarize the discussion..."
+msgstr "Résumer la discussion..."
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_invoice_reminder_wizard__notes
+msgid "Summary / Notes"
+msgstr "Résumé / Notes"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "System Configuration"
+msgstr "Configuration Système"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__expected_balance
+msgid "System Expected Balance"
+msgstr "Solde Attendu par le Système"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__terrain_delivery_ids
+msgid "Terrain Delivery"
+msgstr "Livraisons sur Terrain"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_cashbox_form
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_vendor_bill_tree
+msgid "Total"
+msgstr "Total"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__amount_total
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__amount_total
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_external_document
+msgid "Total Amount"
+msgstr "Montant Total"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Total BGDA"
+msgstr "Total BGDA"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Total CBM"
+msgstr "Total CBM"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__total_cbm
+msgid "Total CBM/Line"
+msgstr "Total CBM/Ligne"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__total_freight_usd
+msgid "Total Freight (USD)"
+msgstr "Total Fret (USD)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Total GNF"
+msgstr "Total GNF"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Total INS"
+msgstr "Total INS"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_res_partner__ogi_display_total
+#: model:ir.model.fields,field_description:ogi_transit.field_res_users__ogi_display_total
+msgid "Total Invoiced/Billed"
+msgstr "Total Facturé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "Total USD"
+msgstr "Total USD"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_collection_tree
+msgid "Total Unpaid"
+msgstr "Total Impayé"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_invoice_internal_document
+msgid "Total Unpaid Exposure"
+msgstr "Exposition Totale Impayée"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__total_cash_gnf
+msgid "Total Vault GNF"
+msgstr "Total Caisse GNF"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__total_cash_usd
+msgid "Total Vault USD"
+msgstr "Total Caisse USD"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Total Vaults (GNF)"
+msgstr "Total Caisses (GNF)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Total Vaults (USD)"
+msgstr "Total Caisses (USD)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_reason_wizard__transaction_id
+msgid "Transaction"
+msgstr "Transaction"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_cashbox_form
+msgid "Transaction Ledger"
+msgstr "Grand Livre des Transactions"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__transaction_ids
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_transactions
+msgid "Transactions"
+msgstr "Transactions"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__receipt_number
+msgid "Transfer Receipt / Ref No."
+msgstr "Reçu de Transfert / N° Réf."
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_inter_cash_loan_form
+msgid "Transfer Routing"
+msgstr "Routage du Transfert"
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/models/finance.py:0
+msgid "Transfer from %s"
+msgstr "Transfert depuis %s"
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/models/finance.py:0
+msgid "Transfer to %s"
+msgstr "Transfert vers %s"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Transfert Interne / OGI"
+msgstr "Transfert Interne / OGI"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__base_amount
+msgid "Transit / Customs Amount"
+msgstr "Montant Transit / Douane"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_form
+msgid "Transit Amount"
+msgstr "Montant Transit"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_partner_form_inherit_ogi_transit
+msgid "Transit Deposits"
+msgstr "Dépôts Transit"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_lot
+msgid "Transit Lot"
+msgstr "Lot de Transit"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__type
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Type"
+msgstr "Type"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_delivery_note_form
+msgid ""
+"Type any specific delivery instructions or physical damage notes here..."
+msgstr ""
+"Tapez ici toute instruction spécifique de livraison ou notes sur des dommages physiques..."
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__activity_exception_decoration
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__activity_exception_decoration
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__activity_exception_decoration
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__activity_exception_decoration
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Type d'activité d'exception enregistrée."
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_receipt_document
+msgid "Téléphone"
+msgstr "Téléphone"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_cashbox__currency__usd
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_invoice__currency__usd
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_vendor_bill__currency__usd
+msgid "USD"
+msgstr "USD"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_pl_line__usd_invoice_id
+msgid "USD Invoice"
+msgstr "Facture USD"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_delivery_note__logistics_status__unpacked
+msgid "Unpacked (Depoting)"
+msgstr "Dépoté"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_delivery_note__payment_status__unpaid
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_delivery_note_form
+msgid "Unpaid"
+msgstr "Impayé"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__unpaid_invoices_gnf
+msgid "Unpaid Customer Debt (GNF)"
+msgstr "Dette Client Impayée (GNF)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__unpaid_invoices_usd
+msgid "Unpaid Customer Debt (USD)"
+msgstr "Dette Client Impayée (USD)"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_invoice_collection
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_invoice_collection
+msgid "Unpaid Follow-ups"
+msgstr "Suivis d'Impayés"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_dashboard__transitaires_non_soldes
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Unpaid Freight Forwarders"
+msgstr "Transitaires Non Soldés"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Unpaid Invoices (GNF)"
+msgstr "Factures Impayées (GNF)"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_dashboard_form
+msgid "Unpaid Invoices (USD)"
+msgstr "Factures Impayées (USD)"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__is_wallet_transaction
+msgid "Update Customer Wallet?"
+msgstr "Mettre à jour le portefeuille client ?"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_res_users
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_role_log__user_id
+msgid "User"
+msgstr "Utilisateur"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_role_log
+msgid "User Role Audit Log"
+msgstr "Journal d'Audit des Rôles Utilisateur"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_cash_audit_form
+msgid "Validate Audit"
+msgstr "Valider l'Audit"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_payment_wizard_form
+msgid "Validate Payment"
+msgstr "Valider le Paiement"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_cash_audit__state__validated
+msgid "Validated"
+msgstr "Validé"
+
+#. module: ogi_transit
+#: model:ir.model.constraint,message:ogi_transit.constraint_ogi_transit_bl_name_unique
+msgid "Validation Error: The Bill of Lading Number must be unique!"
+msgstr "Erreur de Validation : Le Numéro de Connaissement doit être unique !"
+
+#. module: ogi_transit
+#: model:ir.model.constraint,message:ogi_transit.constraint_ogi_transit_lot_name_unique
+msgid "Validation Error: The Lot Number must be unique!"
+msgstr "Erreur de Validation : Le Numéro de Lot doit être unique !"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__partner_id
+msgid "Vendor"
+msgstr "Fournisseur"
+
+#. module: ogi_transit
+#: model:ir.model,name:ogi_transit.model_ogi_transit_vendor_bill
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__bill_id
+msgid "Vendor Bill"
+msgstr "Facture Fournisseur"
+
+#. module: ogi_transit
+#: model:ir.actions.act_window,name:ogi_transit.action_ogi_vendor_bill
+#: model:ir.ui.menu,name:ogi_transit.menu_ogi_vendor_bills
+msgid "Vendor Bills"
+msgstr "Factures Fournisseur"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_invoice_tree
+msgid "View in CRM"
+msgstr "Voir dans le CRM"
+
+#. module: ogi_transit
+#: model:ir.model.fields.selection,name:ogi_transit.selection__ogi_transit_location__type__warehouse
+msgid "Warehouse"
+msgstr "Entrepôt"
+
+#. module: ogi_transit
+#: model:res.groups,name:ogi_transit.group_ogi_operator
+msgid "Warehouse Operator"
+msgstr "Opérateur d'Entrepôt"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_transit_vendor_payment_wizard_form
+msgid ""
+"Warning: Confirming this payout will instantly withdraw funds from the "
+"corresponding Cash Register."
+msgstr ""
+"Avertissement : Confirmer ce décaissement retirera instantanément les fonds de "
+"la caisse correspondante."
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_bl__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cash_audit__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_cashbox__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_container__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_delivery_note__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_inter_cash_loan__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_invoice__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_location__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_lot__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_transaction__website_message_ids
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_bill__website_message_ids
+msgid "Website Messages"
+msgstr "Messages du Site Web"
+
+#. module: ogi_transit
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_bl__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cash_audit__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_cashbox__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_container__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_delivery_note__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_inter_cash_loan__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_invoice__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_location__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_lot__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_transaction__website_message_ids
+#: model:ir.model.fields,help:ogi_transit.field_ogi_transit_vendor_bill__website_message_ids
+msgid "Website communication history"
+msgstr "Historique de communication du site web"
+
+#. module: ogi_transit
+#: model:ir.model.fields,field_description:ogi_transit.field_ogi_transit_vendor_payment_wizard__cashbox_id
+msgid "Withdraw From Register"
+msgstr "Retirer de la Caisse"
+
+#. module: ogi_transit
+#. odoo-python
+#: code:addons/ogi_transit/wizard/payment_wizard.py:0
+msgid "You cannot repay more than the remaining balance."
+msgstr "Vous ne pouvez pas rembourser plus que le solde restant."
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_reason_wizard_form
+msgid "You must provide a reason for this action..."
+msgstr "Vous devez fournir un motif pour cette action..."
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "colis"
+msgstr "colis"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_cashbox_form
+msgid "e.g., Dubai USD Vault"
+msgstr "ex. Coffre USD Dubaï"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_container_form
+msgid "e.g., MAEU1234567"
+msgstr "ex. MAEU1234567"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.view_ogi_location_form
+msgid "e.g., Warehouse A"
+msgstr "ex. Entrepôt A"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "m³"
+msgstr "m³"
+
+#. module: ogi_transit
+#: model_terms:ir.ui.view,arch_db:ogi_transit.report_delivery_note_document
+msgid "⚠ UNPAID DELIVERY"
+msgstr "⚠ LIVRAISON IMPAYÉE"

@@ -41,4 +41,35 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
+
+    <record id="view_ogi_loan_repayment_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.loan.repayment.wizard.form</field>
+        <field name="model">ogi.loan.repayment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Register Loan Repayment">
+                <group>
+                    <field name="loan_id" readonly="1" force_save="1"/>
+                    <field name="receipt_number"/>
+                    <label for="amount"/>
+                    <div class="o_row">
+                        <field name="amount" class="oe_inline"/>
+                        <field name="currency" class="oe_inline"/>
+                    </div>
+                    <field name="amount_residual"/>
+                </group>
+                <footer>
+                    <button name="action_register_repayment" string="Confirm Repayment" type="object" class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_loan_repayment_wizard" model="ir.actions.act_window">
+        <field name="name">Register Repayment</field>
+        <field name="res_model">ogi.loan.repayment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
 </odoo>

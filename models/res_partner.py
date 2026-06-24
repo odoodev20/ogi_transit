@@ -50,31 +50,33 @@ class ResPartner(models.Model):
             partner.ogi_receipt_count = len(receipts)
 
             # 4. Format the Display Total dynamically
+            # REFACTORED: Removed f-strings and used standard string formatting for parser safety
             if partner.contact_type == 'customer':
                 usd_total = sum(invoices.filtered(lambda i: i.currency == 'USD').mapped('amount_total'))
                 gnf_total = sum(invoices.filtered(lambda i: i.currency == 'GNF').mapped('amount_total'))
                 
                 if usd_total > 0 and gnf_total > 0:
-                    partner.ogi_display_total = f"${usd_total:,.0f} | {gnf_total:,.0f} FG"
+                    partner.ogi_display_total = "$%s | %s FG" % (format(usd_total, ",.0f"), format(gnf_total, ",.0f"))
                 elif usd_total > 0:
-                    partner.ogi_display_total = f"${usd_total:,.0f}"
+                    partner.ogi_display_total = "$%s" % format(usd_total, ",.0f")
                 else:
-                    partner.ogi_display_total = f"{gnf_total:,.0f} FG"
+                    partner.ogi_display_total = "%s FG" % format(gnf_total, ",.0f")
             else:
                 usd_total = sum(bills.filtered(lambda b: b.currency == 'USD').mapped('amount_total'))
                 gnf_total = sum(bills.filtered(lambda b: b.currency == 'GNF').mapped('amount_total'))
                 
                 if usd_total > 0 and gnf_total > 0:
-                    partner.ogi_display_total = f"${usd_total:,.0f} | {gnf_total:,.0f} FG"
+                    partner.ogi_display_total = "$%s | %s FG" % (format(usd_total, ",.0f"), format(gnf_total, ",.0f"))
                 elif usd_total > 0:
-                    partner.ogi_display_total = f"${usd_total:,.0f}"
+                    partner.ogi_display_total = "$%s" % format(usd_total, ",.0f")
                 else:
-                    partner.ogi_display_total = f"{gnf_total:,.0f} FG"
+                    partner.ogi_display_total = "%s FG" % format(gnf_total, ",.0f")
 
     def action_view_ogi_invoices(self):
         self.ensure_one()
         return {
-            'name': 'Customer Invoices',
+            # REFACTORED: Wrapped in _()
+            'name': _('Customer Invoices'),
             'type': 'ir.actions.act_window',
             'res_model': 'ogi.transit.invoice',
             'view_mode': 'list,form',
@@ -85,7 +87,8 @@ class ResPartner(models.Model):
     def action_view_ogi_bills(self):
         self.ensure_one()
         return {
-            'name': 'Vendor Bills',
+            # REFACTORED: Wrapped in _()
+            'name': _('Vendor Bills'),
             'type': 'ir.actions.act_window',
             'res_model': 'ogi.transit.vendor.bill',
             'view_mode': 'list,form',
@@ -96,7 +99,8 @@ class ResPartner(models.Model):
     def action_view_ogi_receipts(self):
         self.ensure_one()
         return {
-            'name': 'Payments & Receipts',
+            # REFACTORED: Wrapped in _()
+            'name': _('Payments & Receipts'),
             'type': 'ir.actions.act_window',
             'res_model': 'ogi.transit.transaction',
             'view_mode': 'list,form',
@@ -123,13 +127,15 @@ class ResPartner(models.Model):
             is_admin = self.env.user.has_group('ogi_transit.group_ogi_admin')
 
             if not (is_manager or is_ceo or is_admin):
-                raise AccessError("Access Denied: Only a Manager or CEO can approve a phone number change.")
+                # REFACTORED: Wrapped in _()
+                raise AccessError(_("Access Denied: Only a Manager or CEO can approve a phone number change."))
 
             if partner.pending_phone:
                 partner.old_phone = partner.phone_1
                 partner.phone_1 = partner.pending_phone
                 partner.pending_phone = False
-                partner.message_post(body=Markup(f"<strong>Phone Number Updated:</strong> Changed from {partner.old_phone} to {partner.phone_1} by Management."))
+                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+                partner.message_post(body=Markup(_("<strong>Phone Number Updated:</strong> Changed from %s to %s by Management.")) % (partner.old_phone, partner.phone_1))
 
     def write(self, vals):
         protected_types = ['china_cargo', 'dubai_cargo']
@@ -141,18 +147,21 @@ class ResPartner(models.Model):
             for partner in self:
                 if partner.phone_1 and partner.phone_1 != vals['phone_1']:
                     if not (is_admin or is_manager or is_ceo):
-                        raise AccessError(
+                        # REFACTORED: Wrapped in _()
+                        raise AccessError(_(
                             "Access Denied: You do not have permission to directly change a customer's primary phone number. "
                             "Please enter the new number in the 'Pending Phone Request' field and ask a Manager or CEO to approve it."
-                        )
+                        ))
 
         if not is_admin:
             for partner in self:
                 if partner.contact_type in protected_types:
-                    raise AccessError("Access Denied: Only Admin users can edit China Cargo or Dubai Cargo contacts.")
+                    # REFACTORED: Wrapped in _()
+                    raise AccessError(_("Access Denied: Only Admin users can edit China Cargo or Dubai Cargo contacts."))
 
             if vals.get('contact_type') in protected_types:
-                raise AccessError("Access Denied: Only Admin users can classify a contact as China Cargo or Dubai Cargo.")
+                # REFACTORED: Wrapped in _()
+                raise AccessError(_("Access Denied: Only Admin users can classify a contact as China Cargo or Dubai Cargo."))
 
         return super().write(vals)
 
@@ -161,5 +170,6 @@ class ResPartner(models.Model):
         if not self.env.user.has_group('ogi_transit.group_ogi_admin'):
             for partner in self:
                 if partner.contact_type in protected_types:
-                    raise AccessError("Access Denied: Only Admin users can delete China Cargo or Dubai Cargo contacts.")
+                    # REFACTORED: Wrapped in _()
+                    raise AccessError(_("Access Denied: Only Admin users can delete China Cargo or Dubai Cargo contacts."))
         return super().unlink()

@@ -41,6 +41,13 @@
                             </div>
                         </div>
 
+                        <div class="col-4 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator">
+                            <div style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; background-color: #e2e3e5;">
+                                <h4 style="color: #383d41;">Goods in the Field</h4>
+                                <h2 style="color: #383d41; font-weight: bold;"><field name="pending_deliveries"/></h2>
+                            </div>
+                        </div>
+
                         <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
                             <div style="border: 2px solid #28a745; border-radius: 8px; padding: 20px; background-color: #eafaf1;">
                                 <h4 style="color: #1e7e34;">Total Vaults (USD)</h4>
@@ -50,30 +57,30 @@
                         <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
                             <div style="border: 2px solid #28a745; border-radius: 8px; padding: 20px; background-color: #eafaf1;">
                                 <h4 style="color: #1e7e34;">Total Vaults (GNF)</h4>
-                                <h2 style="color: #28a745; font-weight: bold;">Fr <field name="total_cash_gnf" widget="monetary"/></h2>
+                                <h2 style="color: #28a745; font-weight: bold;">GNF <field name="total_cash_gnf" widget="monetary"/></h2>
                             </div>
                         </div>
 
-                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator">
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
                             <div style="border: 1px solid #dc3545; border-radius: 8px; padding: 20px; background-color: #fdf5f6;">
                                 <h4 style="color: #c82333;">Unpaid Invoices (USD)</h4>
                                 <h2 style="color: #dc3545; font-weight: bold;">$<field name="unpaid_invoices_usd" widget="monetary"/></h2>
                             </div>
                         </div>
-                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator">
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
                             <div style="border: 1px solid #dc3545; border-radius: 8px; padding: 20px; background-color: #fdf5f6;">
                                 <h4 style="color: #c82333;">Unpaid Invoices (GNF)</h4>
-                                <h2 style="color: #dc3545; font-weight: bold;">Fr <field name="unpaid_invoices_gnf" widget="monetary"/></h2>
+                                <h2 style="color: #dc3545; font-weight: bold;">GNF <field name="unpaid_invoices_gnf" widget="monetary"/></h2>
                             </div>
                         </div>
 
                         <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant">
                             <div style="border: 1px solid #6f42c1; border-radius: 8px; padding: 20px; background-color: #f3e5f5;">
                                 <h4 style="color: #6a1b9a;">Gross Margin (GNF)</h4>
-                                <h2 style="color: #4a148c; font-weight: bold;">Fr <field name="marge_brute_gnf" widget="monetary"/></h2>
+                                <h2 style="color: #4a148c; font-weight: bold;">GNF <field name="marge_brute_gnf" widget="monetary"/></h2>
                             </div>
                         </div>
-                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator">
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
                             <div style="border: 1px solid #fd7e14; border-radius: 8px; padding: 20px; background-color: #fff3cd;">
                                 <h4 style="color: #d39e00;">Unpaid Freight Forwarders</h4>
                                 <h2 style="color: #fd7e14; font-weight: bold;"><field name="transitaires_non_soldes"/> Bills</h2>

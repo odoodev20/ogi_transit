@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, AccessError
 
 class OgiTransitCashbox(models.Model):
     _name = 'ogi.transit.cashbox'
@@ -64,16 +64,16 @@ class OgiTransitTransaction(models.Model):
         for tx in self:
             # NEW: Strict block if no receipt number is provided
             if not tx.receipt_number:
-                raise ValidationError("Validation Error: You must enter a 'Received/Sent Number' (Receipt/Transfer ID) before confirming this transaction.")
+                raise ValidationError(_("Validation Error: You must enter a 'Received/Sent Number' (Receipt/Transfer ID) before confirming this transaction."))
 
             if tx.amount <= 0:
-                raise ValidationError("The transaction amount must be strictly greater than zero.")
+                raise ValidationError(_("The transaction amount must be strictly greater than zero."))
             
             # Strict balance check for outgoing funds from the cashbox
             if tx.type == 'out':
                 future_balance = tx.cashbox_id.balance - tx.amount
                 if future_balance < 0:
-                    raise ValidationError(f"Insufficient funds! You cannot withdraw {tx.amount}. The {tx.cashbox_id.name} register only has {tx.cashbox_id.balance} available.")
+                    raise ValidationError(_("Insufficient funds! You cannot withdraw %s. The %s register only has %s available.") % (tx.amount, tx.cashbox_id.name, tx.cashbox_id.balance))
             
             # Customer Wallet Math Integration
             if tx.is_wallet_transaction and tx.partner_id:
@@ -82,7 +82,7 @@ class OgiTransitTransaction(models.Model):
                         tx.partner_id.deposit_usd += tx.amount
                     elif tx.type == 'out':
                         if tx.partner_id.deposit_usd < tx.amount:
-                            raise ValidationError(f"Wallet Error: {tx.partner_id.name} only has {tx.partner_id.deposit_usd} USD in their deposit wallet.")
+                            raise ValidationError(_("Wallet Error: %s only has %s USD in their deposit wallet.") % (tx.partner_id.name, tx.partner_id.deposit_usd))
                         tx.partner_id.deposit_usd -= tx.amount
                 
                 elif tx.currency == 'GNF':
@@ -90,7 +90,7 @@ class OgiTransitTransaction(models.Model):
                         tx.partner_id.deposit_gnf += tx.amount
                     elif tx.type == 'out':
                         if tx.partner_id.deposit_gnf < tx.amount:
-                            raise ValidationError(f"Wallet Error: {tx.partner_id.name} only has {tx.partner_id.deposit_gnf} GNF in their deposit wallet.")
+                            raise ValidationError(_("Wallet Error: %s only has %s GNF in their deposit wallet.") % (tx.partner_id.name, tx.partner_id.deposit_gnf))
                         tx.partner_id.deposit_gnf -= tx.amount
 
             tx.state = 'done'
@@ -98,7 +98,7 @@ class OgiTransitTransaction(models.Model):
     def action_cancel(self):
         # Keeps your existing Reason Wizard logic intact
         return {
-            'name': 'Mandatory Reason for Cancellation',
+            'name': _('Mandatory Reason for Cancellation'),
             'type': 'ir.actions.act_window',
             'res_model': 'ogi.reason.wizard',
             'view_mode': 'form',
@@ -138,10 +138,11 @@ class OgiTransitCashAudit(models.Model):
     def action_validate_audit(self):
         for audit in self:
             if audit.difference != 0 and not audit.notes:
-                raise ValidationError("There is a cash discrepancy! You must provide an explanation in the Audit Notes before validating.")
+                raise ValidationError(_("There is a cash discrepancy! You must provide an explanation in the Audit Notes before validating."))
             
             if audit.name == 'New':
-                audit.name = f"AUDIT/{audit.cashbox_id.name}/{audit.date}"
+                # Refactored f-string to a standard python format. No _() translation here to ensure references remain uniform across languages.
+                audit.name = "AUDIT/%s/%s" % (audit.cashbox_id.name, audit.date)
             audit.state = 'validated'
 
 
@@ -164,14 +165,25 @@ class OgiTransitInterCashLoan(models.Model):
     
     # NEW: Step 2 verification field
     destination_receipt_number = fields.Char(string='Destination Receipt No.', tracking=True)
+
+    # ADD: New fields for partial payment tracking
+    amount_paid = fields.Float(string='Amount Repaid', default=0.0, tracking=True)
+    amount_residual = fields.Float(string='Remaining Balance', compute='_compute_residual', store=True)
     
     # UPDATED: Statuses split into Entrusted (In Transit) and Sent (At Destination)
     state = fields.Selection([
         ('draft', 'Draft'),
         ('entrusted', 'Entrusted (In Transit)'),
-        ('sent', 'Sent (Confirmed at Destination)'),
-        ('repaid', 'Repaid/Reversed')
+        ('sent', 'Sent (Active)'),
+        ('partial', 'Partially Paid'), # NEW
+        ('paid', 'Paid')               # REPLACED 'repaid'
     ], string='Status', default='draft', tracking=True)
+
+    # ADD: The compute method for the remaining balance
+    @api.depends('amount', 'amount_paid')
+    def _compute_residual(self):
+        for loan in self:
+            loan.amount_residual = loan.amount - loan.amount_paid
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -182,14 +194,18 @@ class OgiTransitInterCashLoan(models.Model):
 
     def action_confirm(self):
         for loan in self:
+            # BUG FIX: Strict backend validation for the Sending Receipt Number
+            if not loan.receipt_number:
+                raise ValidationError(_("Validation Error: You must enter a 'Transfer Receipt / Ref No.' before entrusting these funds."))
+                
             if loan.amount <= 0:
-                raise ValidationError("The amount must be greater than zero.")
+                raise ValidationError(_("The amount must be greater than zero."))
             if loan.source_cashbox_id == loan.dest_cashbox_id:
-                raise ValidationError("Validation Error: The Source and Destination registers must be different.")
+                raise ValidationError(_("Validation Error: The Source and Destination registers must be different."))
             if loan.source_cashbox_id.currency != loan.dest_cashbox_id.currency:
-                raise ValidationError("Validation Error: Cross-currency transfers are strictly prohibited.")
+                raise ValidationError(_("Validation Error: Cross-currency transfers are strictly prohibited."))
             if loan.source_cashbox_id.balance < loan.amount:
-                raise ValidationError(f"Insufficient funds in {loan.source_cashbox_id.name} to issue this transfer.")
+                raise ValidationError(_("Insufficient funds in %s to issue this transfer.") % loan.source_cashbox_id.name)
 
             Transaction = self.env['ogi.transit.transaction']
             
@@ -219,49 +235,15 @@ class OgiTransitInterCashLoan(models.Model):
 
     # NEW: Strict Step 2 execution
     def action_mark_sent(self):
-        from odoo.exceptions import AccessError
         for loan in self:
             # Strictly enforce US 9.3 Rights and Permissions
             is_manager = self.env.user.has_group('ogi_transit.group_ogi_gerant')
             is_ceo = self.env.user.has_group('ogi_transit.group_ogi_pdg')
             
             if not (is_manager or is_ceo):
-                raise AccessError("Access Denied: Only a Manager or CEO can confirm that funds have securely arrived at their destination.")
+                raise AccessError(_("Access Denied: Only a Manager or CEO can confirm that funds have securely arrived at their destination."))
             
             if not loan.destination_receipt_number:
-                raise ValidationError("Validation Error: You must enter the 'Destination Receipt No.' to prove the funds arrived.")
+                raise ValidationError(_("Validation Error: You must enter the 'Destination Receipt No.' to prove the funds arrived."))
             
             loan.state = 'sent'
-
-    def action_repay(self):
-        for loan in self:
-            if loan.state not in ('entrusted', 'sent'):
-                raise ValidationError("Only active transfers can be reversed.")
-            
-            if loan.dest_cashbox_id.balance < loan.amount:
-                raise ValidationError(f"Insufficient funds! {loan.dest_cashbox_id.name} does not have enough balance to reverse this transfer.")
-
-            Transaction = self.env['ogi.transit.transaction']
-            
-            # Reverse the flow
-            Transaction.create({
-                'cashbox_id': loan.dest_cashbox_id.id,
-                'type': 'out',
-                'amount': loan.amount,
-                'reason': _("Transfer Reversal to %s") % (loan.source_cashbox_id.name),
-                'receipt_number': f"REVERSE-{loan.receipt_number}",
-                'state': 'done',
-                'is_wallet_transaction': False
-            })
-            
-            Transaction.create({
-                'cashbox_id': loan.source_cashbox_id.id,
-                'type': 'in',
-                'amount': loan.amount,
-                'reason': _("Transfer Reversal from %s") % (loan.dest_cashbox_id.name),
-                'receipt_number': f"REVERSE-{loan.receipt_number}",
-                'state': 'done',
-                'is_wallet_transaction': False
-            })
-            
-            loan.state = 'repaid'

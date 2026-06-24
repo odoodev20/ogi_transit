@@ -47,11 +47,13 @@ class ResUsers(models.Model):
                     
                     if added_ids:
                         added_names = Group.browse(list(added_ids)).mapped('name')
-                        msg += f"<li><span style='color: #28a745;'><strong>Added:</strong> {', '.join(added_names)}</span></li>"
+                        # REFACTORED: Removed f-string, wrapped in _() and used %s
+                        msg += _("<li><span style='color: #28a745;'><strong>Added:</strong> %s</span></li>") % ', '.join(added_names)
                         
                     if removed_ids:
                         removed_names = Group.browse(list(removed_ids)).mapped('name')
-                        msg += f"<li><span style='color: #dc3545;'><strong>Removed:</strong> {', '.join(removed_names)}</span></li>"
+                        # REFACTORED: Removed f-string, wrapped in _() and used %s
+                        msg += _("<li><span style='color: #dc3545;'><strong>Removed:</strong> %s</span></li>") % ', '.join(removed_names)
                         
                     msg += "</ul>"
                     

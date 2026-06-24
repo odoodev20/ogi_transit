@@ -72,7 +72,7 @@ class OgiTransitDashboard(models.Model):
             
             # Unpaid Freight Forwarders Math
             record.transitaires_non_soldes = VendorBill.search_count([
-                ('expense_type', '=', 'forwarder'),
+                ('partner_id.contact_type', '=', 'freight_forwarder'),
                 ('state', '=', 'issued')
             ])
 
@@ -100,7 +100,8 @@ class OgiTransitDashboard(models.Model):
                     alert_boxes.append(box.name)
             
             if alert_boxes:
-                record.cashbox_alert_message = f"ALERT: The following cash registers have not been audited in {record.audit_days_threshold} days: {', '.join(alert_boxes)}"
+                # REFACTORED: Replaced f-string with _() and %s formatting for proper translation extraction
+                record.cashbox_alert_message = _("ALERT: The following cash registers have not been audited in %s days: %s") % (record.audit_days_threshold, ', '.join(alert_boxes))
             else:
                 record.cashbox_alert_message = False
 
@@ -108,10 +109,12 @@ class OgiTransitDashboard(models.Model):
     def get_master_dashboard(self):
         dashboard = self.search([], limit=1)
         if not dashboard:
-            dashboard = self.sudo().create({'name': 'HQ Master Dashboard'})
+            # REFACTORED: Wrapped the generated dashboard name in _()
+            dashboard = self.sudo().create({'name': _('HQ Master Dashboard')})
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Command Center',
+            # REFACTORED: Wrapped the UI action name in _()
+            'name': _('Command Center'),
             'res_model': 'ogi.transit.dashboard',
             'res_id': dashboard.id,
             'view_mode': 'form',

@@ -102,8 +102,8 @@
 
                 <t t-if="doc.is_authorized">
                     <div style="border: 3px solid #dc3545; background-color: #fff5f5; color: #dc3545; padding: 20px; border-radius: 8px; margin-bottom: 25px; font-size: 14px;">
-                        <h4 style="margin: 0 0 10px 0; font-weight: 800; text-transform: uppercase; font-size: 16px;">
-                            ⚠ UNPAID DELIVERY
+                        <h4 style="margin: 0 0 10px 0; font-weight: 800; font-size: 16px;">
+                            Unpaid Delivery
                         </h4>
                         <p style="margin: 0;">
                             <strong>Authorized by:</strong> <span t-field="doc.authorized_by_id.name"/><br/>

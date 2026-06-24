@@ -48,6 +48,9 @@
                                     <field name="type"/>
                                     <field name="amount" sum="Total"/>
                                     <field name="state" widget="badge"/>
+
+                                    <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                                    <field name="write_date" string="Modification Date" widget="date" optional="show"/>
                                 </list>
                             </field>
                         </page>
@@ -68,6 +71,9 @@
                 <field name="origin"/>
                 <field name="currency"/>
                 <field name="balance" decoration-bf="1" decoration-success="balance &gt; 0" decoration-danger="balance &lt; 0"/>
+
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
             </list>
         </field>
     </record>
@@ -127,6 +133,9 @@
                 <field name="type"/>
                 <field name="amount"/>
                 <field name="state" widget="badge"/>
+
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
             </list>
         </field>
     </record>
@@ -194,9 +203,9 @@
                     
                     <button name="action_mark_sent" string="Confirm Received at Destination" type="object" class="btn-success" invisible="state != 'entrusted'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
                     
-                    <button name="action_repay" string="Reverse Transfer" type="object" class="btn-warning" invisible="state not in ('entrusted', 'sent')" confirm="Are you sure you want to reverse this transfer?"/>
+                    <button name="%(ogi_transit.action_ogi_loan_repayment_wizard)d" string="Register Repayment" type="action" class="btn-warning" invisible="state not in ('sent', 'partial')"/>
                     
-                    <field name="state" widget="statusbar" statusbar_visible="draft,entrusted,sent,repaid"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,entrusted,sent,partial,paid"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -209,10 +218,13 @@
                         </group>
                         <group string="Financials">
                             <field name="amount" readonly="state != 'draft'"/>
+                            
+                            <field name="amount_paid" invisible="state in ('draft', 'entrusted')"/>
+                            <field name="amount_residual" invisible="state in ('draft', 'entrusted')"/>
+                            
                             <field name="reason" readonly="state != 'draft'"/>
                             <field name="receipt_number" readonly="state != 'draft'"/>
-                            
-                            <field name="destination_receipt_number" invisible="state == 'draft'" required="state == 'entrusted'" readonly="state in ('sent', 'repaid')"/>
+                            <field name="destination_receipt_number" invisible="state == 'draft'" required="state == 'entrusted'" readonly="state in ('sent', 'partial', 'paid')"/>
                         </group>
                     </group>
                 </sheet>
@@ -225,12 +237,17 @@
         <field name="name">ogi.transit.inter.cash.loan.tree</field>
         <field name="model">ogi.transit.inter.cash.loan</field>
         <field name="arch" type="xml">
-            <list decoration-info="state == 'draft'" decoration-warning="state == 'entrusted'" decoration-success="state == 'sent'">
+            <list decoration-info="state == 'draft'" decoration-warning="state in ('entrusted', 'partial')" decoration-success="state == 'paid'">
                 <field name="name"/>
                 <field name="source_cashbox_id"/>
                 <field name="dest_cashbox_id"/>
                 <field name="amount"/>
+                <field name="amount_residual" optional="show"/>
                 <field name="state" widget="badge"/>
+                
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
+
             </list>
         </field>
     </record>

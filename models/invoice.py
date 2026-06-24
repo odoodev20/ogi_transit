@@ -56,12 +56,14 @@ class OgiTransitInvoice(models.Model):
     def action_create_crm_opportunity(self):
         self.ensure_one()
         return {
-            'name': 'Create CRM Follow-up',
+            # REFACTORED: Window action name wrapped in _()
+            'name': _('Create CRM Follow-up'),
             'type': 'ir.actions.act_window',
             'res_model': 'crm.lead',
             'view_mode': 'form',
             'context': {
-                'default_name': f'Collection: {self.partner_id.name} ({self.name})',
+                # REFACTORED: Converted f-string to use _() and %s formatting for the CRM lead title
+                'default_name': _('Collection: %s (%s)') % (self.partner_id.name, self.name),
                 'default_partner_id': self.partner_id.id,
                 'default_ogi_invoice_id': self.id,
                 'default_type': 'opportunity',
@@ -72,7 +74,8 @@ class OgiTransitInvoice(models.Model):
     def action_view_crm_leads(self):
         self.ensure_one()
         return {
-            'name': 'Collection Follow-ups',
+            # REFACTORED: Window action name wrapped in _()
+            'name': _('Collection Follow-ups'),
             'type': 'ir.actions.act_window',
             'res_model': 'crm.lead',
             'view_mode': 'list,form',
@@ -102,17 +105,19 @@ class OgiTransitInvoice(models.Model):
                 
             # NEW: Block issuing GNF invoices if no forwarder is assigned
             if inv.currency == 'GNF' and inv.container_id and not inv.container_id.forwarder_id:
-                raise ValidationError(
+                # REFACTORED: Wrapped the ValidationError message in _()
+                raise ValidationError(_(
                     "Validation Error: You cannot issue a GNF invoice because no Freight Forwarder (Transitaire) is assigned to the container. "
                     "Please ask Logistics to assign one first."
-                )
+                ))
 
             if inv.name == 'Draft':
                 type_prefix = 'FCL' if 'fcl' in inv.invoice_type else 'LCL'
                 origin_code = 'CHI' if inv.container_id.bl_id.lot_id.origin == 'china' else 'DUB'
                 seq = self.env['ir.sequence'].next_by_code('ogi.transit.invoice') or '00000'
                 year = fields.Date.today().year
-                inv.name = f"{type_prefix}-{inv.currency}-{origin_code}-{year}-{seq}"
+                # REFACTORED: Converted to %s formatting. No _() wrapper is needed here because it's generating a universal reference code (e.g., FCL-USD-CHI-2026-0001).
+                inv.name = "%s-%s-%s-%s-%s" % (type_prefix, inv.currency, origin_code, year, seq)
             inv.state = 'issued'
 
     def action_cancel(self):
@@ -124,7 +129,8 @@ class OgiTransitInvoice(models.Model):
         
         # Launch the mandatory reason popup
         return {
-            'name': 'Mandatory Reason for Cancellation',
+            # REFACTORED: Window action name wrapped in _()
+            'name': _('Mandatory Reason for Cancellation'),
             'type': 'ir.actions.act_window',
             'res_model': 'ogi.reason.wizard',
             'view_mode': 'form',

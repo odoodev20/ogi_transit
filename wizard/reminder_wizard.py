@@ -24,7 +24,8 @@ class OgiInvoiceReminderWizard(models.TransientModel):
     def _check_promise_date(self):
         for wiz in self:
             if wiz.result == 'promise' and not wiz.promise_date:
-                raise ValidationError("Validation Error: You must enter a 'Promise to Pay Date' when the status is 'Payment Promise'.")
+                # REFACTORED: Wrapped in _()
+                raise ValidationError(_("Validation Error: You must enter a 'Promise to Pay Date' when the status is 'Payment Promise'."))
 
     def action_log_reminder(self):
         for wiz in self:
@@ -38,12 +39,14 @@ class OgiInvoiceReminderWizard(models.TransientModel):
             
             # 2. Append the new notes with a timestamp and status
             status_label = dict(self._fields['result'].selection).get(wiz.result)
-            new_note = f"[{wiz.call_date}] {status_label}: {wiz.notes}"
+            # REFACTORED: Converted f-string to %s formatting
+            new_note = _("[%s] %s: %s") % (wiz.call_date, status_label, wiz.notes)
             
             if wiz.invoice_id.collection_notes:
-                wiz.invoice_id.collection_notes = f"{wiz.invoice_id.collection_notes}\n{new_note}"
+                wiz.invoice_id.collection_notes = "%s\n%s" % (wiz.invoice_id.collection_notes, new_note)
             else:
                 wiz.invoice_id.collection_notes = new_note
             
             # 3. Log securely to the chatter
-            wiz.invoice_id.message_post(body=Markup(f"<strong>Reminder Logged:</strong> {status_label}<br/>{wiz.notes}"))
+            # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+            wiz.invoice_id.message_post(body=Markup(_("<strong>Reminder Logged:</strong> %s<br/>%s") % (status_label, wiz.notes)))

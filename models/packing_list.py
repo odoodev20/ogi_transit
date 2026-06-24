@@ -32,10 +32,11 @@ class OgiTransitPLLine(models.Model):
         
         # Check if the user/system is attempting to modify any of the imported fields
         if any(field in vals for field in imported_fields):
-            raise ValidationError(
+            # REFACTORED: Exception wrapped in _()
+            raise ValidationError(_(
                 "Security Restriction: Imported Packing List data is strictly locked to preserve financial integrity. "
                 "To make corrections, please update your Excel file and re-import it into the container."
-            )
+            ))
             
         # Allow the write to proceed if it's just system-calculated fields (like invoices or prorata math)
         return super().write(vals)

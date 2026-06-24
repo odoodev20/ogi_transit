@@ -44,7 +44,8 @@ class OgiPlImportWizard(models.TransientModel):
 
     def action_import_excel(self):
         if not openpyxl:
-            raise ValidationError("The 'openpyxl' Python library is not installed on the server.")
+            # REFACTORED: Exception wrapped in _()
+            raise ValidationError(_("The 'openpyxl' Python library is not installed on the server."))
         
         # Decode the uploaded file
         file_content = base64.b64decode(self.import_file)
@@ -70,7 +71,8 @@ class OgiPlImportWizard(models.TransientModel):
             sales_price_gnf = self._clean_float(sheet.cell(row=4, column=2).value)
             ff_cost_gnf = self._clean_float(sheet.cell(row=5, column=2).value)
         except Exception as e:
-            raise ValidationError(f"Failed to read the financial totals at the top of the Excel sheet. {str(e)}")
+            # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+            raise ValidationError(_("Failed to read the financial totals at the top of the Excel sheet. %s") % str(e))
 
         # 2. Parse Lines and Apply Deduplication Logic
         lines_to_create = []
@@ -94,7 +96,8 @@ class OgiPlImportWizard(models.TransientModel):
 
             # Strict Rule: Phone is mandatory
             if not phone:
-                raise ValidationError(f"Import BLOCKED: Missing phone number on row {row_idx}. Phone number is the mandatory deduplication key.")
+                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+                raise ValidationError(_("Import BLOCKED: Missing phone number on row %s. Phone number is the mandatory deduplication key.") % row_idx)
 
             # Clean the phone number of any accidental spaces
             phone_str = str(phone).replace(" ", "").strip()
@@ -102,11 +105,12 @@ class OgiPlImportWizard(models.TransientModel):
 
             # NEW: Intra-file duplication check
             if phone_str in seen_phones:
-                raise ValidationError(
-                    f"Import BLOCKED: Duplicate phone number '{phone_str}' detected on row {row_idx} "
-                    f"(previously seen on row {seen_phones[phone_str]}). "
-                    f"Please consolidate all goods for this customer into a single row before importing."
-                )
+                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+                raise ValidationError(_(
+                    "Import BLOCKED: Duplicate phone number '%s' detected on row %s "
+                    "(previously seen on row %s). "
+                    "Please consolidate all goods for this customer into a single row before importing."
+                ) % (phone_str, row_idx, seen_phones[phone_str]))
             
             # Log the phone number and its row for future duplicate checks
             seen_phones[phone_str] = row_idx
@@ -117,7 +121,8 @@ class OgiPlImportWizard(models.TransientModel):
             if partner:
                 if partner.name.lower() != customer_name_str.lower():
                     # This fulfills TC-US4.3-02: It links to the existing partner but logs a warning!
-                    warnings.append(f"Row {row_idx}: Linked to existing customer {partner.name} (Phone: {phone_str}) despite name mismatch '{customer_name_str}'.")
+                    # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+                    warnings.append(_("Row %s: Linked to existing customer %s (Phone: %s) despite name mismatch '%s'.") % (row_idx, partner.name, phone_str, customer_name_str))
             else:
                 partner = Partner.create({
                     'name': customer_name_str,
@@ -143,15 +148,18 @@ class OgiPlImportWizard(models.TransientModel):
         # Dubai & China Origin CBM Validation
         if self.container_id.origin == 'dubai':
             if round(total_imported_cbm, 2) != 43.00:
-                raise ValidationError(f"Validation Error: Dubai origin containers must have exactly 43.0 Total CBM/Line. The imported file has a total of {round(total_imported_cbm, 2)} CBM.")
+                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+                raise ValidationError(_("Validation Error: Dubai origin containers must have exactly 43.0 Total CBM/Line. The imported file has a total of %s CBM.") % round(total_imported_cbm, 2))
         elif self.container_id.origin == 'china':
             if round(total_imported_cbm, 2) != 68.00:
-                raise ValidationError(f"Validation Error: China origin containers must have exactly 68.0 Total CBM/Line. The imported file has a total of {round(total_imported_cbm, 2)} CBM.")
+                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+                raise ValidationError(_("Validation Error: China origin containers must have exactly 68.0 Total CBM/Line. The imported file has a total of %s CBM.") % round(total_imported_cbm, 2))
 
         # 3. Security Check: Prevent import if payments exist
         if self.container_id.pl_line_ids.filtered(lambda l: (l.usd_invoice_id and l.usd_invoice_id.state in ['partial', 'paid']) or
                                                           (l.gnf_invoice_id and l.gnf_invoice_id.state in ['partial', 'paid'])):
-            raise ValidationError("Import Blocked: You cannot re-import a Packing List for a container that already has processed payments.")
+            # REFACTORED: Exception wrapped in _()
+            raise ValidationError(_("Import Blocked: You cannot re-import a Packing List for a container that already has processed payments."))
 
         # 4. Wipe old lines and insert new data
         self.container_id.pl_line_ids.unlink()
@@ -166,11 +174,12 @@ class OgiPlImportWizard(models.TransientModel):
         })
 
         # 6. Log traceabilities and warnings to the chatter
-        log_msg = f"<strong>Packing List Imported</strong><br/>{len(lines_to_create)} lines processed."
+        # REFACTORED: Converted to %s formatting and wrapped user-facing parts in _()
+        log_msg = _("<strong>Packing List Imported</strong><br/>%s lines processed.") % len(lines_to_create)
         if warnings:
-            log_msg += "<br/><br/><strong>Warnings:</strong><ul>"
+            log_msg += _("<br/><br/><strong>Warnings:</strong><ul>")
             for w in warnings:
-                log_msg += f"<li>{w}</li>"
+                log_msg += "<li>%s</li>" % w
             log_msg += "</ul>"
 
         self.container_id.message_post(body=Markup(log_msg))

@@ -92,6 +92,10 @@
                 <field name="expense_type"/>
                 <field name="amount_total" sum="Total"/>
                 <field name="state" widget="badge"/>
+                
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
+
             </list>
         </field>
     </record>
