@@ -12,13 +12,23 @@ class OgiTransitInvoice(models.Model):
 
     name = fields.Char(string='Invoice No.', required=True, copy=False, readonly=True, default='Draft')
     container_id = fields.Many2one('ogi.transit.container', string='Container', required=True, tracking=True)
-    partner_id = fields.Many2one('res.partner', string='Customer', required=True, tracking=True)
+    # UPDATED: Restricted strictly to contacts where contact_type is 'customer'
+    partner_id = fields.Many2one(
+        'res.partner', 
+        string='Customer', 
+        required=True, 
+        tracking=True,
+        domain="[('contact_type', '=', 'customer')]"
+    )
     
     # ==========================================
     # CRM & COLLECTION FIELDS
     # ==========================================
     crm_lead_ids = fields.One2many('crm.lead', 'ogi_invoice_id', string='CRM Follow-ups')
     crm_lead_count = fields.Integer(compute='_compute_crm_lead_count')
+
+    # NEW: Link to payment history
+    transaction_ids = fields.One2many('ogi.transit.transaction', 'invoice_id', string='Payment History', readonly=True)
     
     last_call_date = fields.Date(string='Last Collection Call', tracking=True)
     promise_to_pay_date = fields.Date(string='Promise to Pay Date', tracking=True)
@@ -28,8 +38,9 @@ class OgiTransitInvoice(models.Model):
         ('fcl_usd', 'FCL Freight (USD)'),
         ('fcl_gnf', 'FCL Customs Clearance (GNF)'),
         ('lcl_usd', 'LCL Freight (USD)'),
-        ('lcl_gnf', 'LCL Customs Clearance (GNF)')
-    ], string='Invoice Type', required=True, tracking=True)
+        ('lcl_gnf', 'LCL Customs Clearance (GNF)'),
+        ('customer', 'Customer') # NEW: Added Customer option
+    ], string='Invoice Type', required=True, tracking=True, default='customer') # SET as Default
     
     currency = fields.Selection([('USD', 'USD'), ('GNF', 'GNF')], string='Currency', required=True, tracking=True)
     goods_description = fields.Char(string='Description of Goods', tracking=True)

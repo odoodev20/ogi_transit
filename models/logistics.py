@@ -334,9 +334,12 @@ class OgiTransitContainer(models.Model):
     has_pl_lines = fields.Boolean(compute='_compute_has_pl_lines')
 
     total_freight_usd = fields.Float(string='Total Freight (USD)', tracking=True)
+    total_ins_usd = fields.Float(string='Total INS (USD)', tracking=True) # NEW FIELD
     total_customs_gnf = fields.Float(string='Container Service Price (GNF)', tracking=True)
     total_freight_forwarder_gnf = fields.Float(string='Freight Forwarder Cost (GNF)', tracking=True)
+    
     total_cbm = fields.Float(string='Total CBM/Line', compute='_compute_total_cbm', store=True)
+    total_ins_cbm = fields.Float(string='Total INS CBM', compute='_compute_total_ins_cbm', store=True) # NEW FIELD
 
     pl_line_ids = fields.One2many('ogi.transit.pl.line', 'container_id', string='Packing List Lines')
 
@@ -371,23 +374,46 @@ class OgiTransitContainer(models.Model):
         for container in self:
             container.total_cbm = sum(container.pl_line_ids.mapped('cbm_line'))
 
+    @api.depends('pl_line_ids.ins_cbm')
+    def _compute_total_ins_cbm(self):
+        for container in self:
+            container.total_ins_cbm = sum(container.pl_line_ids.mapped('ins_cbm'))
+
     
     def action_calculate_prorata(self):
         for container in self:
             if container.total_cbm <= 0:
-                # REFACTORED: Exception wrapped in _()
                 raise ValidationError(_("Total CBM/Line must be greater than zero to calculate prorated amounts."))
             
             for line in container.pl_line_ids:
+                # 1. Base Freight USD (Preserved logic)
                 base_usd = (container.total_freight_usd / container.total_cbm) * line.cbm_line
+                
+                # 2. Base Customs GNF (Preserved logic)
                 base_gnf = (container.total_freight_forwarder_gnf / container.total_cbm) * line.cbm_line
                 
-                ins = line.ins_fee if container.origin == 'china' else 0.0
-                raw_usd = base_usd + ins
-                raw_gnf = base_gnf + line.bgda
+                # 3. NEW: Prorata INS Fee (USD) Calculation
+                if container.total_ins_cbm > 0:
+                    ins_usd = (line.ins_cbm / container.total_ins_cbm) * container.total_ins_usd
+                else:
+                    ins_usd = 0.0
+
+                # 4. Rounding logic for visual clarity in columns
+                base_usd_rounded = float_round(base_usd, precision_digits=0, rounding_method='HALF-UP')
+                ins_usd_rounded = float_round(ins_usd, precision_digits=0, rounding_method='HALF-UP')
                 
-                line.calculated_usd = float_round(raw_usd, precision_digits=0, rounding_method='HALF-UP')
-                line.calculated_gnf = float_round(raw_gnf, precision_rounding=5000, rounding_method='HALF-UP')
+                # Final Total Calculations
+                raw_usd = base_usd_rounded + ins_usd_rounded
+                
+                # 5. Assignment to Packing List Line
+                line.prorata_freight_usd = base_usd_rounded
+                line.calculated_ins_usd = ins_usd_rounded
+                line.calculated_usd = raw_usd
+                
+                # UPDATED GNF LOGIC: Calculate pro-rata customs independently, then sum for Total GNF
+                rounded_customs_gnf = float_round(base_gnf, precision_rounding=5000, rounding_method='HALF-UP')
+                line.calculated_gnf = rounded_customs_gnf
+                line.total_gnf = rounded_customs_gnf + line.bgda # NEW: Total GNF = Customs + BGDA
 
     def action_generate_invoices(self):
         for container in self:
@@ -411,7 +437,6 @@ class OgiTransitContainer(models.Model):
                     'state': 'draft'
                 })
                 container.usd_invoice_id = inv_usd.id
-                # REFACTORED: Wrapped string in _()
                 container.message_post(body=Markup(_("<strong>Success:</strong> 1 DRAFT USD invoice was generated for this FCL Awaye container.")))
 
             # FCL HOME LOGIC
@@ -447,12 +472,12 @@ class OgiTransitContainer(models.Model):
                     invoices_created += 1
 
                 if invoices_created > 0:
-                    # REFACTORED: Converted f-string to %s formatting and wrapped inside _()
                     container.message_post(body=Markup(_("<strong>Success:</strong> %s DRAFT invoice(s) generated for this FCL Home container.")) % invoices_created)
                 
             # LCL HOME LOGIC
             elif container.type == 'lcl_home':
-                if not container.pl_line_ids or any(line.calculated_usd == 0 and line.calculated_gnf == 0 for line in container.pl_line_ids):
+                # Check total_gnf instead of calculated_gnf
+                if not container.pl_line_ids or any(line.calculated_usd == 0 and line.total_gnf == 0 for line in container.pl_line_ids):
                     raise ValidationError(_("Please run 'Calculate Pro-rata' to preview the amounts before generating invoices."))
                 
                 if not container.forwarder_id:
@@ -463,6 +488,7 @@ class OgiTransitContainer(models.Model):
                 
                 invoices_created = 0
                 for line in container.pl_line_ids:
+                    # 1. USD Invoice Creation
                     if line.calculated_usd > 0 and not line.usd_invoice_id:
                         inv_usd = Invoice.create({
                             'container_id': container.id,
@@ -476,21 +502,21 @@ class OgiTransitContainer(models.Model):
                         line.usd_invoice_id = inv_usd.id
                         invoices_created += 1
                     
-                    if line.calculated_gnf > 0 and not line.gnf_invoice_id:
+                    # 2. GNF Invoice Creation (Merged and Corrected)
+                    if line.total_gnf > 0 and not line.gnf_invoice_id:
                         inv_gnf = Invoice.create({
                             'container_id': container.id,
                             'partner_id': line.partner_id.id,
                             'invoice_type': 'lcl_gnf',
                             'currency': 'GNF',
-                            'amount_total': line.calculated_gnf,
+                            'amount_total': line.total_gnf,      # Correct Total Amount
                             'goods_description': line.goods_description,
-                            'bgda_amount': line.bgda,
+                            'bgda_amount': line.bgda,            # Preserved BGDA Tracking
                             'state': 'draft'
                         })
-                        line.gnf_invoice_id = inv_gnf.id
+                        line.gnf_invoice_id = inv_gnf.id         # Correct ID Assignment
                         invoices_created += 1
                 
-                # REFACTORED: Used %s formatting with _() wrapper
                 log_message = Markup(_("<strong>Success:</strong> %s DRAFT invoices were generated for this container.")) % invoices_created
                 container.message_post(body=log_message)
 
@@ -570,74 +596,74 @@ class OgiTransitContainer(models.Model):
                 # REFACTORED: Exception wrapped in _()
                 raise ValidationError(_("Delivery notes are only issued for FCL Home and LCL Home containers."))
 
-    def action_lock_container(self):
+    def _validate_closure_rules(self):
+        DeliveryNote = self.env['ogi.transit.delivery.note']
+        
         for container in self:
             if container.type == 'fcl_awaye':
                 if container.usd_invoice_id and container.usd_invoice_id.state != 'paid':
-                    # REFACTORED: Exception wrapped in _()
                     raise ValidationError(_("Cannot lock container: The USD invoice is not paid."))
+                    
             elif container.type == 'fcl_home':
-                if (container.usd_invoice_id and container.usd_invoice_id.state != 'paid') or (container.gnf_invoice_id and container.gnf_invoice_id.state != 'paid'):
-                    # REFACTORED: Exception wrapped in _()
+                if (container.usd_invoice_id and container.usd_invoice_id.state != 'paid') or \
+                   (container.gnf_invoice_id and container.gnf_invoice_id.state != 'paid'):
                     raise ValidationError(_("Cannot lock container: Both USD and GNF invoices must be fully paid."))
-            else:
+                
+                delivery = DeliveryNote.search([('container_id', '=', container.id)], limit=1)
+                if not delivery or delivery.logistics_status != 'retrieved':
+                    raise ValidationError(_("Cannot lock container: Not all goods have been fully delivered (Retrieved)."))
+                    
+            elif container.type == 'lcl_home':
                 unpaid_usd = container.pl_line_ids.mapped('usd_invoice_id').filtered(lambda i: i.state != 'paid')
-                if unpaid_usd:
-                    # REFACTORED: Exception wrapped in _()
-                    raise ValidationError(_("Cannot lock container: There are unpaid USD invoices."))
-                
                 unpaid_gnf = container.pl_line_ids.mapped('gnf_invoice_id').filtered(lambda i: i.state != 'paid')
-                if unpaid_gnf:
-                    # REFACTORED: Exception wrapped in _()
-                    raise ValidationError(_("Cannot lock container: There are unpaid GNF invoices."))
                 
+                if unpaid_usd or unpaid_gnf:
+                    raise ValidationError(_("Cannot lock container: There are unpaid USD or GNF invoices."))
+                
+                pending_deliveries = DeliveryNote.search([
+                    ('container_id', '=', container.id),
+                    ('logistics_status', '!=', 'retrieved')
+                ])
+                
+                if pending_deliveries:
+                    raise ValidationError(_("Cannot lock container: Some delivery notes are still pending/unpacked/in storage. All goods must be 'Retrieved'."))
+
+    def action_lock_container(self):
+        self._validate_closure_rules()
+        for container in self:
             container.state = 'closed'
-            # REFACTORED: String wrapped in _()
-            container.message_post(body=_("<strong>File Closed:</strong> Container locked by Manager. All balances settled."))
+            container.message_post(body=Markup(_("<strong>File Closed:</strong> Container locked by Manager. All balances settled and all goods delivered.")))
 
     def write(self, vals):
+        if vals.get('state') == 'closed':
+            self._validate_closure_rules()
+
         if 'state' in vals:
             state_order = {
-                'prep': 0, 
-                'created': 1, 
-                'arrived': 2, 
-                'ready': 3, 
-                'released': 4, 
-                'closed': 5
+                'prep': 0, 'created': 1, 'arrived': 2, 'ready': 3, 'released': 4, 'closed': 5
             }
             new_state_index = state_order.get(vals['state'], -1)
             
             for container in self:
                 old_state_index = state_order.get(container.state, -1)
-                
-                # Check for unauthorized status rollbacks
                 if old_state_index > -1 and new_state_index > -1 and new_state_index < old_state_index:
                     is_manager = self.env.user.has_group('ogi_transit.group_ogi_gerant')
                     is_ceo = self.env.user.has_group('ogi_transit.group_ogi_pdg')
                     is_admin = self.env.user.has_group('ogi_transit.group_ogi_admin')
                     
                     if not (is_manager or is_ceo or is_admin):
-                        # REFACTORED: Exception wrapped in _()
-                        raise ValidationError(_(
-                            "Security Restriction: Only a Manager, CEO, or Admin can roll back a container to a previous status."
-                        ))
+                        raise ValidationError(_("Security Restriction: Only a Manager, CEO, or Admin can roll back a container to a previous status."))
                         
-        # Execute the actual save operation
         res = super(OgiTransitContainer, self).write(vals)
         
-        # NEW: Automatically update Delivery Notes when container is Released
         if vals.get('state') == 'released':
             for container in self:
-                # Find all pending delivery notes belonging to this specific container
                 notes = self.env['ogi.transit.delivery.note'].search([
                     ('container_id', '=', container.id),
                     ('logistics_status', '=', 'pending')
                 ])
                 if notes:
-                    # 'unpacked' is the internal database key for "Unpacked (Depoting)"
                     notes.write({'logistics_status': 'unpacked'})
-                    # Leave an audit trail in the chatter
-                    # REFACTORED: Converted f-string to %s formatting and wrapped in _()
                     container.message_post(body=Markup(_("<strong>Automation:</strong> %s Delivery Note(s) automatically updated to 'Depoting' (Unpacked).")) % len(notes))
 
         return res

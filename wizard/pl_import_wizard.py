@@ -44,7 +44,6 @@ class OgiPlImportWizard(models.TransientModel):
 
     def action_import_excel(self):
         if not openpyxl:
-            # REFACTORED: Exception wrapped in _()
             raise ValidationError(_("The 'openpyxl' Python library is not installed on the server."))
         
         # Decode the uploaded file
@@ -53,9 +52,27 @@ class OgiPlImportWizard(models.TransientModel):
         workbook = openpyxl.load_workbook(data, data_only=True)
         sheet = workbook.active
         
-        # Check for BGDA column header (Row 8, Column 8)
+        # BUG FIX: Check for BGDA column header AND if all BGDA values are 0.0
         bgda_header = str(sheet.cell(row=8, column=8).value or '').strip().upper()
-        if 'BGDA' not in bgda_header and not self.ignore_bgda_warning:
+        bgda_missing_or_zero = False
+        
+        if 'BGDA' not in bgda_header:
+            bgda_missing_or_zero = True
+        else:
+            # Pre-scan the rows to see if all BGDA values are essentially 0.0
+            all_zero = True
+            for row_idx in range(9, sheet.max_row + 1):
+                # Only check rows that actually have a customer name or phone
+                if sheet.cell(row=row_idx, column=1).value or sheet.cell(row=row_idx, column=2).value:
+                    bgda_val = self._clean_float(sheet.cell(row=row_idx, column=8).value)
+                    if bgda_val > 0:
+                        all_zero = False
+                        break
+            
+            if all_zero:
+                bgda_missing_or_zero = True
+
+        if bgda_missing_or_zero and not self.ignore_bgda_warning:
             self.has_bgda_warning = True
             return {
                 'type': 'ir.actions.act_window',
@@ -68,10 +85,10 @@ class OgiPlImportWizard(models.TransientModel):
         try:
             # 1. Read Global Financial Headers (Vertical layout in Column B/2)
             total_freight_usd = self._clean_float(sheet.cell(row=2, column=2).value)
+            total_ins_usd = self._clean_float(sheet.cell(row=3, column=2).value) # NEW: Extracted from Row 3
             sales_price_gnf = self._clean_float(sheet.cell(row=4, column=2).value)
             ff_cost_gnf = self._clean_float(sheet.cell(row=5, column=2).value)
         except Exception as e:
-            # REFACTORED: Converted f-string to %s formatting and wrapped in _()
             raise ValidationError(_("Failed to read the financial totals at the top of the Excel sheet. %s") % str(e))
 
         # 2. Parse Lines and Apply Deduplication Logic
@@ -82,7 +99,7 @@ class OgiPlImportWizard(models.TransientModel):
         # Track total CBM for validation
         total_imported_cbm = 0.0
         
-        # NEW: Dictionary to track phone numbers within the file to prevent duplicates
+        # Dictionary to track phone numbers within the file to prevent duplicates
         seen_phones = {}
 
         # Start reading from Row 9 downwards based on the new template
@@ -96,16 +113,14 @@ class OgiPlImportWizard(models.TransientModel):
 
             # Strict Rule: Phone is mandatory
             if not phone:
-                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
                 raise ValidationError(_("Import BLOCKED: Missing phone number on row %s. Phone number is the mandatory deduplication key.") % row_idx)
 
             # Clean the phone number of any accidental spaces
             phone_str = str(phone).replace(" ", "").strip()
             customer_name_str = str(customer_name).strip()
 
-            # NEW: Intra-file duplication check
+            # Intra-file duplication check
             if phone_str in seen_phones:
-                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
                 raise ValidationError(_(
                     "Import BLOCKED: Duplicate phone number '%s' detected on row %s "
                     "(previously seen on row %s). "
@@ -121,7 +136,6 @@ class OgiPlImportWizard(models.TransientModel):
             if partner:
                 if partner.name.lower() != customer_name_str.lower():
                     # This fulfills TC-US4.3-02: It links to the existing partner but logs a warning!
-                    # REFACTORED: Converted f-string to %s formatting and wrapped in _()
                     warnings.append(_("Row %s: Linked to existing customer %s (Phone: %s) despite name mismatch '%s'.") % (row_idx, partner.name, phone_str, customer_name_str))
             else:
                 partner = Partner.create({
@@ -141,24 +155,21 @@ class OgiPlImportWizard(models.TransientModel):
                 'goods_description': str(sheet.cell(row=row_idx, column=4).value or ''),
                 'qty': self._clean_float(sheet.cell(row=row_idx, column=5).value),
                 'cbm_line': cbm_value,
-                'ins_fee': self._clean_float(sheet.cell(row=row_idx, column=7).value),
+                'ins_cbm': self._clean_float(sheet.cell(row=row_idx, column=7).value), # UPDATED: Maps to ins_cbm
                 'bgda': self._clean_float(sheet.cell(row=row_idx, column=8).value),
             })
             
         # Dubai & China Origin CBM Validation
         if self.container_id.origin == 'dubai':
             if round(total_imported_cbm, 2) != 43.00:
-                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
                 raise ValidationError(_("Validation Error: Dubai origin containers must have exactly 43.0 Total CBM/Line. The imported file has a total of %s CBM.") % round(total_imported_cbm, 2))
         elif self.container_id.origin == 'china':
             if round(total_imported_cbm, 2) != 68.00:
-                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
                 raise ValidationError(_("Validation Error: China origin containers must have exactly 68.0 Total CBM/Line. The imported file has a total of %s CBM.") % round(total_imported_cbm, 2))
 
         # 3. Security Check: Prevent import if payments exist
         if self.container_id.pl_line_ids.filtered(lambda l: (l.usd_invoice_id and l.usd_invoice_id.state in ['partial', 'paid']) or
                                                           (l.gnf_invoice_id and l.gnf_invoice_id.state in ['partial', 'paid'])):
-            # REFACTORED: Exception wrapped in _()
             raise ValidationError(_("Import Blocked: You cannot re-import a Packing List for a container that already has processed payments."))
 
         # 4. Wipe old lines and insert new data
@@ -168,13 +179,13 @@ class OgiPlImportWizard(models.TransientModel):
         # 5. Update Container Master Financials
         self.container_id.write({
             'total_freight_usd': total_freight_usd,
+            'total_ins_usd': total_ins_usd, # NEW: Commits the extracted Total INS to the container
             'total_customs_gnf': sales_price_gnf,
             'total_freight_forwarder_gnf': ff_cost_gnf,
             'state': 'created' # Triggers the UI to unlock the calculation buttons
         })
 
         # 6. Log traceabilities and warnings to the chatter
-        # REFACTORED: Converted to %s formatting and wrapped user-facing parts in _()
         log_msg = _("<strong>Packing List Imported</strong><br/>%s lines processed.") % len(lines_to_create)
         if warnings:
             log_msg += _("<br/><br/><strong>Warnings:</strong><ul>")

@@ -22,9 +22,11 @@
                     <field name="bill_id" readonly="1" force_save="1"/>
                     <label for="amount"/>
                     <div class="o_row">
-                        <field name="amount" readonly="1" force_save="1"/>
+                        <field name="amount"/>
                         <field name="currency" invisible="1"/>
                     </div>
+                    <!-- NEW: Display the Receipt Number input field -->
+                    <field name="receipt_number"/>
                     <field name="cashbox_id" options="{'no_create': True}"/>
                 </group>
                 <footer>
@@ -50,9 +52,11 @@
                 <header>
                     <button name="action_approve" string="Approve Bill" type="object" class="oe_highlight" invisible="state != 'draft'"/>
                     
-                    <button name="%(ogi_transit.action_ogi_transit_vendor_payment_wizard)d" string="Register Payout" type="action" class="btn-danger" invisible="state != 'issued'" context="{'default_bill_id': id}"/>
+                    <!-- UPDATED: Button is now visible in both 'issued' and 'partial' states -->
+                    <button name="%(ogi_transit.action_ogi_transit_vendor_payment_wizard)d" string="Register Payout" type="action" class="btn-danger" invisible="state not in ('issued', 'partial')" context="{'default_bill_id': id}"/>
                     
-                    <field name="state" widget="statusbar" statusbar_visible="draft,issued,paid"/>
+                    <!-- UPDATED: Added 'partial' to the visible status bar -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,issued,partial,paid"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -61,18 +65,20 @@
                     <group>
                         <group>
                             <field name="expense_type" readonly="state != 'draft'"/>
-                            
-                            <field name="container_id" 
-                                   readonly="state != 'draft'" 
-                                   required="expense_type in ('freight', 'customs', 'bgda')"/>
-                            
+                            <field name="container_id"
+                                readonly="state != 'draft'"
+                                required="expense_type in ('freight', 'customs', 'bgda')"/>
                             <field name="partner_id" widget="many2one_avatar" 
-                                   readonly="state != 'draft' or not expense_type or expense_type in ('freight', 'customs', 'bgda')" 
-                                   force_save="1"/>
+                               readonly="state != 'draft' or not expense_type or expense_type in ('customs', 'bgda')"
+                               force_save="1"/>
                         </group>
                         <group>
                             <field name="currency" readonly="state != 'draft'"/>
                             <field name="amount_total" readonly="state != 'draft'"/>
+                            
+                            <!-- NEW FIELDS: Seamlessly added below the total -->
+                            <field name="amount_paid" invisible="state == 'draft'"/>
+                            <field name="amount_residual" invisible="state == 'draft'" class="oe_subtotal_footer_separator"/>
                         </group>
                     </group>
                 </sheet>

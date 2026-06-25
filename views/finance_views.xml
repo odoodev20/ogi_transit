@@ -258,10 +258,17 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <menuitem id="menu_ogi_finance" name="Finance" parent="menu_ogi_root" sequence="20" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_operator"/>
-    
-    <menuitem id="menu_ogi_cashboxes" name="Cash Registers" parent="menu_ogi_finance" action="action_ogi_cashbox" sequence="10" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
-    <menuitem id="menu_ogi_transactions" name="Transactions" parent="menu_ogi_finance" action="action_ogi_transaction" sequence="20"/> 
-    <menuitem id="menu_ogi_cash_audits" name="Cash Audits" parent="menu_ogi_finance" action="action_ogi_cash_audit" sequence="30" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
-    <menuitem id="menu_ogi_inter_cash_loans" name="Internal Loans" parent="menu_ogi_finance" action="action_ogi_inter_cash_loan" sequence="25" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+    <menuitem id="menu_ogi_finance" name="Finance" parent="menu_ogi_root" sequence="20" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+
+    <menuitem id="menu_ogi_cashboxes" name="Cash Registers" parent="menu_ogi_finance" action="action_ogi_cashbox" sequence="10" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+
+    <menuitem id="menu_ogi_transactions" name="Transactions" parent="menu_ogi_finance" action="action_ogi_transaction" sequence="20"/>
+
+    <menuitem id="menu_ogi_inter_cash_loans" name="Internal Loans" parent="menu_ogi_finance" action="action_ogi_inter_cash_loan" sequence="25" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+
+    <menuitem id="menu_ogi_cash_audits" name="Cash Audits" parent="menu_ogi_finance" action="action_ogi_cash_audit" sequence="30" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
 </odoo>

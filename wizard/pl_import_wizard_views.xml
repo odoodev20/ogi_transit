@@ -12,7 +12,7 @@
                 </div>
                 
                 <div class="alert alert-warning fw-bold" role="alert" invisible="not has_bgda_warning">
-                    <i class="fa fa-exclamation-triangle"></i> Warning: No 'BGDA' column detected in Column H (Row 8).<br/>
+                    <i class="fa fa-exclamation-triangle"></i> Warning: No BGDA column detected, or all BGDA values are 0.<br/>
                     <span style="font-weight: normal;">If you proceed, all BGDA amounts will be imported as 0.0.</span>
                 </div>
 

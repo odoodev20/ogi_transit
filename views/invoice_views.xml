@@ -37,11 +37,13 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'"/>
+                            <!-- UPDATED: Added the domain directly to the XML to filter the dropdown -->
+                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'" domain="[('contact_type', '=', 'customer')]"/>
                             <field name="container_id" readonly="state != 'draft'"/>
                         </group>
                         <group>
-                            <field name="invoice_type" readonly="state != 'draft'"/>
+                            <!-- UPDATED: Locked to Read-Only so the default 'Customer' cannot be changed -->
+                            <field name="invoice_type" readonly="1" force_save="1"/>
                             <field name="currency" readonly="state != 'draft'"/>
                         </group>
                     </group>
@@ -59,6 +61,22 @@
                             <field name="collection_notes" placeholder="Log details of phone calls with the customer here..."/>
                         </group>
                     </group>
+                    
+                    <!-- NEW: Payment History Tab -->
+                    <notebook>
+                        <page string="Payment History" invisible="amount_paid == 0">
+                            <field name="transaction_ids" readonly="1">
+                                <list decoration-success="state == 'done'" decoration-muted="state == 'cancelled'">
+                                    <field name="date" string="Payment Date" widget="date"/>
+                                    <field name="receipt_number" string="Receipt Ref."/>
+                                    <field name="cashbox_id" string="Payment Method / Register"/>
+                                    <field name="amount" string="Amount Paid" sum="Total Paid"/>
+                                    <field name="currency"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                     
                     <group class="oe_subtotal_footer oe_right">
                         <field name="base_amount" invisible="currency != 'GNF' or bgda_amount == 0" string="Transit Amount"/>
@@ -108,7 +126,8 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <menuitem id="menu_ogi_invoices" name="Invoices" parent="menu_ogi_finance" action="action_ogi_invoice" sequence="30"/>
+    <!-- UPDATED: Menu name changed to Customer Invoices -->
+    <menuitem id="menu_ogi_invoices" name="Customer Invoices" parent="menu_ogi_finance" action="action_ogi_invoice" sequence="30"/>
 
     <record id="view_ogi_invoice_collection_tree" model="ir.ui.view">
         <field name="name">ogi.transit.invoice.collection.tree</field>
@@ -141,6 +160,7 @@
         <field name="view_id" ref="view_ogi_invoice_collection_tree"/>
     </record>
 
-    <menuitem id="menu_ogi_invoice_collection" name="Unpaid Follow-ups" parent="menu_ogi_finance" action="action_ogi_invoice_collection" sequence="35" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+    <menuitem id="menu_ogi_invoice_collection" name="Unpaid Follow-ups" parent="menu_ogi_finance" action="action_ogi_invoice_collection" sequence="35" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
     
 </odoo>

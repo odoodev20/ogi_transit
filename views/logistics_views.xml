@@ -58,11 +58,15 @@
                         <group>
                             <field name="total_freight_usd" invisible="type == 'fcl_home' and 1==0" readonly="type == 'lcl_home' and not has_pl_lines" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                             
+                            <field name="total_ins_usd" readonly="type == 'lcl_home' and not has_pl_lines" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                            
                             <field name="total_customs_gnf" invisible="type == 'fcl_awaye'" readonly="type == 'lcl_home' and not has_pl_lines" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                             
                             <field name="total_freight_forwarder_gnf" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg" invisible="type == 'fcl_awaye'" readonly="type == 'lcl_home' and not has_pl_lines"/>
                             
                             <field name="total_cbm" invisible="type != 'lcl_home'"/>
+                            
+                            <field name="total_ins_cbm" invisible="type != 'lcl_home'"/>
                             
                             <field name="usd_invoice_id" invisible="type not in ('fcl_awaye', 'fcl_home')" readonly="1" force_save="1" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                             
@@ -82,13 +86,19 @@
                                     <field name="qty"/>
                                     <field name="cbm_line" sum="Total CBM"/>
                                     
-                                    <field name="ins_fee" sum="Total INS" column_invisible="parent.origin == 'dubai'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    <field name="ins_cbm" sum="Total INS CBM" column_invisible="parent.origin == 'dubai'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     
                                     <field name="bgda" sum="Total BGDA" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     
-                                    <field name="calculated_usd" sum="Total USD" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    <field name="prorata_freight_usd" sum="Total Freight" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     
-                                    <field name="calculated_gnf" sum="Total GNF" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    <field name="calculated_ins_usd" sum="Total INS Fee" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    
+                                    <field name="calculated_gnf" sum="Total Customs" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    
+                                    <field name="total_gnf" sum="Total GNF" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    
+                                    <field name="calculated_usd" sum="Total USD" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     
                                     <field name="usd_invoice_id" widget="many2one" optional="show" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     

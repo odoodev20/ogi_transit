@@ -22,12 +22,27 @@ class OgiTransitVendorBill(models.Model):
 
     currency = fields.Selection([('USD', 'USD'), ('GNF', 'GNF')], string='Currency', required=True, tracking=True)
     amount_total = fields.Float(string='Total Amount', required=True, tracking=True)
-
+    amount_paid = fields.Float(string='Amount Paid', default=0.0, tracking=True, readonly=True)
+    amount_residual = fields.Float(string='Balance Due', compute='_compute_amounts', store=True)
+    
     state = fields.Selection([
         ('draft', 'Draft'),
         ('issued', 'Approved'),
+        ('partial', 'Partially Paid'), # NEW STATE
         ('paid', 'Paid')
     ], string='Status', default='draft', tracking=True)
+
+    @api.depends('amount_total', 'amount_paid')
+    def _compute_amounts(self):
+        for bill in self:
+            bill.amount_residual = bill.amount_total - bill.amount_paid
+            if bill.state not in ['draft']:
+                if bill.amount_residual <= 0 and bill.amount_total > 0:
+                    bill.state = 'paid'
+                elif bill.amount_paid > 0:
+                    bill.state = 'partial'
+                else:
+                    bill.state = 'issued'
 
     # NEW: Strictly enforce Container rules dynamically
     @api.constrains('expense_type', 'container_id')
@@ -37,33 +52,42 @@ class OgiTransitVendorBill(models.Model):
                 # REFACTORED: Exception wrapped in _()
                 raise ValidationError(_("Validation Error: The Container field is mandatory for Freight, Customs Clearance, and BGDA invoices."))
 
-    # NEW: Dynamic Auto-Assignment Engine
     @api.onchange('expense_type', 'container_id')
-    def _onchange_expense_and_container(self):
+    def onchange_expense_and_container(self):
+        # Create an empty domain dictionary to filter the dropdown
+        res_domain = {'partner_id': []}
+        
         # 1. Handle Currency
         if self.expense_type == 'freight':
             self.currency = 'USD'
         elif self.expense_type in ['customs', 'bgda']:
             self.currency = 'GNF'
 
-        # 2. Handle Dynamic Partner Auto-Assignment
-        if self.expense_type and self.container_id:
-            # Freight (USD) -> Find Cargo China or Cargo Dubai
+        # 2. Handle Dynamic Partner Auto-Assignment & Filtering
+        if self.expense_type == 'other' or not self.expense_type:
+            self.partner_id = False
+            
+        elif self.expense_type and self.container_id:
+            # Freight (USD) -> Suggest a Cargo supplier, but restrict the dropdown list
             if self.expense_type == 'freight':
                 if self.container_id.origin == 'china':
                     cargo = self.env['res.partner'].search([('contact_type', '=', 'china_cargo')], limit=1)
-                    self.partner_id = cargo.id if cargo else False
+                    self.partner_id = cargo if cargo else False
+                    # Restrict dropdown to ONLY China Cargo suppliers
+                    res_domain['partner_id'] = [('contact_type', '=', 'china_cargo')]
+                    
                 elif self.container_id.origin == 'dubai':
                     cargo = self.env['res.partner'].search([('contact_type', '=', 'dubai_cargo')], limit=1)
-                    self.partner_id = cargo.id if cargo else False
-            
-            # Customs or BGDA -> Assigned Freight Forwarder
+                    self.partner_id = cargo if cargo else False
+                    # Restrict dropdown to ONLY Dubai Cargo suppliers
+                    res_domain['partner_id'] = [('contact_type', '=', 'dubai_cargo')]
+                    
+            # Customs or BGDA -> Strictly Assign the Freight Forwarder
             elif self.expense_type in ['customs', 'bgda']:
-                self.partner_id = self.container_id.forwarder_id.id if self.container_id.forwarder_id else False
+                self.partner_id = self.container_id.forwarder_id if self.container_id.forwarder_id else False
 
-        # If user clears expense type or selects 'other', wipe the partner so they can pick manually
-        if self.expense_type == 'other' or not self.expense_type:
-            self.partner_id = False
+        # Return the domain so the Odoo UI knows how to filter the dropdown
+        return {'domain': res_domain}
 
     def action_approve(self):
         for bill in self:
