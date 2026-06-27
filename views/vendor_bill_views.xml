@@ -52,8 +52,8 @@
                 <header>
                     <button name="action_approve" string="Approve Bill" type="object" class="oe_highlight" invisible="state != 'draft'"/>
                     
-                    <!-- UPDATED: Button is now visible in both 'issued' and 'partial' states -->
-                    <button name="%(ogi_transit.action_ogi_transit_vendor_payment_wizard)d" string="Register Payout" type="action" class="btn-danger" invisible="state not in ('issued', 'partial')" context="{'default_bill_id': id}"/>
+                    <!-- UPDATED: Button is now visible in both 'issued' and 'partial' states AND restricted from Logistics -->
+                    <button name="%(ogi_transit.action_ogi_transit_vendor_payment_wizard)d" string="Register Payout" type="action" class="btn-danger" invisible="state not in ('issued', 'partial')" context="{'default_bill_id': id}" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
                     
                     <!-- UPDATED: Added 'partial' to the visible status bar -->
                     <field name="state" widget="statusbar" statusbar_visible="draft,issued,partial,paid"/>

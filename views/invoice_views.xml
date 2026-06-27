@@ -20,9 +20,9 @@
                     <button name="%(ogi_transit.action_report_invoice_internal)d" string="Print Internal Record" type="action" class="btn-secondary" icon="fa-lock" invisible="state == 'draft'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
                     
                     <button name="action_issue" string="Issue Invoice" type="object" class="oe_highlight" invisible="state != 'draft'"/>
-                    <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Register Payment" type="action" class="btn-success" invisible="state not in ['issued', 'partial']"/>
-                    <button name="%(ogi_transit.action_ogi_invoice_reminder_wizard)d" string="Log Reminder" type="action" class="btn-warning" icon="fa-phone" invisible="state in ('draft', 'paid', 'canceled')" context="{'default_invoice_id': id}"/>
-                    <button name="action_cancel" string="Cancel" type="object" invisible="state == 'canceled'"/>
+                    <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Register Payment" type="action" class="btn-success" invisible="state not in ['issued', 'partial']" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+                    <button name="%(ogi_transit.action_ogi_invoice_reminder_wizard)d" string="Log Reminder" type="action" class="btn-warning" icon="fa-phone" invisible="state in ('draft', 'paid', 'canceled')" context="{'default_invoice_id': id}" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state == 'canceled'" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,issued,partial,paid"/>
                 </header>
                 <sheet>
@@ -115,7 +115,7 @@
                 <button name="action_create_crm_opportunity" string="Send to CRM" type="object" icon="fa-handshake-o" class="btn-warning" invisible="state in ('draft', 'paid', 'canceled') or crm_lead_count &gt; 0"/>
                 <button name="action_view_crm_leads" string="View in CRM" type="object" icon="fa-external-link" class="btn-info" invisible="crm_lead_count == 0"/>
                 
-                <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Pay" type="action" icon="fa-money" class="btn-success" invisible="state in ('draft', 'paid', 'canceled')"/>
+                <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Pay" type="action" icon="fa-money" class="btn-success" invisible="state in ('draft', 'paid', 'canceled')" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
             </list>
         </field>
     </record>
@@ -146,8 +146,8 @@
                 <field name="create_date" string="Creation Date" widget="date" optional="show"/>
                 <field name="write_date" string="Modification Date" widget="date" optional="show"/>
                 
-                <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Pay" type="action" icon="fa-money" class="btn-success" invisible="state in ('draft', 'paid', 'canceled')"/>
-                <button name="%(ogi_transit.action_ogi_invoice_reminder_wizard)d" string="Log Reminder" type="action" icon="fa-phone" class="btn-warning" context="{'default_invoice_id': id}"/>
+                <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Pay" type="action" icon="fa-money" class="btn-success" invisible="state in ('draft', 'paid', 'canceled')" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+                <button name="%(ogi_transit.action_ogi_invoice_reminder_wizard)d" string="Log Reminder" type="action" icon="fa-phone" class="btn-warning" context="{'default_invoice_id': id}" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
             </list>
         </field>
     </record>

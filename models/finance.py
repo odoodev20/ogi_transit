@@ -147,11 +147,11 @@ class OgiTransitCashAudit(models.Model):
 
 
 # ==========================================
-# NEW: INTER-CASH LOAN / INTERNAL TRANSFER ENGINE
+# 1. INTERNAL LOANS (Same Currency)
 # ==========================================
 class OgiTransitInterCashLoan(models.Model):
     _name = 'ogi.transit.inter.cash.loan'
-    _description = 'Inter-Cashbox Transfer'
+    _description = 'Inter-Cashbox Loan'
     _inherit = ['mail.thread']
 
     name = fields.Char(string='Reference', required=True, copy=False, readonly=True, default='New')
@@ -160,26 +160,20 @@ class OgiTransitInterCashLoan(models.Model):
     
     amount = fields.Float(string='Amount', required=True, tracking=True)
     reason = fields.Char(string='Reason for Transfer', required=True, tracking=True)
-    
     receipt_number = fields.Char(string='Transfer Receipt / Ref No.', required=True, tracking=True)
     
-    # NEW: Step 2 verification field
-    destination_receipt_number = fields.Char(string='Destination Receipt No.', tracking=True)
-
-    # ADD: New fields for partial payment tracking
+    # Destination Receipt Number removed as requested
+    
     amount_paid = fields.Float(string='Amount Repaid', default=0.0, tracking=True)
     amount_residual = fields.Float(string='Remaining Balance', compute='_compute_residual', store=True)
     
-    # UPDATED: Statuses split into Entrusted (In Transit) and Sent (At Destination)
+    # Updated statuses for Loan workflow
     state = fields.Selection([
         ('draft', 'Draft'),
-        ('entrusted', 'Entrusted (In Transit)'),
-        ('sent', 'Sent (Active)'),
-        ('partial', 'Partially Paid'), # NEW
-        ('paid', 'Paid')               # REPLACED 'repaid'
+        ('partial', 'Partially Paid'),
+        ('paid', 'Paid')
     ], string='Status', default='draft', tracking=True)
 
-    # ADD: The compute method for the remaining balance
     @api.depends('amount', 'amount_paid')
     def _compute_residual(self):
         for loan in self:
@@ -192,58 +186,87 @@ class OgiTransitInterCashLoan(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('ogi.transit.inter.cash.loan') or 'New'
         return super().create(vals_list)
 
-    def action_confirm(self):
-        for loan in self:
-            # BUG FIX: Strict backend validation for the Sending Receipt Number
-            if not loan.receipt_number:
+
+# ==========================================
+# 2. CARGO TRANSFERS (Internal Transfers)
+# ==========================================
+class OgiTransitCargoTransfer(models.Model):
+    _name = 'ogi.transit.cargo.transfer'
+    _description = 'CARGO Internal Transfer'
+    _inherit = ['mail.thread']
+
+    name = fields.Char(string='Reference', required=True, copy=False, readonly=True, default='New')
+    source_cashbox_id = fields.Many2one('ogi.transit.cashbox', string='Source Register', required=True, tracking=True)
+    dest_cashbox_id = fields.Many2one('ogi.transit.cashbox', string='Destination Register', required=True, tracking=True)
+    
+    amount = fields.Float(string='Amount', required=True, tracking=True)
+    reason = fields.Char(string='Reason for Transfer', required=True, tracking=True)
+    receipt_number = fields.Char(string='Transfer Receipt / Ref No.', required=True, tracking=True)
+    
+    # Step 2 verification field retained for Transfers
+    destination_receipt_number = fields.Char(string='Destination Receipt No.', tracking=True)
+
+    # Updated statuses for CARGO Transfer workflow
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('entrusted', 'Entrusted (In Transit)'),
+        ('sent', 'Sent (Active)')
+    ], string='Status', default='draft', tracking=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', 'New') == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('ogi.transit.cargo.transfer') or 'New'
+        return super().create(vals_list)
+
+    def action_entrust(self):
+        for transfer in self:
+            if not transfer.receipt_number:
                 raise ValidationError(_("Validation Error: You must enter a 'Transfer Receipt / Ref No.' before entrusting these funds."))
-                
-            if loan.amount <= 0:
+            if transfer.amount <= 0:
                 raise ValidationError(_("The amount must be greater than zero."))
-            if loan.source_cashbox_id == loan.dest_cashbox_id:
+            if transfer.source_cashbox_id == transfer.dest_cashbox_id:
                 raise ValidationError(_("Validation Error: The Source and Destination registers must be different."))
-            if loan.source_cashbox_id.currency != loan.dest_cashbox_id.currency:
-                raise ValidationError(_("Validation Error: Cross-currency transfers are strictly prohibited."))
-            if loan.source_cashbox_id.balance < loan.amount:
-                raise ValidationError(_("Insufficient funds in %s to issue this transfer.") % loan.source_cashbox_id.name)
+            if transfer.source_cashbox_id.balance < transfer.amount:
+                raise ValidationError(_("Insufficient funds in %s to issue this transfer.") % transfer.source_cashbox_id.name)
 
             Transaction = self.env['ogi.transit.transaction']
             
             # Debit Source & Credit Destination instantly
             Transaction.create({
-                'cashbox_id': loan.source_cashbox_id.id,
+                'cashbox_id': transfer.source_cashbox_id.id,
                 'type': 'out',
-                'amount': loan.amount,
-                'reason': _("Transfer to %s") % (loan.dest_cashbox_id.name),
-                'receipt_number': loan.receipt_number,
+                'amount': transfer.amount,
+                'reason': _("CARGO Transfer to %s") % (transfer.dest_cashbox_id.name),
+                'receipt_number': transfer.receipt_number,
                 'state': 'done',
                 'is_wallet_transaction': False
             })
             
             Transaction.create({
-                'cashbox_id': loan.dest_cashbox_id.id,
+                'cashbox_id': transfer.dest_cashbox_id.id,
                 'type': 'in',
-                'amount': loan.amount,
-                'reason': _("Transfer from %s") % (loan.source_cashbox_id.name),
-                'receipt_number': loan.receipt_number,
+                'amount': transfer.amount,
+                'reason': _("CARGO Transfer from %s") % (transfer.source_cashbox_id.name),
+                'receipt_number': transfer.receipt_number,
                 'state': 'done',
                 'is_wallet_transaction': False
             })
             
             # Step 1 Complete: Funds are physically entrusted and in transit
-            loan.state = 'entrusted'
+            transfer.state = 'entrusted'
 
-    # NEW: Strict Step 2 execution
-    def action_mark_sent(self):
-        for loan in self:
-            # Strictly enforce US 9.3 Rights and Permissions
+    def action_sent(self):
+        for transfer in self:
             is_manager = self.env.user.has_group('ogi_transit.group_ogi_gerant')
             is_ceo = self.env.user.has_group('ogi_transit.group_ogi_pdg')
+            is_admin = self.env.user.has_group('ogi_transit.group_ogi_admin')
             
-            if not (is_manager or is_ceo):
-                raise AccessError(_("Access Denied: Only a Manager or CEO can confirm that funds have securely arrived at their destination."))
+            if not (is_manager or is_ceo or is_admin):
+                raise AccessError(_("Access Denied: Only a Manager, CEO, or Admin can confirm that funds have securely arrived at their destination."))
             
-            if not loan.destination_receipt_number:
+            if not transfer.destination_receipt_number:
                 raise ValidationError(_("Validation Error: You must enter the 'Destination Receipt No.' to prove the funds arrived."))
             
-            loan.state = 'sent'
+            transfer.state = 'sent'
