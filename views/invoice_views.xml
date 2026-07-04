@@ -82,6 +82,9 @@
                         <field name="base_amount" invisible="currency != 'GNF' or bgda_amount == 0" string="Transit Amount"/>
                         <field name="bgda_amount" invisible="currency != 'GNF' or bgda_amount == 0"/>
                         
+                        <!-- NEW: Display Inspection Fees for USD Invoices -->
+                        <field name="ins_amount" invisible="currency != 'USD' or ins_amount == 0"/>
+                        
                         <field name="amount_total" readonly="state != 'draft'" class="oe_subtotal_footer_separator"/>
                         <field name="amount_paid"/>
                         <field name="amount_residual" class="oe_subtotal_footer_separator"/>
@@ -103,7 +106,10 @@
                 <field name="container_id" optional="show"/>
                 
                 <field name="currency"/>
-                <field name="amount_total"/>
+                
+                <!-- UPDATED: Added string label and sum attribute to calculate the grand total -->
+                <field name="amount_total" string="Total Amount" sum="Total"/>
+                
                 <field name="amount_residual"/>
                 <field name="state" widget="badge"/>
                 
@@ -138,6 +144,9 @@
                 <field name="partner_id" widget="many2one_avatar"/>
                 
                 <field name="container_id" optional="show"/>
+
+                <!-- UPDATED: Added string label and sum attribute to calculate the grand total -->
+                <field name="amount_total" string="Total Amount" sum="Total"/>
                 
                 <field name="amount_residual" sum="Total Unpaid" decoration-bf="1"/>
                 <field name="currency"/>

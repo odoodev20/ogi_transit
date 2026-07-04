@@ -1,6 +1,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from markupsafe import Markup
+from odoo.tools import float_compare
 
 class OgiInvoicePaymentWizard(models.TransientModel):
     _name = 'ogi.invoice.payment.wizard'
@@ -171,7 +172,9 @@ class OgiLoanRepaymentWizard(models.TransientModel):
     def action_register_repayment(self):
         if self.amount <= 0:
             raise ValidationError(_("Repayment amount must be strictly greater than zero."))
-        if self.amount > self.amount_residual:
+        
+        # Safely check if repayment exceeds residual using float_compare
+        if float_compare(self.amount, self.amount_residual, precision_digits=2) == 1:
             raise ValidationError(_("You cannot repay more than the remaining balance."))
         
         loan = self.loan_id
@@ -180,32 +183,35 @@ class OgiLoanRepaymentWizard(models.TransientModel):
 
         Transaction = self.env['ogi.transit.transaction']
         
-        # Withdraw from destination register
-        Transaction.create({
+        # 1. Withdraw from destination register
+        tx_out = Transaction.create({
             'cashbox_id': loan.dest_cashbox_id.id,
             'type': 'out',
             'amount': self.amount,
             'reason': _("Loan Repayment to %s") % (loan.source_cashbox_id.name),
             'receipt_number': self.receipt_number,
-            'state': 'done',
             'is_wallet_transaction': False
         })
+        # ALWAYS call the action method to trigger internal validations
+        tx_out.action_confirm() 
         
-        # Deposit into source register
-        Transaction.create({
+        # 2. Deposit into source register
+        tx_in = Transaction.create({
             'cashbox_id': loan.source_cashbox_id.id,
             'type': 'in',
             'amount': self.amount,
             'reason': _("Loan Repayment from %s") % (loan.dest_cashbox_id.name),
             'receipt_number': self.receipt_number,
-            'state': 'done',
             'is_wallet_transaction': False
         })
+        # ALWAYS call the action method to trigger internal validations
+        tx_in.action_confirm() 
         
-        # Update loan math and auto-switch state
+        # 3. Update loan math
         loan.amount_paid += self.amount
         
-        if loan.amount_residual <= 0:
+        # 4. Auto-switch state safely using float_compare
+        if float_compare(loan.amount_paid, loan.amount, precision_digits=2) >= 0:
             loan.state = 'paid'
         else:
             loan.state = 'partial'

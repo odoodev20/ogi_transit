@@ -217,7 +217,15 @@
                     <group>
                         <group string="Transfer Routing">
                             <field name="source_cashbox_id" readonly="state != 'draft'" options="{'no_create': True}"/>
-                            <field name="dest_cashbox_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            
+                            <!-- Hidden currency field so the domain below can use it -->
+                            <field name="currency" invisible="1"/>
+                            
+                            <!-- STRICT DOMAIN: Must match currency AND cannot be the source register -->
+                            <field name="dest_cashbox_id" 
+                                   readonly="state != 'draft'" 
+                                   options="{'no_create': True}"
+                                   domain="[('currency', '=', currency), ('id', '!=', source_cashbox_id)]"/>
                         </group>
                         <group string="Financials">
                             <field name="amount" readonly="state != 'draft'"/>
@@ -278,8 +286,17 @@
                     </div>
                     <group>
                         <group string="Transfer Routing">
-                            <field name="source_cashbox_id" readonly="state != 'draft'" options="{'no_create': True}"/>
-                            <field name="dest_cashbox_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <!-- Restrict Source to USD (No GNF) -->
+                            <field name="source_cashbox_id" 
+                                   readonly="state != 'draft'" 
+                                   options="{'no_create': True}" 
+                                   domain="[('currency', '!=', 'GNF')]"/>
+                            
+                            <!-- Restrict Destination to strictly the two Transfer Registers -->
+                            <field name="dest_cashbox_id" 
+                                   readonly="state != 'draft'" 
+                                   options="{'no_create': True}" 
+                                   domain="[('name', 'in', ['Dubai Transfer Register', 'China Transfer Register'])]"/>
                         </group>
                         <group string="Financials">
                             <field name="amount" readonly="state != 'draft'"/>

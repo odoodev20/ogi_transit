@@ -19,6 +19,7 @@ class OgiTransitVendorBill(models.Model):
         ('bgda', 'BGDA (GNF)'),
         ('other', 'Other Supplier')
     ], string='Invoice Type', required=True, tracking=True)
+    description = fields.Text(string='Description', tracking=True)
 
     currency = fields.Selection([('USD', 'USD'), ('GNF', 'GNF')], string='Currency', required=True, tracking=True)
     amount_total = fields.Float(string='Total Amount', required=True, tracking=True)
@@ -31,6 +32,8 @@ class OgiTransitVendorBill(models.Model):
         ('partial', 'Partially Paid'), # NEW STATE
         ('paid', 'Paid')
     ], string='Status', default='draft', tracking=True)
+
+
 
     @api.depends('amount_total', 'amount_paid')
     def _compute_amounts(self):

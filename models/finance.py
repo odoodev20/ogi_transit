@@ -157,6 +157,9 @@ class OgiTransitInterCashLoan(models.Model):
     name = fields.Char(string='Reference', required=True, copy=False, readonly=True, default='New')
     source_cashbox_id = fields.Many2one('ogi.transit.cashbox', string='Source Register', required=True, tracking=True)
     dest_cashbox_id = fields.Many2one('ogi.transit.cashbox', string='Destination Register', required=True, tracking=True)
+
+    # NEW: Pull the currency from the source register to enforce UI rules
+    currency = fields.Selection(related='source_cashbox_id.currency', string='Currency', readonly=True)
     
     amount = fields.Float(string='Amount', required=True, tracking=True)
     reason = fields.Char(string='Reason for Transfer', required=True, tracking=True)
@@ -178,6 +181,17 @@ class OgiTransitInterCashLoan(models.Model):
     def _compute_residual(self):
         for loan in self:
             loan.amount_residual = loan.amount - loan.amount_paid
+
+    @api.constrains('source_cashbox_id', 'dest_cashbox_id')
+    def _check_valid_registers(self):
+        for loan in self:
+            if loan.source_cashbox_id and loan.dest_cashbox_id:
+                # Rule 1: Cannot be the same register
+                if loan.source_cashbox_id == loan.dest_cashbox_id:
+                    raise ValidationError(_("Inter-Loan Between Same Register Forbidden. The source and destination registers cannot be identical."))
+                # Rule 2: Must be the exact same currency
+                if loan.source_cashbox_id.currency != loan.dest_cashbox_id.currency:
+                    raise ValidationError(_("Currency Mismatch: Internal loans can only occur between registers with the same currency (e.g., USD to USD)."))
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -65,12 +65,15 @@
                     <group>
                         <group>
                             <field name="expense_type" readonly="state != 'draft'"/>
-                            <field name="container_id"
-                                readonly="state != 'draft'"
-                                required="expense_type in ('freight', 'customs', 'bgda')"/>
-                            <field name="partner_id" widget="many2one_avatar" 
-                               readonly="state != 'draft' or not expense_type or expense_type in ('customs', 'bgda')"
-                               force_save="1"/>
+                            <field name="container_id" readonly="state != 'draft'" required="expense_type in ('freight', 'customs', 'bgda')"/>
+                            <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft' or not expense_type or expense_type in ('customs', 'bgda')" force_save="1"/>
+                            
+                            <!-- NEW: Description field (Only visible/required for 'Other Supplier') -->
+                            <field name="description" 
+                                invisible="expense_type != 'other'" 
+                                required="expense_type == 'other'"
+                                readonly="state != 'draft'" 
+                                placeholder="Enter details about this supplier invoice..."/>
                         </group>
                         <group>
                             <field name="currency" readonly="state != 'draft'"/>
@@ -97,11 +100,13 @@
                 <field name="container_id"/>
                 <field name="expense_type"/>
                 <field name="amount_total" sum="Total"/>
-                <field name="state" widget="badge"/>
                 
+                <!-- NEW: Balance Due Column -->
+                <field name="amount_residual" string="Balance Due" sum="Total Balance Due"/>
+                
+                <field name="state" widget="badge"/>
                 <field name="create_date" string="Creation Date" widget="date" optional="show"/>
                 <field name="write_date" string="Modification Date" widget="date" optional="show"/>
-
             </list>
         </field>
     </record>

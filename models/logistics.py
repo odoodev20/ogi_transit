@@ -187,10 +187,12 @@ class OgiTransitPlLine(models.Model):
 
 class OgiTransitInvoice(models.Model):
     _inherit = 'ogi.transit.invoice'
-
+    
     goods_description = fields.Char(string='Description of Goods')
     bgda_amount = fields.Float(string='BGDA Amount')
-
+    
+    # NEW: Track Inspection Fees on the Invoice
+    ins_amount = fields.Float(string='Inspection Fees (USD)')
 
 # ==========================================
 # CORE LOGISTICS MODELS
@@ -294,7 +296,7 @@ class OgiTransitContainer(models.Model):
     container_label = fields.Char(string='Container Label', tracking=True, help="Free text label (e.g. 2026)")
 
     type = fields.Selection([
-        ('fcl_awaye', 'FCL + Awaye'),
+        ('fcl_awaye', 'FCL + Away'),
         ('fcl_home', 'FCL + Home'),
         ('lcl_home', 'LCL + Home')
     ], string='Container Type', required=True, tracking=True)
@@ -307,6 +309,11 @@ class OgiTransitContainer(models.Model):
         ('released', 'Released'),
         ('closed', 'Closed (Locked)')
     ], string='Status', default='created', tracking=True)
+
+    packing_list_state = fields.Selection([
+        ('draft', 'Draft'),
+        ('validated', 'Validated')
+    ], string='Packing List Status', default='draft', tracking=True)
 
     container_size = fields.Selection([
         ('20', '20"'),
@@ -336,7 +343,11 @@ class OgiTransitContainer(models.Model):
     total_freight_usd = fields.Float(string='Total Freight (USD)', tracking=True)
     total_ins_usd = fields.Float(string='Total INS (USD)', tracking=True) # NEW FIELD
     total_customs_gnf = fields.Float(string='Container Service Price (GNF)', tracking=True)
+    # NEW: BGDA Amount for FCL + Home
+    bgda = fields.Float(string='BGDA (GNF)', tracking=True)
     total_freight_forwarder_gnf = fields.Float(string='Freight Forwarder Cost (GNF)', tracking=True)
+    estimated_gross_margin_gnf = fields.Float(string='Estimated Gross Margin (GNF)', compute='_compute_gross_margins', store=True, tracking=True)
+    actual_gross_margin_gnf = fields.Float(string='Actual Gross Margin (GNF)', compute='_compute_gross_margins', store=True, tracking=True)
     
     total_cbm = fields.Float(string='Total CBM/Line', compute='_compute_total_cbm', store=True)
     total_ins_cbm = fields.Float(string='Total INS CBM', compute='_compute_total_ins_cbm', store=True) # NEW FIELD
@@ -379,41 +390,72 @@ class OgiTransitContainer(models.Model):
         for container in self:
             container.total_ins_cbm = sum(container.pl_line_ids.mapped('ins_cbm'))
 
-    
+    @api.depends('total_customs_gnf', 'total_freight_forwarder_gnf', 'pl_line_ids.calculated_gnf')
+    def _compute_gross_margins(self):
+        for container in self:
+            # 1. Estimated Gross Margin
+            container.estimated_gross_margin_gnf = container.total_customs_gnf - container.total_freight_forwarder_gnf
+            
+            # 2. Actual Gross Margin (Container Service Price - Sum of all Pro-rata Customs GNF)
+            total_prorata_customs = sum(container.pl_line_ids.mapped('calculated_gnf'))
+            container.actual_gross_margin_gnf = container.total_customs_gnf - total_prorata_customs
+
+    @api.constrains('type', 'forwarder_id')
+    def _check_mandatory_forwarder(self):
+        for container in self:
+            if container.type in ['fcl_home', 'lcl_home'] and not container.forwarder_id:
+                raise ValidationError(_("Validation Error: A Freight Forwarder must be assigned for 'FCL + Home' and 'LCL + Home' containers."))
+
+    @api.constrains('type', 'total_customs_gnf', 'total_freight_forwarder_gnf')
+    def _check_margin_validity(self):
+        for container in self:
+            if container.type in ['fcl_home', 'lcl_home']:
+                if container.total_customs_gnf > 0 and container.total_freight_forwarder_gnf > 0:
+                    if container.total_customs_gnf <= container.total_freight_forwarder_gnf:
+                        raise ValidationError(_("Business Rule Error: The 'Container Service Price (GNF)' must be strictly greater than the 'Freight Forwarder Cost (GNF)'."))
+
+
     def action_calculate_prorata(self):
         for container in self:
             if container.total_cbm <= 0:
                 raise ValidationError(_("Total CBM/Line must be greater than zero to calculate prorated amounts."))
             
             for line in container.pl_line_ids:
-                # 1. Base Freight USD (Preserved logic)
+                # 1. Base Freight USD
                 base_usd = (container.total_freight_usd / container.total_cbm) * line.cbm_line
                 
-                # 2. Base Customs GNF (Preserved logic)
-                base_gnf = (container.total_freight_forwarder_gnf / container.total_cbm) * line.cbm_line
+                # 2. Base Customs GNF (UPDATED FORMULA: Uses Container Service Price)
+                base_gnf = (container.total_customs_gnf / container.total_cbm) * line.cbm_line
                 
-                # 3. NEW: Prorata INS Fee (USD) Calculation
+                # 3. Prorata INS Fee
                 if container.total_ins_cbm > 0:
                     ins_usd = (line.ins_cbm / container.total_ins_cbm) * container.total_ins_usd
                 else:
                     ins_usd = 0.0
 
-                # 4. Rounding logic for visual clarity in columns
+                # 4. Rounding logic for USD
+                from odoo.tools import float_round
                 base_usd_rounded = float_round(base_usd, precision_digits=0, rounding_method='HALF-UP')
                 ins_usd_rounded = float_round(ins_usd, precision_digits=0, rounding_method='HALF-UP')
                 
-                # Final Total Calculations
+                # Final USD Calculations
                 raw_usd = base_usd_rounded + ins_usd_rounded
                 
-                # 5. Assignment to Packing List Line
                 line.prorata_freight_usd = base_usd_rounded
                 line.calculated_ins_usd = ins_usd_rounded
                 line.calculated_usd = raw_usd
                 
-                # UPDATED GNF LOGIC: Calculate pro-rata customs independently, then sum for Total GNF
-                rounded_customs_gnf = float_round(base_gnf, precision_rounding=5000, rounding_method='HALF-UP')
+                # 5. UPDATED GNF LOGIC & STRICT 5000 ROUNDING
+                rounded_customs_gnf = round(base_gnf / 5000.0) * 5000
                 line.calculated_gnf = rounded_customs_gnf
-                line.total_gnf = rounded_customs_gnf + line.bgda # NEW: Total GNF = Customs + BGDA
+                line.total_gnf = rounded_customs_gnf + line.bgda
+
+    def action_validate_packing_list(self):
+        for container in self:
+            if not container.pl_line_ids:
+                raise ValidationError(_("You must add at least one Packing List line before validating."))
+            container.packing_list_state = 'validated'
+            container.message_post(body=Markup(_("<strong>Packing List Validated:</strong> Input data is confirmed.")))
 
     def action_generate_invoices(self):
         for container in self:
@@ -422,7 +464,7 @@ class OgiTransitContainer(models.Model):
             # FCL AWAYE LOGIC
             if container.type == 'fcl_awaye':
                 if not container.partner_id or container.total_freight_usd <= 0:
-                    raise ValidationError(_("Customer and Total Freight USD are required to generate an FCL Awaye invoice."))
+                    raise ValidationError(_("Customer and Total Freight USD are required to generate an FCL Away invoice."))
                 
                 if container.usd_invoice_id:
                     raise ValidationError(_("An invoice has already been generated for this container."))
@@ -432,12 +474,15 @@ class OgiTransitContainer(models.Model):
                     'partner_id': container.partner_id.id,
                     'invoice_type': 'fcl_usd',
                     'currency': 'USD',
-                    'amount_total': container.total_freight_usd,
+                    # UPDATED: Sum Freight and INS for the final invoice total
+                    'amount_total': container.total_freight_usd + container.total_ins_usd,
                     'goods_description': container.goods_description,
+                    # NEW: Explicitly track the INS amount on the invoice
+                    'ins_amount': container.total_ins_usd,
                     'state': 'draft'
                 })
                 container.usd_invoice_id = inv_usd.id
-                container.message_post(body=Markup(_("<strong>Success:</strong> 1 DRAFT USD invoice was generated for this FCL Awaye container.")))
+                container.message_post(body=Markup(_("<strong>Success:</strong> 1 DRAFT USD invoice was generated for this FCL Away container.")))
 
             # FCL HOME LOGIC
             elif container.type == 'fcl_home':
@@ -451,8 +496,11 @@ class OgiTransitContainer(models.Model):
                         'partner_id': container.partner_id.id,
                         'invoice_type': 'fcl_usd',
                         'currency': 'USD',
-                        'amount_total': container.total_freight_usd,
+                        # UPDATED: Sum Freight and INS for the final invoice total
+                        'amount_total': container.total_freight_usd + container.total_ins_usd,
                         'goods_description': container.goods_description,
+                        # NEW: Explicitly track the INS amount on the invoice
+                        'ins_amount': container.total_ins_usd,
                         'state': 'draft'
                     })
                     container.usd_invoice_id = inv_usd.id
@@ -464,8 +512,11 @@ class OgiTransitContainer(models.Model):
                         'partner_id': container.partner_id.id,
                         'invoice_type': 'fcl_gnf',
                         'currency': 'GNF',
-                        'amount_total': container.total_customs_gnf,
+                        # UPDATED: Sum the Container Service Price and BGDA for the final invoice total
+                        'amount_total': container.total_customs_gnf + container.bgda,
                         'goods_description': container.goods_description,
+                        # NEW: Explicitly track the BGDA amount on the invoice line
+                        'bgda_amount': container.bgda,
                         'state': 'draft'
                     })
                     container.gnf_invoice_id = inv_gnf.id
@@ -598,36 +649,33 @@ class OgiTransitContainer(models.Model):
 
     def _validate_closure_rules(self):
         DeliveryNote = self.env['ogi.transit.delivery.note']
+        Invoice = self.env['ogi.transit.invoice']
         
         for container in self:
-            if container.type == 'fcl_awaye':
-                if container.usd_invoice_id and container.usd_invoice_id.state != 'paid':
-                    raise ValidationError(_("Cannot lock container: The USD invoice is not paid."))
+            # 1. Invoice Checks (Applies universally to ALL container types)
+            invoices = Invoice.search([
+                ('container_id', '=', container.id),
+                ('state', '!=', 'canceled') # Canceled invoices do not count towards the requirement
+            ])
+            
+            if not invoices:
+                raise ValidationError(_("Cannot lock container: No invoices have been generated. At least one invoice must exist."))
+                
+            unpaid_invoices = invoices.filtered(lambda inv: inv.state != 'paid')
+            if unpaid_invoices:
+                raise ValidationError(_("Cannot lock container: All related invoices must be fully settled/paid before closing."))
+                
+            # 2. Delivery Checks (Applies to FCL+Home and LCL+Home)
+            if container.type in ['fcl_home', 'lcl_home']:
+                deliveries = DeliveryNote.search([('container_id', '=', container.id)])
+                
+                if not deliveries:
+                    raise ValidationError(_("Cannot lock container: No delivery notes have been issued. All goods must be delivered first."))
                     
-            elif container.type == 'fcl_home':
-                if (container.usd_invoice_id and container.usd_invoice_id.state != 'paid') or \
-                   (container.gnf_invoice_id and container.gnf_invoice_id.state != 'paid'):
-                    raise ValidationError(_("Cannot lock container: Both USD and GNF invoices must be fully paid."))
-                
-                delivery = DeliveryNote.search([('container_id', '=', container.id)], limit=1)
-                if not delivery or delivery.logistics_status != 'retrieved':
-                    raise ValidationError(_("Cannot lock container: Not all goods have been fully delivered (Retrieved)."))
-                    
-            elif container.type == 'lcl_home':
-                unpaid_usd = container.pl_line_ids.mapped('usd_invoice_id').filtered(lambda i: i.state != 'paid')
-                unpaid_gnf = container.pl_line_ids.mapped('gnf_invoice_id').filtered(lambda i: i.state != 'paid')
-                
-                if unpaid_usd or unpaid_gnf:
-                    raise ValidationError(_("Cannot lock container: There are unpaid USD or GNF invoices."))
-                
-                pending_deliveries = DeliveryNote.search([
-                    ('container_id', '=', container.id),
-                    ('logistics_status', '!=', 'retrieved')
-                ])
-                
+                pending_deliveries = deliveries.filtered(lambda d: d.logistics_status != 'retrieved')
                 if pending_deliveries:
-                    raise ValidationError(_("Cannot lock container: Some delivery notes are still pending/unpacked/in storage. All goods must be 'Retrieved'."))
-
+                    raise ValidationError(_("Cannot lock container: Not all goods have been fully delivered. All delivery notes must be in 'Retrieved' status."))
+                
     def action_lock_container(self):
         self._validate_closure_rules()
         for container in self:
