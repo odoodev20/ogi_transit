@@ -79,12 +79,15 @@
                     </notebook>
                     
                     <group class="oe_subtotal_footer oe_right">
+                        <!-- GNF Invoice Breakdown -->
                         <field name="base_amount" invisible="currency != 'GNF' or bgda_amount == 0" string="Transit Amount"/>
                         <field name="bgda_amount" invisible="currency != 'GNF' or bgda_amount == 0"/>
                         
-                        <!-- NEW: Display Inspection Fees for USD Invoices -->
+                        <!-- NEW: USD Invoice Breakdown -->
+                        <field name="freight_amount" invisible="currency != 'USD' or ins_amount == 0"/>
                         <field name="ins_amount" invisible="currency != 'USD' or ins_amount == 0"/>
                         
+                        <!-- Grand Totals -->
                         <field name="amount_total" readonly="state != 'draft'" class="oe_subtotal_footer_separator"/>
                         <field name="amount_paid"/>
                         <field name="amount_residual" class="oe_subtotal_footer_separator"/>

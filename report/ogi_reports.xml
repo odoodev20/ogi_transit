@@ -15,105 +15,141 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
                 <t t-call="web.basic_layout">
-                    <div class="page" style="font-family: 'Plus Jakarta Sans', sans-serif; color: #374151;">
+                    <div class="page" style="font-family: 'Helvetica', 'Arial', sans-serif; color: #333;">
                         
-                        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
                         <style>
-                            .ogi-mono { font-family: 'DM Mono', monospace; }
-                            .ogi-brand-text { color: #1D5F9E; }
-                            .ogi-bg-brand { background-color: #1D5F9E; color: white; }
-                            .ogi-table { width: 100%; margin-top: 30px; border-collapse: collapse; }
-                            .ogi-table th { background-color: #1D5F9E; color: white; padding: 15px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; }
-                            .ogi-table td { padding: 15px; border-bottom: 1px solid #e5e7eb; font-size: 1rem; }
-                            .ogi-meta-box { border-left: 4px solid #1D5F9E; background-color: #f3f4f6; padding: 15px; margin-top: 20px; border-radius: 0 8px 8px 0; }
-                            .ogi-totals { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; }
+                            .ogi-header { background-color: #165a92; color: white; padding: 40px; }
+                            .ogi-title-left { font-size: 24px; font-weight: 900; letter-spacing: 1px; margin-bottom: 40px; }
+                            .ogi-title-right { font-size: 14px; font-weight: 800; color: #e65025; text-transform: uppercase; letter-spacing: 2px; text-align: right; margin-bottom: 40px; }
+                            .ogi-inv-number { font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+                            .ogi-inv-date { font-size: 14px; opacity: 0.8; }
+                            
+                            .ogi-client-sec { text-align: right; padding: 30px 40px 10px 40px; }
+                            .ogi-client-label { font-size: 12px; font-weight: 700; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+                            .ogi-client-name { font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 2px; }
+                            .ogi-client-phone { font-size: 14px; color: #4b5563; margin-bottom: 8px; }
+                            .ogi-client-ref { background-color: #f3f4f6; color: #374151; padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 12px; display: inline-block; }
+                            
+                            .ogi-meta-band { background-color: #f4f3ef; padding: 20px 40px; display: flex; margin-top: 20px; }
+                            .ogi-meta-item { width: 33.33%; }
+                            .ogi-meta-label { font-size: 11px; font-weight: 700; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+                            .ogi-meta-value { font-size: 15px; font-weight: 700; color: #1f2937; font-family: monospace; }
+                            
+                            .ogi-table { width: 100%; border-collapse: collapse; margin-top: 0; }
+                            .ogi-table th { color: #9ca3af; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 15px 40px; border-bottom: 1px solid #e5e7eb; }
+                            .ogi-table td { padding: 25px 40px; border-bottom: 1px solid #e5e7eb; }
+                            .ogi-item-title { font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+                            .ogi-item-sub { font-size: 13px; color: #9ca3af; }
+                            .ogi-item-amount { font-size: 16px; font-weight: 700; font-family: monospace; }
+                            .ogi-item-currency { font-size: 13px; color: #9ca3af; }
+                            
+                            .ogi-total-band { background-color: #f4f3ef; padding: 40px; margin-top: 0; }
+                            .ogi-total-label { font-size: 18px; font-weight: 800; color: #1f2937; }
+                            .ogi-total-amount { font-size: 24px; font-weight: 700; color: #e65025; font-family: monospace; text-align: right; }
+                            .ogi-total-currency { font-size: 16px; font-weight: 700; color: #e65025; text-align: right; padding-left: 15px; }
                         </style>
 
-                        <div class="row align-items-center mt-4">
-                            <div class="col-6">
-                                <h1 style="font-weight: 800; font-size: 3rem; letter-spacing: -1px; margin-bottom: 0;" class="ogi-brand-text">INVOICE</h1>
-                                <p class="ogi-mono text-muted fs-5 mt-1"><t t-out="doc.name"/></p>
+                        <div class="ogi-header">
+                            <div class="row">
+                                <div class="col-6"><p class="ogi-title-left">OGI TRANSIT</p></div>
+                                <div class="col-6"><p class="ogi-title-right">FACTURE</p></div>
                             </div>
-                            <div class="col-6 text-end">
-                                <img t-if="res_company.logo" t-att-src="image_data_uri(res_company.logo)" style="max-height: 60px;" alt="OGI Transit Logo"/>
-                                <h3 t-else="" class="ogi-brand-text" style="font-weight: 800; margin: 0;">OGI TRANSIT</h3>
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="ogi-inv-number"><span t-field="doc.name"/></p>
+                                    <p class="ogi-inv-date">Date d'émission : <span t-field="doc.create_date" t-options='{"widget": "date"}'/></p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="row mt-5">
-                            <div class="col-7">
-                                <h6 class="text-muted text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 5px;">Billed To</h6>
-                                <h3 style="font-weight: 700; color: #111827; margin-bottom: 5px;"><t t-out="doc.partner_id.name"/></h3>
-                                <p class="text-muted mb-0"><t t-out="doc.partner_id.phone_1"/></p>
+                        <div class="ogi-client-sec">
+                            <p class="ogi-client-label">CLIENT</p>
+                            <p class="ogi-client-name"><span t-field="doc.partner_id.name"/></p>
+                            <p class="ogi-client-phone"><span t-field="doc.partner_id.phone_1"/></p>
+                            <p class="ogi-client-ref">
+                                REF-<t t-esc="str(doc.partner_id.id).zfill(6)"/>
+                            </p>
+                        </div>
+
+                        <div class="ogi-meta-band">
+                            <div class="ogi-meta-item">
+                                <p class="ogi-meta-label">LOT</p>
+                                <p class="ogi-meta-value"><span t-field="doc.container_id.bl_id.lot_id.name"/></p>
                             </div>
-                            <div class="col-5">
-                                <div class="row ogi-meta-box">
-                                    <div class="col-6">
-                                        <p class="mb-1" style="font-size: 0.8rem; text-transform: uppercase; color: #6b7280;">Container No.</p>
-                                        <p class="ogi-mono mb-0" style="font-weight: 500; color: #111827;"><t t-out="doc.container_id.name"/></p>
-                                    </div>
-                                    <div class="col-6">
-                                        <p class="mb-1" style="font-size: 0.8rem; text-transform: uppercase; color: #6b7280;">Origin</p>
-                                        <p class="mb-0" style="font-weight: 600; color: #111827; text-transform: capitalize;"><t t-out="doc.container_id.origin"/></p>
-                                    </div>
-                                </div>
+                            <div class="ogi-meta-item text-center">
+                                <p class="ogi-meta-label">CONTENEUR</p>
+                                <p class="ogi-meta-value"><span t-field="doc.container_id.name"/></p>
+                            </div>
+                            <div class="ogi-meta-item text-end">
+                                <p class="ogi-meta-label">B/L</p>
+                                <p class="ogi-meta-value"><span t-field="doc.container_id.bl_id.name"/></p>
                             </div>
                         </div>
 
                         <table class="ogi-table">
                             <thead>
                                 <tr>
-                                    <th class="text-start" style="border-radius: 6px 0 0 0;">Description of Goods &amp; Services</th>
-                                    <th class="text-end" style="border-radius: 0 6px 0 0;">Amount (<t t-out="doc.currency"/>)</th>
+                                    <th class="text-start">DÉSIGNATION</th>
+                                    <th class="text-end">MONTANT</th>
+                                    <th class="text-end" style="width: 100px;">DEVISE</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <!-- Main Freight / Transit Line -->
                                 <tr>
                                     <td>
-                                        <strong>Logistics &amp; Transit Services</strong><br/>
-                                        <span class="text-muted" style="font-size: 0.9rem;"><t t-out="doc.goods_description or 'Standard transit logistics'"/></span>
+                                        <p class="ogi-item-title">Transit / Douane / Fret</p>
+                                        <p class="ogi-item-sub"><span t-field="doc.goods_description"/></p>
                                     </td>
-                                    <td class="text-end ogi-mono" style="font-size: 1.1rem;"><t t-out="doc.base_amount" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="text-end ogi-item-amount">
+                                        <t t-if="doc.currency == 'USD' and doc.ins_amount > 0">
+                                            <span t-esc="'{0:,.0f}'.format(doc.freight_amount).replace(',', ' ')"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-esc="'{0:,.0f}'.format(doc.base_amount).replace(',', ' ')"/>
+                                        </t>
+                                    </td>
+                                    <td class="text-end ogi-item-currency"><span t-field="doc.currency"/></td>
                                 </tr>
+                                
+                                <!-- BGDA (GNF) -->
                                 <tr t-if="doc.bgda_amount > 0">
                                     <td>
-                                        <strong>BGDA / Regulatory Fees</strong><br/>
-                                        <span class="text-muted" style="font-size: 0.9rem;">Mandatory customs &amp; intellectual property fees</span>
+                                        <p class="ogi-item-title">BGDA</p>
+                                        <p class="ogi-item-sub">Bureau Guinéen du Droit d'Auteur</p>
                                     </td>
-                                    <td class="text-end ogi-mono" style="font-size: 1.1rem;"><t t-out="doc.bgda_amount" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="text-end ogi-item-amount">
+                                        <span t-esc="'{0:,.0f}'.format(doc.bgda_amount).replace(',', ' ')"/>
+                                    </td>
+                                    <td class="text-end ogi-item-currency"><span t-field="doc.currency"/></td>
+                                </tr>
+
+                                <!-- Inspection Fees (USD) -->
+                                <tr t-if="doc.currency == 'USD' and doc.ins_amount > 0">
+                                    <td>
+                                        <p class="ogi-item-title">Frais d'Inspection</p>
+                                        <p class="ogi-item-sub">Inspection conteneur obligatoire</p>
+                                    </td>
+                                    <td class="text-end ogi-item-amount">
+                                        <span t-esc="'{0:,.0f}'.format(doc.ins_amount).replace(',', ' ')"/>
+                                    </td>
+                                    <td class="text-end ogi-item-currency"><span t-field="doc.currency"/></td>
                                 </tr>
                             </tbody>
                         </table>
 
-                        <div class="row justify-content-end mt-4">
-                            <div class="col-6">
-                                <div class="ogi-totals">
-                                    <table style="width: 100%;">
-                                        <tr>
-                                            <td class="text-muted pb-2">Total Amount</td>
-                                            <td class="text-end ogi-mono pb-2"><t t-out="doc.amount_total" t-options='{"widget": "float", "precision": 2}'/></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted pb-3" style="border-bottom: 1px solid #d1d5db;">Amount Paid</td>
-                                            <td class="text-end ogi-mono pb-3" style="border-bottom: 1px solid #d1d5db;">-<t t-out="doc.amount_paid" t-options='{"widget": "float", "precision": 2}'/></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="pt-3"><h4 style="font-weight: 700; margin: 0;" class="ogi-brand-text">Balance Due</h4></td>
-                                            <td class="text-end pt-3">
-                                                <h4 class="ogi-mono" style="font-weight: 700; color: #dc3545; margin: 0;">
-                                                    <t t-out="doc.amount_residual" t-options='{"widget": "float", "precision": 2}'/> <t t-out="doc.currency"/>
-                                                </h4>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-5 pt-4" style="border-top: 1px solid #e5e7eb;">
-                            <div class="col-12 text-center text-muted" style="font-size: 0.9rem;">
-                                <p><strong>Thank you for your business.</strong><br/>If you have any questions about this invoice, please contact OGI Transit support.</p>
-                            </div>
+                        <div class="ogi-total-band">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td class="text-start ogi-total-label">TOTAL DÛ</td>
+                                    <td class="text-end ogi-total-amount">
+                                        <span t-esc="'{0:,.0f}'.format(doc.amount_total).replace(',', ' ')"/>
+                                    </td>
+                                    <td class="text-end ogi-total-currency" style="width: 100px;">
+                                        <span t-field="doc.currency"/>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
 
                     </div>
@@ -137,50 +173,194 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
                 <t t-call="web.basic_layout">
-                    <div class="page" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-                        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+                    <div class="page" style="font-family: 'Helvetica', 'Arial', sans-serif; color: #333;">
                         
-                        <div class="text-center p-3 mb-5" style="background-color: #dc3545; color: white; border-radius: 6px;">
-                            <h3 style="margin: 0; font-weight: 700; letter-spacing: 2px;">CONFIDENTIAL - INTERNAL RECORD</h3>
-                        </div>
-                        
-                        <div class="row align-items-center mb-5">
-                            <div class="col-6">
-                                <p class="text-muted mb-1 text-uppercase" style="font-size: 0.8rem;">Invoice Reference</p>
-                                <h3 style="font-family: 'DM Mono', monospace; font-weight: 700;"><t t-out="doc.name"/></h3>
-                                <h5 class="mt-3"><strong>Customer:</strong> <t t-out="doc.partner_id.name"/></h5>
+                        <!-- Reusing the exact same styles as External, adding internal-specific classes -->
+                        <style>
+                            .ogi-header { background-color: #165a92; color: white; padding: 40px; position: relative;}
+                            .ogi-title-left { font-size: 24px; font-weight: 900; letter-spacing: 1px; margin-bottom: 40px; }
+                            .ogi-title-right { font-size: 14px; font-weight: 800; color: #e65025; text-transform: uppercase; letter-spacing: 2px; text-align: right; margin-bottom: 40px; }
+                            .ogi-inv-number { font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+                            .ogi-inv-date { font-size: 14px; opacity: 0.8; display: inline-block; margin-right: 15px;}
+                            
+                            .ogi-badge-internal { background-color: #e65025; color: white; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 800; display: inline-block; letter-spacing: 1px;}
+                            .ogi-badge-status { background-color: #60a5fa; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 1px; vertical-align: middle;}
+                            
+                            .ogi-client-sec { text-align: right; padding: 30px 40px 10px 40px; }
+                            .ogi-client-label { font-size: 14px; font-weight: 700; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+                            .ogi-client-name { font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 2px; }
+                            .ogi-client-phone { font-size: 14px; color: #4b5563; margin-bottom: 8px; }
+                            .ogi-client-ref { background-color: #f3f4f6; color: #374151; padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 12px; display: inline-block; }
+                            
+                            .ogi-meta-band { background-color: #f4f3ef; padding: 20px 40px; display: flex; margin-top: 20px; }
+                            .ogi-meta-item { width: 33.33%; }
+                            .ogi-meta-label { font-size: 13px; font-weight: 700; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+                            .ogi-meta-value { font-size: 16px; font-weight: 700; color: #1f2937; font-family: monospace; }
+                            
+                            .ogi-table { width: 100%; border-collapse: collapse; margin-top: 0; }
+                            .ogi-table th { color: #9ca3af; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 15px 40px; border-bottom: 1px solid #e5e7eb; }
+                            .ogi-table td { padding: 25px 40px; border-bottom: 1px solid #e5e7eb; }
+                            .ogi-item-title { font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+                            .ogi-item-sub { font-size: 14px; color: #9ca3af; }
+                            .ogi-item-amount { font-size: 16px; font-weight: 700; font-family: monospace; }
+                            .ogi-item-currency { font-size: 14px; color: #9ca3af; }
+                            
+                            .ogi-total-band { background-color: #f4f3ef; padding: 40px; margin-top: 0; border-bottom: 1px solid #e5e7eb; }
+                            .ogi-total-label { font-size: 18px; font-weight: 800; color: #1f2937; }
+                            .ogi-total-amount { font-size: 24px; font-weight: 700; color: #e65025; font-family: monospace; text-align: right; }
+                            .ogi-total-currency { font-size: 16px; font-weight: 700; color: #e65025; text-align: right; padding-left: 15px; }
+                            
+                            .ogi-account-status { background-color: #f4f3ef; padding: 30px 40px; }
+                            .ogi-account-title { font-size: 14px; font-weight: 700; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 25px; }
+                            .ogi-account-row { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 16px;}
+                            .ogi-account-val { font-family: monospace; font-weight: 700; font-size: 16px;}
+                            .ogi-account-currency { color: #9ca3af; font-size: 14px; margin-left: 10px; font-family: sans-serif;}
+                        </style>
+
+                        <div class="ogi-header">
+                            <div class="row">
+                                <div class="col-6">
+                                    <p class="ogi-title-left" style="margin-bottom: 0;">OGI TRANSIT</p>
+                                    <p class="ogi-title-left" style="color: red; margin-top: 0; font-size: 14px;">FACTURE</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <div class="ogi-badge-internal"><i class="fa fa-cog" style="margin-right: 5px;"></i> INTERNE</div>
+                                </div>
                             </div>
-                            <div class="col-6 text-end">
-                                <p class="text-danger mb-1 fw-bold text-uppercase" style="font-size: 0.9rem;">Total Unpaid Exposure</p>
-                                <h1 style="font-family: 'DM Mono', monospace; font-weight: 700; color: #dc3545; font-size: 2.5rem;">
-                                    <t t-out="doc.amount_residual" t-options='{"widget": "float", "precision": 2}'/> <span style="font-size: 1.5rem;"><t t-out="doc.currency"/></span>
-                                </h1>
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="ogi-inv-number"><span t-field="doc.name"/></p>
+                                    <p class="ogi-inv-date">Date d'émission : <span t-field="doc.create_date" t-options='{"widget": "date"}'/></p>
+                                    <div class="ogi-badge-status">
+                                        <t t-if="doc.state == 'draft'">Brouillon</t>
+                                        <t t-elif="doc.state == 'issued'">Émise</t>
+                                        <t t-elif="doc.state == 'partial'">Partielle</t>
+                                        <t t-elif="doc.state == 'paid'">Payée</t>
+                                        <t t-elif="doc.state == 'canceled'">Annulée</t>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="p-4" style="border: 2px dashed #dc3545; background-color: #fff5f5; border-radius: 8px;">
-                            <h4 style="color: #dc3545; font-weight: 700; margin-bottom: 20px;"><i class="fa fa-phone"></i> CRM Collection Data</h4>
-                            
-                            <div class="row fs-5 mb-3">
-                                <div class="col-4 text-muted fw-bold">Last Call Date:</div>
-                                <div class="col-8"><t t-out="doc.last_call_date or 'No calls logged yet'"/></div>
-                            </div>
-                            <div class="row fs-5 mb-3">
-                                <div class="col-4 text-muted fw-bold">Promise to Pay:</div>
-                                <div class="col-8" style="color: #1D5F9E; font-weight: 600;"><t t-out="doc.promise_to_pay_date or 'No date secured'"/></div>
-                            </div>
-                            <div class="row fs-5 mb-4">
-                                <div class="col-4 text-muted fw-bold">Active CRM Leads:</div>
-                                <div class="col-8"><t t-out="doc.crm_lead_count"/></div>
-                            </div>
-                            
-                            <hr style="border-color: #fca5a5;"/>
-                            
-                            <h5 class="text-muted fw-bold mt-3">Finance / Collection Notes:</h5>
-                            <p style="white-space: pre-line; background-color: white; padding: 15px; border-radius: 6px; border: 1px solid #fecaca;">
-                                <t t-out="doc.collection_notes or 'No notes recorded.'"/>
+                        <div class="ogi-client-sec">
+                            <p class="ogi-client-label">CLIENT</p>
+                            <p class="ogi-client-name"><span t-field="doc.partner_id.name"/></p>
+                            <p class="ogi-client-phone"><span t-field="doc.partner_id.phone_1"/></p>
+                            <p class="ogi-client-ref">
+                                REF-<t t-esc="str(doc.partner_id.id).zfill(6)"/>
                             </p>
                         </div>
+
+                        <div class="ogi-meta-band">
+                            <div class="ogi-meta-item">
+                                <p class="ogi-meta-label">LOT</p>
+                                <p class="ogi-meta-value"><span t-field="doc.container_id.bl_id.lot_id.name"/></p>
+                            </div>
+                            <div class="ogi-meta-item text-center">
+                                <p class="ogi-meta-label">CONTENEUR</p>
+                                <p class="ogi-meta-value"><span t-field="doc.container_id.name"/></p>
+                            </div>
+                            <div class="ogi-meta-item text-end">
+                                <p class="ogi-meta-label">B/L</p>
+                                <p class="ogi-meta-value"><span t-field="doc.container_id.bl_id.name"/></p>
+                            </div>
+                        </div>
+
+                        <table class="ogi-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-start">DÉSIGNATION</th>
+                                    <th class="text-end">MONTANT</th>
+                                    <th class="text-end" style="width: 100px;">DEVISE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Main Freight / Transit Line -->
+                                <tr>
+                                    <td>
+                                        <p class="ogi-item-title">Transit / Douane / Fret</p>
+                                        <p class="ogi-item-sub"><span t-field="doc.goods_description"/></p>
+                                    </td>
+                                    <td class="text-end ogi-item-amount">
+                                        <t t-if="doc.currency == 'USD' and doc.ins_amount > 0">
+                                            <span t-esc="'{0:,.0f}'.format(doc.freight_amount).replace(',', ' ')"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-esc="'{0:,.0f}'.format(doc.base_amount).replace(',', ' ')"/>
+                                        </t>
+                                    </td>
+                                    <td class="text-end ogi-item-currency"><span t-field="doc.currency"/></td>
+                                </tr>
+                                
+                                <!-- BGDA (GNF) -->
+                                <tr t-if="doc.bgda_amount > 0">
+                                    <td>
+                                        <p class="ogi-item-title">BGDA</p>
+                                        <p class="ogi-item-sub">Bureau Guinéen du Droit d'Auteur</p>
+                                    </td>
+                                    <td class="text-end ogi-item-amount">
+                                        <span t-esc="'{0:,.0f}'.format(doc.bgda_amount).replace(',', ' ')"/>
+                                    </td>
+                                    <td class="text-end ogi-item-currency"><span t-field="doc.currency"/></td>
+                                </tr>
+
+                                <!-- Inspection Fees (USD) -->
+                                <tr t-if="doc.currency == 'USD' and doc.ins_amount > 0">
+                                    <td>
+                                        <p class="ogi-item-title">Frais d'Inspection</p>
+                                        <p class="ogi-item-sub">Inspection conteneur obligatoire</p>
+                                    </td>
+                                    <td class="text-end ogi-item-amount">
+                                        <span t-esc="'{0:,.0f}'.format(doc.ins_amount).replace(',', ' ')"/>
+                                    </td>
+                                    <td class="text-end ogi-item-currency"><span t-field="doc.currency"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="ogi-total-band">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td class="text-start ogi-total-label">TOTAL DÛ</td>
+                                    <td class="text-end ogi-total-amount">
+                                        <span t-esc="'{0:,.0f}'.format(doc.amount_total).replace(',', ' ')"/>
+                                    </td>
+                                    <td class="text-end ogi-total-currency" style="width: 100px;">
+                                        <span t-field="doc.currency"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- NEW: INTERNAL ACCOUNT STATUS (ÉTAT DU COMPTE) -->
+                        <div class="ogi-account-status">
+                            <p class="ogi-account-title">ÉTAT DU COMPTE</p>
+                            
+                            <div class="ogi-account-row">
+                                <div>Total facturé</div>
+                                <div>
+                                    <span class="ogi-account-val"><t t-esc="'{0:,.0f}'.format(doc.amount_total).replace(',', ' ')"/></span>
+                                    <span class="ogi-account-currency"><t t-esc="doc.currency"/></span>
+                                </div>
+                            </div>
+                            
+                            <div class="ogi-account-row">
+                                <div>Total payé</div>
+                                <div>
+                                    <span class="ogi-account-val" style="color: #9ca3af;"><t t-esc="'{0:,.0f}'.format(doc.amount_paid).replace(',', ' ')"/></span>
+                                    <span class="ogi-account-currency"><t t-esc="doc.currency"/></span>
+                                </div>
+                            </div>
+                            
+                            <div class="ogi-account-row" style="margin-top: 30px; margin-bottom: 0;">
+                                <div style="font-weight: 700;">Reste à payer</div>
+                                <div>
+                                    <span class="ogi-account-val" style="color: #e65025;"><t t-esc="'{0:,.0f}'.format(doc.amount_residual).replace(',', ' ')"/></span>
+                                    <span class="ogi-account-currency" style="color: #e65025;"><t t-esc="doc.currency"/></span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </t>
             </t>

@@ -46,6 +46,12 @@ class OgiTransitInvoice(models.Model):
     goods_description = fields.Char(string='Description of Goods', tracking=True)
     bgda_amount = fields.Float(string='BGDA Amount', tracking=True, default=0.0)
     
+    # NEW: Fields for USD Invoice Visibility
+    ins_amount = fields.Float(string='Inspection Fees (USD)', tracking=True, default=0.0)
+    freight_amount = fields.Float(string='Freight Amount', compute='_compute_freight_amount', store=True)
+    
+    amount_total = fields.Float(string='Total Amount', required=True, tracking=True)
+    
     amount_total = fields.Float(string='Total Amount', required=True, tracking=True)
     amount_paid = fields.Float(string='Amount Paid', default=0.0, readonly=True, tracking=True)
     amount_residual = fields.Float(string='Balance Due', compute='_compute_amounts', store=True)
@@ -93,6 +99,12 @@ class OgiTransitInvoice(models.Model):
             'domain': [('ogi_invoice_id', '=', self.id)],
             'context': {'default_ogi_invoice_id': self.id}
         }
+
+    @api.depends('amount_total', 'ins_amount')
+    def _compute_freight_amount(self):
+        for inv in self:
+            # The Freight Amount is the Total Amount minus the Inspection Fees
+            inv.freight_amount = inv.amount_total - inv.ins_amount
 
     @api.depends('amount_total', 'bgda_amount')
     def _compute_base_amount(self):

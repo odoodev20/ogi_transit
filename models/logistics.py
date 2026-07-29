@@ -355,12 +355,23 @@ class OgiTransitContainer(models.Model):
     pl_line_ids = fields.One2many('ogi.transit.pl.line', 'container_id', string='Packing List Lines')
 
     @api.constrains('name')
-    def _check_container_name(self):
+    def check_container_name(self):
         for record in self:
-            if record.name and not re.match(r'^[A-Z]{4}\d{7}$', record.name):
-                # REFACTORED: Exception wrapped in _()
-                raise ValidationError(_("Invalid Container Number. The ISO format must be exactly 4 uppercase letters followed by 7 digits (e.g., MAEU1234567)."))
+            if record.name:
+                # 1. Existing ISO format validation
+                if not re.match(r'^[A-Z]{4}\d{7}$', record.name):
+                    raise ValidationError(_("Invalid Container Number. The ISO format must be exactly 4 uppercase letters followed by 7 digits (e.g., MAEU1234567)."))
+                
+                # 2. NEW: Uniqueness validation (Case-insensitive check)
+                duplicate = self.search([
+                    ('name', '=ilike', record.name),
+                    ('id', '!=', record.id)
+                ], limit=1)
+                
+                if duplicate:
+                    raise ValidationError(_("Container Number already exists. Please enter a unique container number."))
 
+                
     @api.constrains('type', 'partner_id', 'total_freight_usd', 'total_customs_gnf', 'goods_description')
     def _check_fcl_required_fields(self):
         for container in self:
@@ -393,12 +404,18 @@ class OgiTransitContainer(models.Model):
     @api.depends('total_customs_gnf', 'total_freight_forwarder_gnf', 'pl_line_ids.calculated_gnf')
     def _compute_gross_margins(self):
         for container in self:
-            # 1. Estimated Gross Margin
+            # 1. Estimated Gross Margin (Target Revenue - Cost)
             container.estimated_gross_margin_gnf = container.total_customs_gnf - container.total_freight_forwarder_gnf
             
-            # 2. Actual Gross Margin (Container Service Price - Sum of all Pro-rata Customs GNF)
+            # 2. Actual Gross Margin (Actual Invoiced Revenue - Cost)
             total_prorata_customs = sum(container.pl_line_ids.mapped('calculated_gnf'))
-            container.actual_gross_margin_gnf = container.total_customs_gnf - total_prorata_customs
+            
+            # BUG FIX: Subtract Freight Forwarder Cost from the Total Prorated amount, not the Service Price
+            if total_prorata_customs > 0:
+                container.actual_gross_margin_gnf = total_prorata_customs - container.total_freight_forwarder_gnf
+            else:
+                # If prorata hasn't been calculated yet, fall back to 0.0 to prevent confusion
+                container.actual_gross_margin_gnf = 0.0
 
     @api.constrains('type', 'forwarder_id')
     def _check_mandatory_forwarder(self):
@@ -454,6 +471,26 @@ class OgiTransitContainer(models.Model):
         for container in self:
             if not container.pl_line_ids:
                 raise ValidationError(_("You must add at least one Packing List line before validating."))
+            
+            # NEW: Strict LCL + Home Validation Rules
+            if container.type == 'lcl_home':
+                # 1. Origin & CBM Checks
+                if container.origin == 'china' and round(container.total_cbm, 2) != 68.0:
+                    raise ValidationError(_("Validation Error: For China origin containers, the Total CBM/Line must be exactly 68.0."))
+                
+                if container.origin == 'dubai' and round(container.total_cbm, 2) != 43.0:
+                    raise ValidationError(_("Validation Error: For Dubai origin containers, the Total CBM/Line must be exactly 43.0."))
+                
+                # 2. Financial Checks
+                if container.total_freight_usd <= 0:
+                    raise ValidationError(_("Validation Error: Total Freight (USD) must be strictly greater than 0."))
+                
+                if container.total_customs_gnf <= 0:
+                    raise ValidationError(_("Validation Error: Container Service Price (GNF) must be strictly greater than 0."))
+                
+                if container.total_freight_forwarder_gnf <= 0:
+                    raise ValidationError(_("Validation Error: Freight Forwarder Cost (GNF) must be strictly greater than 0."))
+
             container.packing_list_state = 'validated'
             container.message_post(body=Markup(_("<strong>Packing List Validated:</strong> Input data is confirmed.")))
 
@@ -548,6 +585,10 @@ class OgiTransitContainer(models.Model):
                             'currency': 'USD',
                             'amount_total': line.calculated_usd,
                             'goods_description': line.goods_description,
+                            
+                            # NEW: Explicitly track the prorated INS amount on the LCL invoice
+                            'ins_amount': line.calculated_ins_usd,
+                            
                             'state': 'draft'
                         })
                         line.usd_invoice_id = inv_usd.id
