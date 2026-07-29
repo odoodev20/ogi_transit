@@ -30,8 +30,8 @@
                             .ogi-client-phone { font-size: 14px; color: #4b5563; margin-bottom: 8px; }
                             .ogi-client-ref { background-color: #f3f4f6; color: #374151; padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 12px; display: inline-block; }
                             
-                            .ogi-meta-band { background-color: #f4f3ef; padding: 20px 40px; display: flex; margin-top: 20px; }
-                            .ogi-meta-item { width: 33.33%; }
+                            .ogi-meta-band { background-color: #f4f3ef; padding: 20px 40px; margin-top: 20px; overflow: hidden; clear: both; }
+                            .ogi-meta-item { width: 33.33%; float: left; }
                             .ogi-meta-label { font-size: 11px; font-weight: 700; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
                             .ogi-meta-value { font-size: 15px; font-weight: 700; color: #1f2937; font-family: monospace; }
                             
@@ -212,7 +212,10 @@
                             
                             .ogi-account-status { background-color: #f4f3ef; padding: 30px 40px; }
                             .ogi-account-title { font-size: 14px; font-weight: 700; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 25px; }
-                            .ogi-account-row { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 16px;}
+                            
+                            .ogi-account-row { margin-bottom: 20px; font-size: 14px; overflow: hidden; clear: both; }
+                            .ogi-account-row > div:first-child { float: left; }
+                            .ogi-account-row > div:last-child { float: right; text-align: right; }
                             .ogi-account-val { font-family: monospace; font-weight: 700; font-size: 16px;}
                             .ogi-account-currency { color: #9ca3af; font-size: 14px; margin-left: 10px; font-family: sans-serif;}
                         </style>
