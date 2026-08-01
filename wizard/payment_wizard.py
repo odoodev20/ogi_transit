@@ -85,21 +85,40 @@ class OgiInvoicePaymentWizard(models.TransientModel):
 
         if self.payment_method == 'deposit':
             if self.amount > self.amount_residual:
-                # REFACTORED: Wrapped in _()
+                #REFACTORED: Wrapped in _()
                 raise ValidationError(_("You cannot apply more deposit than the invoice balance due."))
-            
             if self.amount > self.available_deposit:
-                # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+                #REFACTORED: Converted f-string to %s formatting and wrapped in _()
                 raise ValidationError(_("Insufficient funds! The customer only has %s %s in their wallet.") % (self.available_deposit, self.currency))
-            
+
             if is_usd:
                 partner.deposit_usd -= self.amount
             else:
                 partner.deposit_gnf -= self.amount
-                
+
             self.invoice_id.amount_paid += self.amount
-            # REFACTORED: Converted f-string to %s formatting and wrapped in _()
+            
+            #REFACTORED: Converted f-string to %s formatting and wrapped in _()
             self.invoice_id.message_post(body=Markup(_("<strong>Deposit Applied:</strong> %s %s deducted from customer wallet.")) % (self.amount, self.currency))
+            
+            # =========================================================================
+            # NEW BUG FIX: Create the Transaction Record so it appears in the History UI
+            # =========================================================================
+            txn = self.env['ogi.transit.transaction'].create({
+                'cashbox_id': False, # Passing False triggers "Wallet Balance" in the UI
+                'type': 'in',
+                'amount': self.amount,
+                'partner_id': partner.id,
+                'reason': _("Payment: Inv %s via Wallet Balance") % self.invoice_id.name,
+                'invoice_id': self.invoice_id.id,
+                'receipt_number': _('WALLET-DEDUCTION'),
+                
+                # NEW: Explicitly save the payment method
+                'payment_method': 'Wallet Balance',
+            })
+            txn.action_confirm()
+            # =========================================================================
+
             return
 
         if not self.cashbox_id:
@@ -141,7 +160,10 @@ class OgiInvoicePaymentWizard(models.TransientModel):
             # REFACTORED: Safely inject variables into the localized string
             'reason': _("%s via %s") % (ref_text, method_label),
             'invoice_id': self.invoice_id.id,
-            'receipt_number': self.receipt_number  # <--- NEW MAPPING
+            'receipt_number': self.receipt_number,
+            
+            # NEW: Explicitly save the payment method (Cash, Check, Mobile Money)
+            'payment_method': method_label,
         })
         
         txn.action_confirm()

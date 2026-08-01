@@ -62,14 +62,17 @@
                         </group>
                     </group>
                     
-                    <!-- NEW: Payment History Tab -->
+                   <!-- NEW: Payment History Tab -->
                     <notebook>
                         <page string="Payment History" invisible="amount_paid == 0">
                             <field name="transaction_ids" readonly="1">
                                 <list decoration-success="state == 'done'" decoration-muted="state == 'cancelled'">
                                     <field name="date" string="Payment Date" widget="date"/>
                                     <field name="receipt_number" string="Receipt Ref."/>
-                                    <field name="cashbox_id" string="Payment Method / Register"/>
+                                    
+                                    <!-- FIX: Displays the dynamic Payment Method -->
+                                    <field name="payment_method_display"/>
+                                    
                                     <field name="amount" string="Amount Paid" sum="Total Paid"/>
                                     <field name="currency"/>
                                     <field name="state" widget="badge"/>

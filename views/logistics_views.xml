@@ -64,7 +64,7 @@
                             
                             <field name="bl_id"/>
                             <field name="origin" readonly="1" force_save="1"/>
-                            <field name="forwarder_id" options="{'no_create': True}" required="type in ('fcl_home', 'lcl_home')"/>
+                            <field name="forwarder_id" options="{'no_create': True}" invisible="type == 'fcl_awaye'" required="type in ('fcl_home', 'lcl_home')"/>
                         </group>
                         <group>
                             <!-- UPDATED: Replaced the 'not has_pl_lines' lock with the new workflow status locks -->

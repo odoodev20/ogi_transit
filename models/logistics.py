@@ -257,8 +257,7 @@ class OgiTransitBL(models.Model):
 
     name = fields.Char(string='B/L No.', required=True, tracking=True, copy=False)
     shipping_company_id = fields.Many2one('ogi.transit.shipping.company', string='Shipping Company')
-    port_departure_id = fields.Many2one('ogi.transit.port', string='Port of Departure')
-    
+    port_departure_id = fields.Many2one('ogi.transit.port', string='Port of Departure', required=True)
     port_arrival_id = fields.Many2one('ogi.transit.port', string='Port of Arrival', required=True)
     
     departure_date = fields.Date(string='Departure Date', required=True)

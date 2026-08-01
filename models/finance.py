@@ -31,8 +31,10 @@ class OgiTransitTransaction(models.Model):
     _order = 'date desc, id desc'
 
     name = fields.Char(string='Reference', required=True, copy=False, readonly=True, default='New')
-    cashbox_id = fields.Many2one('ogi.transit.cashbox', string='Cash Register', required=True, ondelete='restrict', tracking=True)
+
+    cashbox_id = fields.Many2one('ogi.transit.cashbox', string='Cash Register', required=False, ondelete='restrict', tracking=True)
     type = fields.Selection([('in', 'Incoming (+)' ), ('out', 'Outgoing (-)')], string='Type', required=True, tracking=True)
+    
     amount = fields.Float(string='Amount', required=True, tracking=True)
     currency = fields.Selection(related='cashbox_id.currency', string='Currency', readonly=True)
     date = fields.Datetime(string='Date', default=fields.Datetime.now, required=True, tracking=True)
@@ -45,13 +47,27 @@ class OgiTransitTransaction(models.Model):
     partner_id = fields.Many2one('res.partner', string='Customer / Partner', tracking=True)
     is_wallet_transaction = fields.Boolean(string='Update Customer Wallet?', default=True, help="Check this to automatically increase/decrease the customer's deposit wallet.")
 
-    invoice_id = fields.Many2one('ogi.transit.invoice', string='Related Invoice', readonly=True)    
+    invoice_id = fields.Many2one('ogi.transit.invoice', string='Related Invoice', readonly=True)
+    
+    # NEW: Store the exact method used
+    payment_method = fields.Char(string='Method') 
+    payment_method_display = fields.Char(string='Payment Method', compute='_compute_payment_method_display')
 
     state = fields.Selection([
         ('draft', 'Draft'),
         ('done', 'Done'),
         ('cancelled', 'Cancelled')
     ], string='Status', default='draft', tracking=True)
+
+    @api.depends('cashbox_id', 'payment_method')
+    def _compute_payment_method_display(self):
+        for tx in self:
+            if tx.payment_method:
+                tx.payment_method_display = tx.payment_method
+            elif tx.cashbox_id:
+                tx.payment_method_display = tx.cashbox_id.name
+            else:
+                tx.payment_method_display = 'Wallet Balance'
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -70,11 +86,12 @@ class OgiTransitTransaction(models.Model):
                 raise ValidationError(_("The transaction amount must be strictly greater than zero."))
             
             # Strict balance check for outgoing funds from the cashbox
-            if tx.type == 'out':
+            # FIX: Added "and tx.cashbox_id" to prevent errors on Wallet payouts
+            if tx.type == 'out' and tx.cashbox_id:
                 future_balance = tx.cashbox_id.balance - tx.amount
                 if future_balance < 0:
-                    raise ValidationError(_("Insufficient funds! You cannot withdraw %s. The %s register only has %s available.") % (tx.amount, tx.cashbox_id.name, tx.cashbox_id.balance))
-            
+                    raise ValidationError(("Insufficient funds! You cannot withdraw %s. The %s register only has %s available.") % (tx.amount, tx.cashbox_id.name, tx.cashbox_id.balance))
+                
             # Customer Wallet Math Integration
             if tx.is_wallet_transaction and tx.partner_id:
                 if tx.currency == 'USD':
@@ -167,12 +184,13 @@ class OgiTransitInterCashLoan(models.Model):
     
     # Destination Receipt Number removed as requested
     
-    amount_paid = fields.Float(string='Amount Repaid', default=0.0, tracking=True)
+    amount_paid = fields.Float(string='Amount Repaid', default=0.0, readonly=True, tracking=True)
     amount_residual = fields.Float(string='Remaining Balance', compute='_compute_residual', store=True)
     
     # Updated statuses for Loan workflow
     state = fields.Selection([
         ('draft', 'Draft'),
+        ('validated', 'Validated'),
         ('partial', 'Partially Paid'),
         ('paid', 'Paid')
     ], string='Status', default='draft', tracking=True)
@@ -199,6 +217,51 @@ class OgiTransitInterCashLoan(models.Model):
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('ogi.transit.inter.cash.loan') or 'New'
         return super().create(vals_list)
+
+    def action_validate_loan(self):
+        for loan in self:
+            if loan.state != 'draft':
+                continue
+                
+            if loan.source_cashbox_id.balance < loan.amount:
+                raise ValidationError(("Insufficient funds! The source register (%s) only has %s available.") % (loan.source_cashbox_id.name, loan.source_cashbox_id.balance))
+            
+            Transaction = self.env['ogi.transit.transaction']
+            
+            # 1. Debit Source Register (Sending Funds)
+            Transaction.create({
+                'cashbox_id': loan.source_cashbox_id.id,
+                'type': 'out',
+                'amount': loan.amount,
+                'reason': ("Internal Loan to %s") % loan.dest_cashbox_id.name,
+                'receipt_number': loan.receipt_number,
+                'state': 'done',
+                'is_wallet_transaction': False
+            })
+            
+            # 2. Credit Destination Register (Receiving Funds)
+            Transaction.create({
+                'cashbox_id': loan.dest_cashbox_id.id,
+                'type': 'in',
+                'amount': loan.amount,
+                'reason': ("Internal Loan from %s") % loan.source_cashbox_id.name,
+                'receipt_number': loan.receipt_number,
+                'state': 'done',
+                'is_wallet_transaction': False
+            })
+            
+            loan.state = 'validated'
+
+    def action_register_repayment(self):
+        self.ensure_one()
+        return {
+            'name': 'Register Loan Repayment',
+            'type': 'ir.actions.act_window',
+            'res_model': 'ogi.transit.loan.repayment.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_loan_id': self.id}
+        }
 
 
 # ==========================================
@@ -284,3 +347,66 @@ class OgiTransitCargoTransfer(models.Model):
                 raise ValidationError(_("Validation Error: You must enter the 'Destination Receipt No.' to prove the funds arrived."))
             
             transfer.state = 'sent'
+
+# ==========================================
+# INTERNAL LOAN REPAYMENT WIZARD
+# ==========================================
+class OgiTransitLoanRepaymentWizard(models.TransientModel):
+    _name = 'ogi.transit.loan.repayment.wizard'
+    _description = 'Loan Repayment Wizard'
+    
+    loan_id = fields.Many2one('ogi.transit.inter.cash.loan', string='Loan', required=True)
+    amount = fields.Float(string='Repayment Amount', required=True)
+    currency = fields.Selection(related='loan_id.currency', string='Currency', readonly=True)
+    receipt_number = fields.Char(string='Transfer Ref / Receipt No.', required=True)
+    
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if self.env.context.get('active_id'):
+            loan = self.env['ogi.transit.inter.cash.loan'].browse(self.env.context['active_id'])
+            res['loan_id'] = loan.id
+            res['amount'] = loan.amount_residual
+        return res
+        
+    def action_confirm_repayment(self):
+        if self.amount <= 0:
+            raise ValidationError("The repayment amount must be strictly greater than zero.")
+        if self.amount > self.loan_id.amount_residual:
+            raise ValidationError(("You cannot repay more than the remaining balance (%s).") % self.loan_id.amount_residual)
+        
+        # When repaying, funds move from the Destination back to the Source.
+        if self.loan_id.dest_cashbox_id.balance < self.amount:
+            raise ValidationError(("Insufficient funds in %s to make this repayment.") % self.loan_id.dest_cashbox_id.name)
+        
+        Transaction = self.env['ogi.transit.transaction']
+        
+        # 1. Debit Destination Register (Returning funds)
+        Transaction.create({
+            'cashbox_id': self.loan_id.dest_cashbox_id.id,
+            'type': 'out',
+            'amount': self.amount,
+            'reason': ("Loan Repayment to %s") % self.loan_id.source_cashbox_id.name,
+            'receipt_number': self.receipt_number,
+            'state': 'done',
+            'is_wallet_transaction': False
+        })
+        
+        # 2. Credit Source Register (Receiving repaid funds)
+        Transaction.create({
+            'cashbox_id': self.loan_id.source_cashbox_id.id,
+            'type': 'in',
+            'amount': self.amount,
+            'reason': ("Loan Repayment from %s") % self.loan_id.dest_cashbox_id.name,
+            'receipt_number': self.receipt_number,
+            'state': 'done',
+            'is_wallet_transaction': False
+        })
+        
+        self.loan_id.amount_paid += self.amount
+        
+        # FIX: Dynamically determine if it's paid or partially paid
+        if self.loan_id.amount_residual <= 0:
+            self.loan_id.state = 'paid'
+        elif self.loan_id.amount_paid > 0:
+            self.loan_id.state = 'partial'

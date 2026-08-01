@@ -207,8 +207,11 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="%(ogi_transit.action_ogi_loan_repayment_wizard)d" string="Register Repayment" type="action" class="btn-warning" invisible="state not in ('draft', 'partial')"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,partial,paid"/>
+                    <button name="action_validate_loan" string="Validate Loan" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    
+                    <button name="action_register_repayment" string="Register Repayment" type="object" class="btn-warning" invisible="state not in ('validated', 'partial')"/>
+                    
+                    <field name="state" widget="statusbar" statusbar_visible="draft,validated,partial,paid"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -350,4 +353,30 @@
 
     <menuitem id="menu_ogi_cash_audits" name="Cash Audits" parent="menu_ogi_finance" action="action_ogi_cash_audit" sequence="30" 
               groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+    
+    <!-- INTERNAL LOAN REPAYMENT WIZARD -->
+    <record id="view_ogi_loan_repayment_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.transit.loan.repayment.wizard.form</field>
+        <field name="model">ogi.transit.loan.repayment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Register Repayment">
+                <sheet>
+                    <group>
+                        <field name="loan_id" readonly="1"/>
+                        <label for="amount"/>
+                        <div class="o_row">
+                            <field name="amount"/>
+                            <field name="currency"/>
+                        </div>
+                        <field name="receipt_number"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_confirm_repayment" string="Confirm Repayment" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
 </odoo>
