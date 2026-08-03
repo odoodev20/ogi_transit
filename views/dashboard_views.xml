@@ -208,6 +208,17 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Treasury Accounts (Bank &amp; Mobile)" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <field name="treasury_account_ids" readonly="1">
+                                <list>
+                                    <field name="name" string="Register Name"/>
+                                    <field name="type_register" string="Type"/>
+                                    <field name="currency"/>
+                                    <field name="balance" decoration-bf="1" decoration-success="balance &gt; 0" decoration-danger="balance &lt; 0"/>
+                                </list>
+                            </field>
+                        </page>
+
                     </notebook>
                 </sheet>
             </form>

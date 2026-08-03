@@ -1,5 +1,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from markupsafe import Markup
+
 
 class CrmLead(models.Model):
     _inherit = 'crm.lead'
@@ -56,14 +58,58 @@ class OgiTransitInvoice(models.Model):
     amount_paid = fields.Float(string='Amount Paid', default=0.0, readonly=True, tracking=True)
     amount_residual = fields.Float(string='Balance Due', compute='_compute_amounts', store=True)
     base_amount = fields.Float(string='Transit / Customs Amount', compute='_compute_base_amount', store=True)
+    # 2. ADD THIS NEW FIELD (below the state field)
+    pending_txn_id = fields.Many2one('ogi.transit.transaction', string='Pending Payment Transaction', readonly=True)
 
+    # 1. UPDATE THE STATE FIELD (around line 43)
     state = fields.Selection([
         ('draft', 'DRAFT'),
         ('issued', 'ISSUED'),
+        ('to_reconcile', 'PENDING RECONCILIATION'), # NEW STATE
         ('partial', 'PARTIALLY PAID'),
         ('paid', 'PAID IN FULL'),
         ('canceled', 'CANCELED')
     ], string='Status', default='draft', tracking=True)
+
+    # 3. ADD THESE NEW METHODS (anywhere inside the class)
+    def _process_validated_payment(self, amount, currency, method_label):
+        """Helper method to execute payment math only when a payment is actually finalized."""
+        payment_to_invoice = amount
+        overpayment = 0.0
+        
+        if amount > self.amount_residual:
+            payment_to_invoice = self.amount_residual
+            overpayment = amount - self.amount_residual
+
+        self.amount_paid += payment_to_invoice
+
+        if overpayment > 0:
+            if currency == 'USD':
+                self.partner_id.deposit_usd += overpayment
+            else:
+                self.partner_id.deposit_gnf += overpayment
+            
+            self.message_post(body=Markup(_("<strong>Overpayment Detected:</strong> %s %s added to Deposit Balance.")) % (overpayment, currency))
+
+        self._compute_amounts()
+        self.message_post(body=Markup(_("<strong>Payment Applied:</strong> %s %s via %s.")) % (amount, currency, method_label))
+
+    def action_reconcile_ok(self):
+        for inv in self:
+            if inv.pending_txn_id:
+                # 1. Finalize the transaction
+                inv.pending_txn_id._execute_financial_move()
+                # 2. Apply the math to the invoice and wallet
+                inv._process_validated_payment(inv.pending_txn_id.amount, inv.currency, inv.pending_txn_id.payment_method)
+                # 3. Unlink the pending transaction
+                inv.pending_txn_id = False
+
+    def action_reconcile_ko(self):
+        for inv in self:
+            if inv.pending_txn_id:
+                inv.pending_txn_id.state = 'cancelled'
+                inv.pending_txn_id = False
+            inv.state = 'issued'
 
     @api.depends('crm_lead_ids')
     def _compute_crm_lead_count(self):

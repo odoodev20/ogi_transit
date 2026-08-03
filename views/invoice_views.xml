@@ -20,10 +20,17 @@
                     <button name="%(ogi_transit.action_report_invoice_internal)d" string="Print Internal Record" type="action" class="btn-secondary" icon="fa-lock" invisible="state == 'draft'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
                     
                     <button name="action_issue" string="Issue Invoice" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    
+                    <!-- NEW RECONCILIATION BUTTONS -->
+                    <button name="action_reconcile_ok" string="Reco OK" type="object" class="btn-success" invisible="state != 'to_reconcile'" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+                    <button name="action_reconcile_ko" string="Reco KO" type="object" class="btn-danger" invisible="state != 'to_reconcile'" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+                    
                     <button name="%(ogi_transit.action_ogi_payment_wizard)d" string="Register Payment" type="action" class="btn-success" invisible="state not in ['issued', 'partial']" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
-                    <button name="%(ogi_transit.action_ogi_invoice_reminder_wizard)d" string="Log Reminder" type="action" class="btn-warning" icon="fa-phone" invisible="state in ('draft', 'paid', 'canceled')" context="{'default_invoice_id': id}" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+                    <button name="%(ogi_transit.action_ogi_invoice_reminder_wizard)d" string="Log Reminder" type="action" class="btn-warning" icon="fa-phone" invisible="state in ('draft', 'paid', 'canceled', 'to_reconcile')" context="{'default_invoice_id': id}" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
                     <button name="action_cancel" string="Cancel" type="object" invisible="state == 'canceled'" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,issued,partial,paid"/>
+                    
+                    <!-- UPDATED: Added to_reconcile -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,issued,to_reconcile,partial,paid"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">

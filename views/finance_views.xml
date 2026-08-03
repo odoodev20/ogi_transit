@@ -39,10 +39,14 @@
                     </div>
                     <group>
                         <group>
-                            <field name="origin"/>
-                            <field name="currency"/>
+                            <!-- NEW: Register Type (Dropdown) and Payment Method Toggle -->
+                            <field name="type_register"/>
+                            <field name="is_payment_method" widget="boolean_toggle"/>
                         </group>
                         <group>
+                            <!-- UPDATED: Origin is only required if it's a Cash register -->
+                            <field name="origin" required="type_register == 'cash'"/>
+                            <field name="currency"/>
                             <field name="balance" decoration-bf="1" decoration-success="balance &gt; 0" decoration-danger="balance &lt; 0" widget="monetary"/>
                         </group>
                     </group>
@@ -96,8 +100,13 @@
                     <button name="%(ogi_transit.action_report_receipt)d" string="Print Receipt" type="action" class="btn-primary" icon="fa-print" invisible="state != 'done' or type != 'in'"/>
                     
                     <button name="action_confirm" string="Confirm" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    
+                    <button name="action_reconcile_ok" string="Reco OK" type="object" class="btn-success" invisible="state != 'to_reconcile'"/>
+                    <button name="action_reconcile_ko" string="Reco KO" type="object" class="btn-danger" invisible="state != 'to_reconcile'"/>
+                    
                     <button name="action_cancel" string="Cancel" type="object" invisible="state == 'cancelled'" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,done,cancelled"/>
+                    
+                    <field name="state" widget="statusbar" statusbar_visible="draft,to_reconcile,done,cancelled"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -105,7 +114,27 @@
                     </div>
                     <group>
                         <group>
-                            <field name="cashbox_id" options="{'no_create': True, 'no_open': True}" readonly="state != 'draft'"/>
+                            <field name="cashbox_id" string="Register" options="{'no_create': True, 'no_open': True}" readonly="state != 'draft'"/>
+                            <field name="cashbox_type" invisible="1"/>
+                            
+                            <!-- ===================================== -->
+                            <!-- DRAFT MODE: UI Dropdown Trick         -->
+                            <!-- ===================================== -->
+                            <field name="payment_method_type" 
+                                   invisible="state != 'draft' or cashbox_type == 'bank' or cashbox_id == False" 
+                                   readonly="1" force_save="1"/>
+                            
+                            <field name="payment_method_bank" 
+                                   invisible="state != 'draft' or cashbox_type != 'bank'" 
+                                   required="state == 'draft' and cashbox_type == 'bank'"/>
+                                   
+                            <!-- ===================================== -->
+                            <!-- SAVED MODE: Clean Read-Only Display   -->
+                            <!-- ===================================== -->
+                            <field name="payment_method_display" 
+                                   string="Payment Method" 
+                                   invisible="state == 'draft'"/>
+
                             <field name="type" readonly="state != 'draft'"/>
                             <label for="amount"/>
                             <div class="o_row">
@@ -337,23 +366,7 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <menuitem id="menu_ogi_finance" name="Finance" parent="menu_ogi_root" sequence="20" 
-              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
 
-    <menuitem id="menu_ogi_cashboxes" name="Cash Registers" parent="menu_ogi_finance" action="action_ogi_cashbox" sequence="10" 
-              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
-
-    <menuitem id="menu_ogi_transactions" name="Transactions" parent="menu_ogi_finance" action="action_ogi_transaction" sequence="20"/>
-
-    <menuitem id="menu_ogi_inter_cash_loans" name="Internal Loans" parent="menu_ogi_finance" action="action_ogi_inter_cash_loan" sequence="25" 
-              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
-    
-    <menuitem id="menu_ogi_cargo_transfers" name="CARGO Transfers" parent="menu_ogi_finance" action="action_ogi_cargo_transfer" sequence="26" 
-              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
-
-    <menuitem id="menu_ogi_cash_audits" name="Cash Audits" parent="menu_ogi_finance" action="action_ogi_cash_audit" sequence="30" 
-              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
-    
     <!-- INTERNAL LOAN REPAYMENT WIZARD -->
     <record id="view_ogi_loan_repayment_wizard_form" model="ir.ui.view">
         <field name="name">ogi.transit.loan.repayment.wizard.form</field>
@@ -379,4 +392,95 @@
         </field>
     </record>
 
+    <!-- Sequence for Internal Transfers -->
+    <record id="seq_ogi_internal_transfer" model="ir.sequence">
+        <field name="name">Internal Transfer Sequence</field>
+        <field name="code">ogi.transit.internal.transfer</field>
+        <field name="prefix">IT-%(year)s-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Tree/List View -->
+    <record id="view_ogi_internal_transfer_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.internal.transfer.tree</field>
+        <field name="model">ogi.transit.internal.transfer</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'done'">
+                <field name="name"/>
+                <field name="source_cashbox_id"/>
+                <field name="dest_cashbox_id"/>
+                <field name="amount"/>
+                <field name="currency"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_ogi_internal_transfer_form" model="ir.ui.view">
+        <field name="name">ogi.transit.internal.transfer.form</field>
+        <field name="model">ogi.transit.internal.transfer</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_validate_transfer" string="Validate Transfer" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="source_cashbox_id" readonly="state == 'done'" options="{'no_create': True}"/>
+                            <field name="dest_cashbox_id" readonly="state == 'done'" options="{'no_create': True}"/>
+                            <field name="currency"/>
+                        </group>
+                        <group>
+                            <field name="amount" readonly="state == 'done'"/>
+                            <field name="receipt_number" readonly="state == 'done'"/>
+                            <field name="reason" readonly="state == 'done'"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_ogi_internal_transfer" model="ir.actions.act_window">
+        <field name="name">Internal Transfers</field>
+        <field name="res_model">ogi.transit.internal.transfer</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu Item (Assuming your parent menu ID for Finance is menu_ogi_finance) -->
+    <menuitem id="menu_ogi_internal_transfers" 
+              name="Internal Transfers" 
+              parent="menu_ogi_finance" 
+              action="action_ogi_internal_transfer" 
+              sequence="40"
+              groups="ogi_transit.group_ogi_admin,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance"/>
+
+    <menuitem id="menu_ogi_finance" name="Finance" parent="menu_ogi_root" sequence="20" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+
+    <menuitem id="menu_ogi_cashboxes" name="Cash Register" parent="menu_ogi_finance" action="action_ogi_cashbox" sequence="10" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+
+    <menuitem id="menu_ogi_transactions" name="Transactions" parent="menu_ogi_finance" action="action_ogi_transaction" sequence="20"/>
+
+    <menuitem id="menu_ogi_inter_cash_loans" name="Internal Loans" parent="menu_ogi_finance" action="action_ogi_inter_cash_loan" sequence="25" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+    
+    <menuitem id="menu_ogi_cargo_transfers" name="CARGO Transfers" parent="menu_ogi_finance" action="action_ogi_cargo_transfer" sequence="26" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+
+    <menuitem id="menu_ogi_cash_audits" name="Cash Audits" parent="menu_ogi_finance" action="action_ogi_cash_audit" sequence="30" 
+              groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+    
 </odoo>

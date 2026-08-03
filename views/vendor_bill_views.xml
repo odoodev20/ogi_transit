@@ -10,24 +10,40 @@
         </record>
     </data>
 
+    <!-- ========================================== -->
+    <!-- VENDOR PAYOUT WIZARD                       -->
+    <!-- ========================================== -->
     <record id="view_ogi_transit_vendor_payment_wizard_form" model="ir.ui.view">
         <field name="name">ogi.transit.vendor.payment.wizard.form</field>
         <field name="model">ogi.transit.vendor.payment.wizard</field>
         <field name="arch" type="xml">
             <form string="Register Payout">
                 <div class="alert alert-warning" role="alert">
-                    Warning: Confirming this payout will instantly withdraw funds from the corresponding Cash Register.
+                    Warning: Confirming this payout will withdraw funds or send it to pending reconciliation.
                 </div>
                 <group>
                     <field name="bill_id" readonly="1" force_save="1"/>
                     <label for="amount"/>
                     <div class="o_row">
-                        <field name="amount"/>
-                        <field name="currency" invisible="1"/>
+                        <field name="amount" class="oe_inline"/>
+                        <field name="currency" class="oe_inline" invisible="1"/>
                     </div>
-                    <!-- NEW: Display the Receipt Number input field -->
-                    <field name="receipt_number"/>
-                    <field name="cashbox_id" options="{'no_create': True}"/>
+                    
+                    <field name="receipt_number" required="1"/>
+                    
+                    <!-- Dynamic Register Selection -->
+                    <field name="cashbox_id" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="cashbox_type" invisible="1"/>
+                    
+                    <!-- Read-only auto-filled field for Cash/Mobile -->
+                    <field name="payment_method_type" 
+                           invisible="cashbox_type == 'bank' or cashbox_id == False" 
+                           readonly="1" force_save="1"/>
+                           
+                    <!-- Restricted Dropdown for Banks -->
+                    <field name="payment_method_bank" 
+                           invisible="cashbox_type != 'bank'" 
+                           required="cashbox_type == 'bank'"/>
                 </group>
                 <footer>
                     <button name="action_register_payout" string="Confirm Payout" type="object" class="btn-danger"/>
@@ -44,6 +60,9 @@
         <field name="target">new</field>
     </record>
 
+    <!-- ========================================== -->
+    <!-- MAIN VENDOR BILL FORM                      -->
+    <!-- ========================================== -->
     <record id="view_ogi_vendor_bill_form" model="ir.ui.view">
         <field name="name">ogi.transit.vendor.bill.form</field>
         <field name="model">ogi.transit.vendor.bill</field>
@@ -52,11 +71,14 @@
                 <header>
                     <button name="action_approve" string="Approve Bill" type="object" class="oe_highlight" invisible="state != 'draft'"/>
                     
-                    <!-- UPDATED: Button is now visible in both 'issued' and 'partial' states AND restricted from Logistics -->
+                    <!-- NEW: Reconciliation Buttons -->
+                    <button name="action_reconcile_ok" string="Reco OK" type="object" class="btn-success" invisible="state != 'to_reconcile'" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+                    <button name="action_reconcile_ko" string="Reco KO" type="object" class="btn-danger" invisible="state != 'to_reconcile'" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+                    
                     <button name="%(ogi_transit.action_ogi_transit_vendor_payment_wizard)d" string="Register Payout" type="action" class="btn-danger" invisible="state not in ('issued', 'partial')" context="{'default_bill_id': id}" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
                     
-                    <!-- UPDATED: Added 'partial' to the visible status bar -->
-                    <field name="state" widget="statusbar" statusbar_visible="draft,issued,partial,paid"/>
+                    <!-- UPDATED: Added to_reconcile to status bar -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,issued,to_reconcile,partial,paid"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -68,7 +90,6 @@
                             <field name="container_id" readonly="state != 'draft'" required="expense_type in ('freight', 'customs', 'bgda')"/>
                             <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft' or not expense_type or expense_type in ('customs', 'bgda')" force_save="1"/>
                             
-                            <!-- NEW: Description field (Only visible/required for 'Other Supplier') -->
                             <field name="description" 
                                 invisible="expense_type != 'other'" 
                                 required="expense_type == 'other'"
@@ -79,11 +100,27 @@
                             <field name="currency" readonly="state != 'draft'"/>
                             <field name="amount_total" readonly="state != 'draft'"/>
                             
-                            <!-- NEW FIELDS: Seamlessly added below the total -->
                             <field name="amount_paid" invisible="state == 'draft'"/>
                             <field name="amount_residual" invisible="state == 'draft'" class="oe_subtotal_footer_separator"/>
                         </group>
                     </group>
+
+                    <!-- NEW: Payment History Tab -->
+                    <notebook>
+                        <page string="Payment History" invisible="amount_paid == 0">
+                            <field name="transaction_ids" readonly="1">
+                                <list decoration-success="state == 'done'" decoration-muted="state == 'cancelled'">
+                                    <field name="date" string="Payment Date" widget="date"/>
+                                    <field name="receipt_number" string="Receipt Ref."/>
+                                    <field name="payment_method_display"/>
+                                    <field name="amount" string="Amount Paid" sum="Total Paid"/>
+                                    <field name="currency"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+
                 </sheet>
                 <chatter/>
             </form>
@@ -94,16 +131,13 @@
         <field name="name">ogi.transit.vendor.bill.tree</field>
         <field name="model">ogi.transit.vendor.bill</field>
         <field name="arch" type="xml">
-            <list decoration-info="state == 'draft'" decoration-danger="state == 'issued'" decoration-success="state == 'paid'">
+            <list decoration-info="state == 'draft'" decoration-danger="state == 'issued'" decoration-warning="state == 'to_reconcile'" decoration-success="state == 'paid'">
                 <field name="name"/>
                 <field name="partner_id" widget="many2one_avatar"/>
                 <field name="container_id"/>
                 <field name="expense_type"/>
                 <field name="amount_total" sum="Total"/>
-                
-                <!-- NEW: Balance Due Column -->
                 <field name="amount_residual" string="Balance Due" sum="Total Balance Due"/>
-                
                 <field name="state" widget="badge"/>
                 <field name="create_date" string="Creation Date" widget="date" optional="show"/>
                 <field name="write_date" string="Modification Date" widget="date" optional="show"/>

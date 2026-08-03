@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- ========================================== -->
+    <!-- CUSTOMER INVOICE PAYMENT WIZARD            -->
+    <!-- ========================================== -->
     <record id="view_ogi_payment_wizard_form" model="ir.ui.view">
         <field name="name">ogi.invoice.payment.wizard.form</field>
         <field name="model">ogi.invoice.payment.wizard</field>
@@ -8,14 +11,32 @@
                 <group>
                     <group>
                         <field name="invoice_id" readonly="1" force_save="1"/>
-                        <field name="payment_method"/>
+                        
+                        <!-- NEW: Wallet Toggle replaces the old 'deposit' dropdown option -->
+                        <field name="is_wallet_payment" widget="boolean_toggle"/>
+                        
+                        <!-- UPDATED: Selectable Register (No longer read-only) -->
+                        <field name="cashbox_id" 
+                               invisible="is_wallet_payment" 
+                               required="not is_wallet_payment" 
+                               options="{'no_create': True, 'no_open': True}"/>
+                               
+                        <field name="cashbox_type" invisible="1"/>
+                        
+                        <!-- Read-only auto-filled field for Cash/Mobile -->
+                        <field name="payment_method_type" 
+                               invisible="is_wallet_payment == True or cashbox_type == 'bank' or cashbox_id == False" 
+                               readonly="1" force_save="1"/>
+                               
+                        <!-- Restricted Dropdown for Banks -->
+                        <field name="payment_method_bank" 
+                               invisible="is_wallet_payment == True or cashbox_type != 'bank'" 
+                               required="is_wallet_payment == False and cashbox_type == 'bank'"/>
                         
                         <!-- Visible field for the Receipt/Transfer ID -->
                         <field name="receipt_number" 
-                               invisible="payment_method == 'deposit'" 
-                               required="payment_method != 'deposit'"/>
-                               
-                        <field name="cashbox_id" invisible="payment_method == 'deposit'" readonly="1" force_save="1"/>
+                               invisible="is_wallet_payment" 
+                               required="not is_wallet_payment"/>
                     </group>
                     <group>
                         <label for="amount"/>
@@ -25,7 +46,7 @@
                         </div>
                         <field name="amount_residual"/>
                         
-                        <!-- NEW: Permanently visible Wallet Balance -->
+                        <!-- Permanently visible Wallet Balance -->
                         <field name="available_deposit" readonly="1" decoration-info="1" string="Available Wallet Balance"/>
                     </group>
                 </group>
@@ -44,6 +65,9 @@
         <field name="target">new</field>
     </record>
 
+    <!-- ========================================== -->
+    <!-- INTER-LOAN REPAYMENT WIZARD (INTACT)       -->
+    <!-- ========================================== -->
     <record id="view_ogi_loan_repayment_wizard_form" model="ir.ui.view">
         <field name="name">ogi.loan.repayment.wizard.form</field>
         <field name="model">ogi.loan.repayment.wizard</field>

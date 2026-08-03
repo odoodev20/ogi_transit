@@ -9,47 +9,53 @@ class OgiInvoicePaymentWizard(models.TransientModel):
 
     invoice_id = fields.Many2one('ogi.transit.invoice', string='Invoice', required=True)
     amount = fields.Float(string='Payment Amount', required=True)
-    payment_method = fields.Selection([
-        ('cash', 'Cash'),
-        ('mobile', 'Mobile Money'),
-        ('check', 'Check'),
-        ('deposit', 'Customer Deposit Wallet')
-    ], string='Payment Method', required=True, default='cash')
-    
-    # NEW: Field to capture the Receipt/Transfer ID from the user
     receipt_number = fields.Char(string='Receipt/Transfer ID')
-    
     currency = fields.Selection(related='invoice_id.currency', string='Currency', readonly=True)
     amount_residual = fields.Float(related='invoice_id.amount_residual', string='Amount Due', readonly=True)
+    available_deposit = fields.Float(string='Available Wallet Balance', compute='_compute_available_deposit')
+
+    # NEW: Register and Payment Method Logic
+    is_wallet_payment = fields.Boolean(string="Pay using Customer Deposit Wallet", default=False)
     
     cashbox_id = fields.Many2one(
         'ogi.transit.cashbox', 
         string='Deposit Into Register', 
-        compute='_compute_cashbox_id', 
-        store=True
+        domain="[('currency', '=', currency), ('is_payment_method', '=', True)]"
     )
+    cashbox_type = fields.Selection(related='cashbox_id.type_register', string='Register Type')
     
-    available_deposit = fields.Float(string='Available Wallet Balance', compute='_compute_available_deposit')
+    payment_method_type = fields.Selection([
+        ('cash', 'Cash'),
+        ('deposit', 'Deposit'),
+        ('transfer', 'Transfer'),
+        ('cheque', 'Cheque'),
+        ('mobile_money', 'Mobile Money')
+    ], string='Payment Method')
 
-    @api.depends('invoice_id', 'currency', 'payment_method')
-    def _compute_cashbox_id(self):
-        for wiz in self:
-            if wiz.payment_method == 'deposit':
-                wiz.cashbox_id = False
-                continue
+    # NEW: UI-Specific field for Banks
+    payment_method_bank = fields.Selection([
+        ('deposit', 'Deposit'), ('transfer', 'Transfer'), ('cheque', 'Cheque')
+    ], string='Payment Method')
 
-            if wiz.invoice_id and wiz.currency and wiz.invoice_id.container_id.origin:
-                origin = wiz.invoice_id.container_id.origin
-                currency = wiz.currency
+    @api.onchange('cashbox_id', 'payment_method_bank')
+    def _onchange_cashbox_type(self):
+        if self.cashbox_type == 'cash':
+            self.payment_method_type = 'cash'
+        elif self.cashbox_type == 'mobile_money':
+            self.payment_method_type = 'mobile_money'
+        elif self.cashbox_type == 'bank':
+            self.payment_method_type = self.payment_method_bank
+        else:
+            self.payment_method_type = False
 
-                cashbox = self.env['ogi.transit.cashbox'].search([
-                    ('origin', '=', origin),
-                    ('currency', '=', currency)
-                ], limit=1)
-
-                wiz.cashbox_id = cashbox.id if cashbox else False
-            else:
-                wiz.cashbox_id = False
+    @api.onchange('cashbox_id')
+    def _onchange_cashbox_type(self):
+        if self.cashbox_type == 'cash':
+            self.payment_method_type = 'cash'
+        elif self.cashbox_type == 'mobile_money':
+            self.payment_method_type = 'mobile_money'
+        else:
+            self.payment_method_type = False
 
     @api.depends('invoice_id', 'currency')
     def _compute_available_deposit(self):
@@ -72,101 +78,81 @@ class OgiInvoicePaymentWizard(models.TransientModel):
 
     def action_register_payment(self):
         if self.amount <= 0:
-            # REFACTORED: Wrapped in _()
             raise ValidationError(_("The payment amount must be strictly greater than zero."))
-            
-        # NEW: Stop the user early if they forgot the receipt number
-        if self.payment_method != 'deposit' and not self.receipt_number:
-            # REFACTORED: Wrapped in _()
-            raise ValidationError(_("You must enter a 'Received/Sent Number' (Receipt/Transfer ID) before confirming this transaction."))
         
         partner = self.invoice_id.partner_id
         is_usd = self.currency == 'USD'
 
-        if self.payment_method == 'deposit':
+        # 1. HANDLE WALLET PAYMENTS (Goes straight to Done)
+        if self.is_wallet_payment:
             if self.amount > self.amount_residual:
-                #REFACTORED: Wrapped in _()
                 raise ValidationError(_("You cannot apply more deposit than the invoice balance due."))
             if self.amount > self.available_deposit:
-                #REFACTORED: Converted f-string to %s formatting and wrapped in _()
                 raise ValidationError(_("Insufficient funds! The customer only has %s %s in their wallet.") % (self.available_deposit, self.currency))
 
-            if is_usd:
-                partner.deposit_usd -= self.amount
-            else:
-                partner.deposit_gnf -= self.amount
-
-            self.invoice_id.amount_paid += self.amount
-            
-            #REFACTORED: Converted f-string to %s formatting and wrapped in _()
-            self.invoice_id.message_post(body=Markup(_("<strong>Deposit Applied:</strong> %s %s deducted from customer wallet.")) % (self.amount, self.currency))
-            
-            # =========================================================================
-            # NEW BUG FIX: Create the Transaction Record so it appears in the History UI
-            # =========================================================================
             txn = self.env['ogi.transit.transaction'].create({
-                'cashbox_id': False, # Passing False triggers "Wallet Balance" in the UI
+                'cashbox_id': False, 
                 'type': 'in',
                 'amount': self.amount,
                 'partner_id': partner.id,
                 'reason': _("Payment: Inv %s via Wallet Balance") % self.invoice_id.name,
                 'invoice_id': self.invoice_id.id,
                 'receipt_number': _('WALLET-DEDUCTION'),
-                
-                # NEW: Explicitly save the payment method
                 'payment_method': 'Wallet Balance',
+                'payment_method_type': False,
+                'is_wallet_transaction': False 
             })
             txn.action_confirm()
-            # =========================================================================
-
+            
+            if is_usd:
+                partner.deposit_usd -= self.amount
+            else:
+                partner.deposit_gnf -= self.amount
+                
+            self.invoice_id.amount_paid += self.amount
+            self.invoice_id.message_post(body=Markup(_("<strong>Deposit Applied:</strong> %s %s deducted from customer wallet.")) % (self.amount, self.currency))
+            self.invoice_id._compute_amounts()
             return
 
+        # 2. HANDLE STANDARD REGISTER PAYMENTS
+        if not self.receipt_number:
+            raise ValidationError(_("You must enter a 'Received/Sent Number' (Receipt/Transfer ID)."))
         if not self.cashbox_id:
-            origin_str = str(self.invoice_id.container_id.origin).capitalize()
-            # REFACTORED: Converted f-string to %s formatting and wrapped in _()
-            raise ValidationError(_("Configuration Error: Could not find an active '%s %s' Cash Register. Please create one in the Finance menu first.") % (origin_str, self.currency))
-
-        payment_to_invoice = self.amount
-        overpayment = 0.0
-
-        if self.amount > self.amount_residual:
-            payment_to_invoice = self.amount_residual
-            overpayment = self.amount - self.amount_residual
-
-        self.invoice_id.amount_paid += payment_to_invoice
-
-        if overpayment > 0:
-            if is_usd:
-                partner.deposit_usd += overpayment
-            else:
-                partner.deposit_gnf += overpayment
+            raise ValidationError(_("You must select a 'Deposit Into Register'."))
             
-            # REFACTORED: Converted f-string to %s formatting and wrapped in _()
-            self.invoice_id.message_post(body=Markup(_("<strong>Overpayment Detected:</strong> %s %s added to Deposit Balance.")) % (overpayment, self.currency))
+        # NEW: Sync the bank field
+        if self.cashbox_type == 'bank':
+            self.payment_method_type = self.payment_method_bank
+            
+        if not self.payment_method_type:
+            raise ValidationError(_("You must select a Payment Method."))
 
-        method_label = dict(self._fields['payment_method'].selection).get(self.payment_method)
-        # REFACTORED: Safely concatenate the reference text using translation wrappers
-        ref_text = _("Payment: Inv %s (%s)") % (self.invoice_id.name, payment_to_invoice)
-        
-        if overpayment > 0:
-            ref_text += _(" + Deposit (%s)") % overpayment
+        method_label = dict(self._fields['payment_method_type'].selection).get(self.payment_method_type)
+        ref_text = _("Payment: Inv %s") % self.invoice_id.name
 
-        # UPDATED: Pass the receipt_number into the Transaction creation
         txn = self.env['ogi.transit.transaction'].create({
             'cashbox_id': self.cashbox_id.id,
             'type': 'in',
             'amount': self.amount,
             'partner_id': partner.id,
-            # REFACTORED: Safely inject variables into the localized string
             'reason': _("%s via %s") % (ref_text, method_label),
             'invoice_id': self.invoice_id.id,
             'receipt_number': self.receipt_number,
-            
-            # NEW: Explicitly save the payment method (Cash, Check, Mobile Money)
             'payment_method': method_label,
+            # THE FIX: Explicitly passing the type to pass the validation rule
+            'payment_method_type': self.payment_method_type,
+            'is_wallet_transaction': False 
         })
         
         txn.action_confirm()
+
+        # Workflow Routing
+        if txn.state == 'to_reconcile':
+            self.invoice_id.pending_txn_id = txn.id
+            self.invoice_id.state = 'to_reconcile'
+            self.invoice_id.message_post(body=Markup(_("<strong>Payment Pending Reconciliation</strong>")))
+        else:
+            self.invoice_id._process_validated_payment(txn.amount, self.currency, txn.payment_method)
 
 
 # ==========================================

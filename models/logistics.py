@@ -1,4 +1,5 @@
 import re
+import math
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from odoo.tools import float_round
@@ -335,7 +336,14 @@ class OgiTransitContainer(models.Model):
     usd_invoice_id = fields.Many2one('ogi.transit.invoice', string='FCL USD Invoice', readonly=True, copy=False)
     
     gnf_invoice_id = fields.Many2one('ogi.transit.invoice', string='FCL GNF Invoice', readonly=True, copy=False)
+
     delivery_note_id = fields.Many2one('ogi.transit.delivery.note', string='FCL Delivery Note', readonly=True, copy=False)
+
+    # NEW: Invoice Summary Fields
+    remaining_amount_usd = fields.Float(string='Remaining Amount (USD)', compute='_compute_invoice_summaries')
+    remaining_amount_gnf = fields.Float(string='Remaining Amount (GNF)', compute='_compute_invoice_summaries')
+    unpaid_usd_invoices_count = fields.Integer(string='Unpaid USD Invoices', compute='_compute_invoice_summaries')
+    unpaid_gnf_invoices_count = fields.Integer(string='Unpaid GNF Invoices', compute='_compute_invoice_summaries')
 
     has_pl_lines = fields.Boolean(compute='_compute_has_pl_lines')
 
@@ -389,6 +397,48 @@ class OgiTransitContainer(models.Model):
     def _compute_has_pl_lines(self):
         for container in self:
             container.has_pl_lines = bool(container.pl_line_ids)
+
+    @api.depends(
+        'type',
+        'usd_invoice_id.amount_residual', 'usd_invoice_id.state',
+        'gnf_invoice_id.amount_residual', 'gnf_invoice_id.state',
+        'pl_line_ids.usd_invoice_id.amount_residual', 'pl_line_ids.usd_invoice_id.state',
+        'pl_line_ids.gnf_invoice_id.amount_residual', 'pl_line_ids.gnf_invoice_id.state'
+    )
+    def _compute_invoice_summaries(self):
+        for container in self:
+            rem_usd = 0.0
+            rem_gnf = 0.0
+            unpaid_usd_count = 0
+            unpaid_gnf_count = 0
+            
+            # FCL Calculations
+            if container.type in ['fcl_awaye', 'fcl_home']:
+                # ADDED 'draft' to the accepted states
+                if container.usd_invoice_id and container.usd_invoice_id.state in ['draft', 'issued', 'partial']:
+                    rem_usd += container.usd_invoice_id.amount_residual
+                    
+                # ADDED 'draft' to the accepted states
+                if container.type == 'fcl_home' and container.gnf_invoice_id and container.gnf_invoice_id.state in ['draft', 'issued', 'partial']:
+                    rem_gnf += container.gnf_invoice_id.amount_residual
+                    
+            # LCL Calculations
+            elif container.type == 'lcl_home':
+                for line in container.pl_line_ids:
+                    # ADDED 'draft' to the accepted states
+                    if line.usd_invoice_id and line.usd_invoice_id.state in ['draft', 'issued', 'partial']:
+                        rem_usd += line.usd_invoice_id.amount_residual
+                        unpaid_usd_count += 1
+                        
+                    # ADDED 'draft' to the accepted states
+                    if line.gnf_invoice_id and line.gnf_invoice_id.state in ['draft', 'issued', 'partial']:
+                        rem_gnf += line.gnf_invoice_id.amount_residual
+                        unpaid_gnf_count += 1
+                        
+            container.remaining_amount_usd = rem_usd
+            container.remaining_amount_gnf = rem_gnf
+            container.unpaid_usd_invoices_count = unpaid_usd_count
+            container.unpaid_gnf_invoices_count = unpaid_gnf_count
 
     @api.depends('pl_line_ids.cbm_line')
     def _compute_total_cbm(self):
@@ -462,7 +512,8 @@ class OgiTransitContainer(models.Model):
                 line.calculated_usd = raw_usd
                 
                 # 5. UPDATED GNF LOGIC & STRICT 5000 ROUNDING
-                rounded_customs_gnf = round(base_gnf / 5000.0) * 5000
+                rounded_customs_gnf = math.ceil(base_gnf / 5000.0) * 5000
+                
                 line.calculated_gnf = rounded_customs_gnf
                 line.total_gnf = rounded_customs_gnf + line.bgda
 
@@ -754,4 +805,69 @@ class OgiTransitContainer(models.Model):
                     notes.write({'logistics_status': 'unpacked'})
                     container.message_post(body=Markup(_("<strong>Automation:</strong> %s Delivery Note(s) automatically updated to 'Depoting' (Unpacked).")) % len(notes))
 
+        # ==========================================
+        # NEW: Intercept 'arrived' status
+        # ==========================================
+        if vals.get('state') == 'arrived':
+            for container in self:
+                if container.type in ('fcl_home', 'lcl_home'):
+                    container._generate_freight_forwarder_bill()
+
         return res
+
+    def _generate_freight_forwarder_bill(self):
+        VendorBill = self.env['ogi.transit.vendor.bill']
+        
+        for container in self:
+            if not container.forwarder_id:
+                continue
+
+            bills_created = 0
+
+            # 1. Generate Freight Forwarder Cost (Customs Clearance) Bill
+            if container.total_freight_forwarder_gnf > 0:
+                existing_customs = VendorBill.search([
+                    ('container_id', '=', container.id),
+                    ('expense_type', '=', 'customs')
+                ], limit=1)
+                
+                if not existing_customs:
+                    VendorBill.create({
+                        'partner_id': container.forwarder_id.id,
+                        'container_id': container.id,
+                        'expense_type': 'customs',
+                        'currency': 'GNF',
+                        'amount_total': container.total_freight_forwarder_gnf,
+                        'description': _('Automated Freight Forwarder Cost for %s') % container.name,
+                        'state': 'draft'
+                    })
+                    bills_created += 1
+
+            # 2. Generate BGDA Bill
+            total_bgda = 0.0
+            if container.type == 'fcl_home':
+                total_bgda = container.bgda
+            elif container.type == 'lcl_home':
+                total_bgda = sum(container.pl_line_ids.mapped('bgda'))
+
+            if total_bgda > 0:
+                existing_bgda = VendorBill.search([
+                    ('container_id', '=', container.id),
+                    ('expense_type', '=', 'bgda')
+                ], limit=1)
+                
+                if not existing_bgda:
+                    VendorBill.create({
+                        'partner_id': container.forwarder_id.id,
+                        'container_id': container.id,
+                        'expense_type': 'bgda',
+                        'currency': 'GNF',
+                        'amount_total': total_bgda,
+                        'description': _('Automated BGDA Cost for %s') % container.name,
+                        'state': 'draft'
+                    })
+                    bills_created += 1
+
+            if bills_created > 0:
+                container.message_post(body=Markup(_("<strong>Automation:</strong> %s Draft Vendor Bill(s) generated for Freight Forwarder.")) % bills_created)
+

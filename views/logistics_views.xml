@@ -19,9 +19,10 @@
                 <field name="has_pl_lines" invisible="1"/>
                 <field name="packing_list_state" invisible="1"/>
                 <header>
-                    <!-- NEW: Validate Packing List button -->
+                    <!-- UPDATED: Restricted Validate Packing List button -->
                     <button name="action_validate_packing_list" string="Validate Packing List" type="object" class="oe_highlight" 
-                            invisible="type != 'lcl_home' or state == 'closed' or packing_list_state == 'validated'"/>
+                            invisible="type != 'lcl_home' or state == 'closed' or packing_list_state == 'validated'"
+                            groups="ogi_transit.group_ogi_operator,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
                     
                     <!-- UPDATED: Calculate Pro-rata (Hidden until validated) -->
                     <button name="action_calculate_prorata" string="Calculate Pro-rata" type="object" class="btn-secondary" 
@@ -88,10 +89,18 @@
                                    readonly="state == 'closed'" 
                                    groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                    
+                            <!-- Editable field for Management and Logistics -->
                             <field name="total_freight_forwarder_gnf" 
                                    invisible="type == 'fcl_awaye'" 
                                    readonly="packing_list_state == 'validated' or state == 'closed'"
-                                   groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+                                   groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_logistics"/>
+                                   
+                            <!-- Strictly Read-Only field for Finance -->
+                            <field name="total_freight_forwarder_gnf" 
+                                   invisible="type == 'fcl_awaye'" 
+                                   readonly="1"
+                                   groups="ogi_transit.group_ogi_finance"/>
+
                             <field name="estimated_gross_margin_gnf" 
                                    invisible="type == 'fcl_awaye'" 
                                    decoration-success="estimated_gross_margin_gnf &gt; 0" 
@@ -115,6 +124,19 @@
                             <field name="delivery_note_id" invisible="type != 'fcl_home'" readonly="1" force_save="1"/>
                         </group>
                     </group>
+                    
+                    <!-- NEW: Financial & Collection Summary Group -->
+                    <group string="Invoice &amp; Collection Summary">
+                        <group>
+                            <field name="remaining_amount_usd" decoration-danger="remaining_amount_usd &gt; 0" decoration-success="remaining_amount_usd == 0"/>
+                            <field name="unpaid_usd_invoices_count" invisible="type != 'lcl_home'"/>
+                        </group>
+                        <group>
+                            <field name="remaining_amount_gnf" invisible="type == 'fcl_awaye'" decoration-danger="remaining_amount_gnf &gt; 0" decoration-success="remaining_amount_gnf == 0"/>
+                            <field name="unpaid_gnf_invoices_count" invisible="type != 'lcl_home'"/>
+                        </group>
+                    </group>
+
                     <notebook invisible="type != 'lcl_home'">
                         <page string="Packing List" name="packing_list">
                             <!-- Removed readonly="1" from the field to allow edits -->
@@ -370,7 +392,7 @@
         <field name="name">ogi.transit.delivery.note.form</field>
         <field name="model">ogi.transit.delivery.note</field>
         <field name="arch" type="xml">
-            <form>
+            <form create="0">
                 <header>
                     <button name="%(ogi_transit.action_report_delivery_note)d" string="Print Delivery Note" type="action" class="btn-primary" icon="fa-print"/>
                     
@@ -417,6 +439,67 @@
             </form>
         </field>
     </record>
+
+    <!-- ========================================== -->
+    <!-- DELIVERY NOTES (Tree View, Action, Menu)   -->
+    <!-- ========================================== -->
+    <record id="view_ogi_delivery_note_tree" model="ir.ui.view">
+        <field name="name">ogi.transit.delivery.note.tree</field>
+        <field name="model">ogi.transit.delivery.note</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-success="logistics_status == 'retrieved'" decoration-info="logistics_status == 'pending'">
+                <field name="name"/>
+                <field name="container_id"/>
+                <field name="partner_id" widget="many2one_avatar"/>
+                <field name="logistics_status" widget="badge" 
+                       decoration-info="logistics_status == 'pending'" 
+                       decoration-warning="logistics_status == 'unpacked'" 
+                       decoration-primary="logistics_status == 'storage'" 
+                       decoration-success="logistics_status == 'retrieved'"/>
+                <field name="goods_description"/>
+                <field name="location_id"/>
+                <field name="payment_status" widget="badge" optional="show"
+                       decoration-danger="payment_status == 'unpaid'" 
+                       decoration-warning="payment_status == 'partially_paid'" 
+                       decoration-success="payment_status == 'paid'"/>
+                
+                <!-- NEW: Creation and Modification Dates -->
+                <field name="create_date" string="Creation Date" widget="date" optional="show"/>
+                <field name="write_date" string="Modification Date" widget="date" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_ogi_delivery_note" model="ir.actions.act_window">
+        <field name="name">Delivery Notes</field>
+        <field name="res_model">ogi.transit.delivery.note</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_ogi_delivery_notes" 
+              name="Delivery Notes" 
+              parent="menu_ogi_operations" 
+              action="action_ogi_delivery_note" 
+              sequence="40"/>
+
+    <!-- ========================================== -->
+    <!-- GOODS IN FIELD (Filtered Delivery Notes)   -->
+    <!-- ========================================== -->
+    <record id="action_ogi_goods_in_field" model="ir.actions.act_window">
+        <field name="name">Goods in Field</field>
+        <field name="res_model">ogi.transit.delivery.note</field>
+        <field name="view_mode">list,form</field>
+        <!-- Automatically filter to only show items In Storage -->
+        <field name="domain">[('logistics_status', '=', 'storage')]</field>
+        <!-- Re-use the comprehensive tree view we already built -->
+        <field name="view_id" ref="view_ogi_delivery_note_tree"/>
+    </record>
+
+    <menuitem id="menu_ogi_goods_in_field" 
+              name="Goods in Field" 
+              parent="menu_ogi_operations" 
+              action="action_ogi_goods_in_field" 
+              sequence="45"/>
 
     <record id="view_ogi_location_tree" model="ir.ui.view">
         <field name="name">ogi.transit.location.tree</field>
