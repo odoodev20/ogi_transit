@@ -10,31 +10,40 @@ class OgiTransitVendorPaymentWizard(models.TransientModel):
     amount = fields.Float(string='Payout Amount', required=True)
     currency = fields.Selection(related='bill_id.currency', readonly=True)
     
-    receipt_number = fields.Char(string='Receipt/Transfer ID', required=True)
+    # NEW: Supplier Advance Tracking
+    is_wallet_payment = fields.Boolean(string='Pay using Supplier Advance')
+    available_deposit = fields.Float(string='Available Advance', compute='_compute_available_deposit')
+
+    receipt_number = fields.Char(string='Receipt/Transfer ID')
     
     cashbox_id = fields.Many2one(
         'ogi.transit.cashbox', 
         string='Withdraw From Register', 
-        required=True, 
         domain="[('currency', '=', currency), ('is_payment_method', '=', True)]"
     )
     
     cashbox_type = fields.Selection(related='cashbox_id.type_register', string='Register Type')
     
     payment_method_type = fields.Selection([
-        ('cash', 'Cash'),
-        ('deposit', 'Deposit'),
-        ('transfer', 'Transfer'),
-        ('cheque', 'Cheque'),
-        ('mobile_money', 'Mobile Money')
+        ('cash', 'Cash'), ('deposit', 'Deposit'), ('transfer', 'Transfer'),
+        ('cheque', 'Cheque'), ('mobile_money', 'Mobile Money')
     ], string='Payment Method')
 
-    # NEW: UI-Specific field for Banks
     payment_method_bank = fields.Selection([
         ('deposit', 'Deposit'), ('transfer', 'Transfer'), ('cheque', 'Cheque')
     ], string='Payment Method')
 
-    # FIX: Kept only the correct onchange method and removed the duplicate
+    @api.depends('bill_id', 'currency')
+    def _compute_available_deposit(self):
+        for wiz in self:
+            if wiz.bill_id and wiz.bill_id.partner_id:
+                if wiz.currency == 'USD':
+                    wiz.available_deposit = wiz.bill_id.partner_id.supplier_deposit_usd
+                else:
+                    wiz.available_deposit = wiz.bill_id.partner_id.supplier_deposit_gnf
+            else:
+                wiz.available_deposit = 0.0
+
     @api.onchange('cashbox_id', 'payment_method_bank')
     def _onchange_cashbox_type(self):
         if self.cashbox_type == 'cash':
@@ -58,14 +67,52 @@ class OgiTransitVendorPaymentWizard(models.TransientModel):
     def action_register_payout(self):
         if self.amount <= 0:
             raise ValidationError(_("Payout amount must be strictly greater than zero."))
-            
         if self.amount > self.bill_id.amount_residual:
             raise ValidationError(_("You cannot pay more than the remaining balance due."))
 
-        if self.cashbox_id.type_register == 'cash' and self.cashbox_id.balance < self.amount:
-            raise ValidationError(_("Security Block: Insufficient Funds! You cannot pay %s. The %s register only has %s available.") % (self.amount, self.cashbox_id.name, self.cashbox_id.balance))
+        partner = self.bill_id.partner_id
+        is_usd = self.currency == 'USD'
+        Transaction = self.env['ogi.transit.transaction']
 
-        # Sync the bank field before saving
+        # ===============================================
+        # 1. HANDLE SUPPLIER ADVANCE PAYMENTS
+        # ===============================================
+        if self.is_wallet_payment:
+            if self.amount > self.available_deposit:
+                raise ValidationError(_("Insufficient advance! The supplier only has %s %s available.") % (self.available_deposit, self.currency))
+
+            txn = Transaction.create({
+                'cashbox_id': False,
+                'type': 'out',
+                'amount': self.amount,
+                'partner_id': partner.id,
+                'reason': _("Payout: Bill %s via Supplier Advance") % self.bill_id.name,
+                'vendor_bill_id': self.bill_id.id,
+                'receipt_number': _('ADVANCE-DEDUCTION'),
+                'payment_method': 'Advance Balance',
+                'payment_method_type': False,
+                'is_wallet_transaction': False 
+            })
+            txn.action_confirm()
+            
+            if is_usd:
+                partner.supplier_deposit_usd -= self.amount
+            else:
+                partner.supplier_deposit_gnf -= self.amount
+                
+            self.bill_id.amount_paid += self.amount
+            self.bill_id._compute_amounts()
+            self.bill_id.message_post(body=Markup(_("<strong>Advance Applied:</strong> %s %s deducted from supplier advance.")) % (self.amount, self.currency))
+            return
+
+        # ===============================================
+        # 2. HANDLE STANDARD REGISTER PAYMENTS
+        # ===============================================
+        if not self.receipt_number:
+            raise ValidationError(_("You must enter a Receipt/Transfer ID."))
+        if not self.cashbox_id:
+            raise ValidationError(_("You must select a Withdraw From Register."))
+
         if self.cashbox_type == 'bank':
             self.payment_method_type = self.payment_method_bank
             
@@ -74,7 +121,6 @@ class OgiTransitVendorPaymentWizard(models.TransientModel):
 
         method_label = dict(self._fields['payment_method_type'].selection).get(self.payment_method_type) if self.payment_method_type else False
         
-        Transaction = self.env['ogi.transit.transaction']
         txn = Transaction.create({
             'cashbox_id': self.cashbox_id.id,
             'type': 'out',
@@ -85,7 +131,6 @@ class OgiTransitVendorPaymentWizard(models.TransientModel):
             'reason': _("Vendor Payout: %s") % self.bill_id.name,
             'receipt_number': self.receipt_number,
             'is_wallet_transaction': False,
-            # THE FIX: Attach the transaction to the Vendor Bill history
             'vendor_bill_id': self.bill_id.id
         })
         

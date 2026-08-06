@@ -46,10 +46,10 @@ class OgiTransitDashboard(models.Model):
 
     treasury_account_ids = fields.Many2many('ogi.transit.cashbox', compute='_compute_treasury_accounts', string='Treasury Accounts')
 
-    # 2. ADD THIS METHOD
     def _compute_treasury_accounts(self):
         for record in self:
-            boxes = self.env['ogi.transit.cashbox'].sudo().search([('type_register', 'in', ['bank', 'mobile_money'])])
+            # FIX: Removed the domain filter so it fetches all active registers (Cash, Bank, Mobile Money)
+            boxes = self.env['ogi.transit.cashbox'].sudo().search([])
             record.treasury_account_ids = boxes.ids
 
     def _compute_kpis(self):

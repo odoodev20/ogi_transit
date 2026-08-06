@@ -208,7 +208,8 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Treasury Accounts (Bank &amp; Mobile)" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                        <!-- FIX: Renamed the tab to reflect that it now shows all active registers -->
+                        <page string="All Active Registers" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
                             <field name="treasury_account_ids" readonly="1">
                                 <list>
                                     <field name="name" string="Register Name"/>

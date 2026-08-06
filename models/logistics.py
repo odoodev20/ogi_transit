@@ -177,11 +177,21 @@ class OgiTransitPlLine(models.Model):
     name = fields.Char(string='Line Reference', compute='_compute_name', store=True)
     delivery_note_id = fields.Many2one('ogi.transit.delivery.note', string='Delivery Note', readonly=True)
 
+    # NEW: Positive value validation for Packing List lines
+    @api.constrains('qty', 'ins_cbm', 'bgda')
+    def _check_positive_pl_values(self):
+        for line in self:
+            if line.qty < 0:
+                raise ValidationError(_("Validation Error: QTY cannot be a negative value."))
+            if line.ins_cbm < 0:
+                raise ValidationError(_("Validation Error: INS CBM cannot be a negative value."))
+            if line.bgda < 0:
+                raise ValidationError(_("Validation Error: BGDA cannot be a negative value."))
+
     @api.depends('partner_id.name', 'container_id.name')
     def _compute_name(self):
         for line in self:
             if line.partner_id and line.container_id:
-                # REFACTORED: Converted f-string to %s formatting. Doesn't need _() since it's just joining two names.
                 line.name = "%s - %s" % (line.partner_id.name, line.container_id.name)
             else:
                 line.name = "New Line"
@@ -369,7 +379,7 @@ class OgiTransitContainer(models.Model):
                 if not re.match(r'^[A-Z]{4}\d{7}$', record.name):
                     raise ValidationError(_("Invalid Container Number. The ISO format must be exactly 4 uppercase letters followed by 7 digits (e.g., MAEU1234567)."))
                 
-                # 2. NEW: Uniqueness validation (Case-insensitive check)
+                # 2. Uniqueness validation (Case-insensitive check)
                 duplicate = self.search([
                     ('name', '=ilike', record.name),
                     ('id', '!=', record.id)
@@ -377,6 +387,15 @@ class OgiTransitContainer(models.Model):
                 
                 if duplicate:
                     raise ValidationError(_("Container Number already exists. Please enter a unique container number."))
+
+    # NEW: Positive value validation for Container financial fields
+    @api.constrains('total_freight_forwarder_gnf', 'total_ins_usd')
+    def _check_positive_container_financials(self):
+        for container in self:
+            if container.total_freight_forwarder_gnf < 0:
+                raise ValidationError(_("Validation Error: Freight Forwarder Cost (GNF) cannot be a negative value."))
+            if container.total_ins_usd < 0:
+                raise ValidationError(_("Validation Error: Total INS (USD) cannot be a negative value."))
 
                 
     @api.constrains('type', 'partner_id', 'total_freight_usd', 'total_customs_gnf', 'goods_description')
@@ -522,7 +541,7 @@ class OgiTransitContainer(models.Model):
             if not container.pl_line_ids:
                 raise ValidationError(_("You must add at least one Packing List line before validating."))
             
-            # NEW: Strict LCL + Home Validation Rules
+            # Strict LCL + Home Validation Rules
             if container.type == 'lcl_home':
                 # 1. Origin & CBM Checks
                 if container.origin == 'china' and round(container.total_cbm, 2) != 68.0:
@@ -540,6 +559,11 @@ class OgiTransitContainer(models.Model):
                 
                 if container.total_freight_forwarder_gnf <= 0:
                     raise ValidationError(_("Validation Error: Freight Forwarder Cost (GNF) must be strictly greater than 0."))
+
+                # 3. NEW: INS Validation Check
+                if container.origin != 'dubai':
+                    if container.total_ins_cbm > 0 and container.total_ins_usd <= 0:
+                        raise ValidationError(_("Validation Error: You have entered INS CBM values in the Packing List. Therefore, the 'Total INS (USD)' field is mandatory and must be strictly greater than 0 to calculate the prorata."))
 
             container.packing_list_state = 'validated'
             container.message_post(body=Markup(_("<strong>Packing List Validated:</strong> Input data is confirmed.")))

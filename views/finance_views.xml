@@ -144,7 +144,14 @@
                         </group>
                         <group>
                             <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft'" required="is_wallet_transaction"/>
-                            <field name="is_wallet_transaction" readonly="1" force_save="1"/>
+                            
+                            <!-- UPDATED: Users can now click the checkbox in draft mode -->
+                            <field name="is_wallet_transaction" readonly="state != 'draft'"/>
+                            <field name="wallet_type" 
+                                   invisible="is_wallet_transaction == False" 
+                                   required="is_wallet_transaction == True" 
+                                   readonly="state != 'draft'"/>
+                                   
                             <field name="date" readonly="state != 'draft'"/>
                         </group>
                     </group>
@@ -219,7 +226,7 @@
     </record>
 
     <record id="action_ogi_transaction" model="ir.actions.act_window">
-        <field name="name">Cash Transactions</field>
+        <field name="name">Transactions</field>
         <field name="res_model">ogi.transit.transaction</field>
         <field name="view_mode">list,form</field>
     </record>

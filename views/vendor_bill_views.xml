@@ -22,28 +22,33 @@
                     Warning: Confirming this payout will withdraw funds or send it to pending reconciliation.
                 </div>
                 <group>
-                    <field name="bill_id" readonly="1" force_save="1"/>
-                    <label for="amount"/>
-                    <div class="o_row">
-                        <field name="amount" class="oe_inline"/>
-                        <field name="currency" class="oe_inline" invisible="1"/>
-                    </div>
-                    
-                    <field name="receipt_number" required="1"/>
-                    
-                    <!-- Dynamic Register Selection -->
-                    <field name="cashbox_id" options="{'no_create': True, 'no_open': True}"/>
-                    <field name="cashbox_type" invisible="1"/>
-                    
-                    <!-- Read-only auto-filled field for Cash/Mobile -->
-                    <field name="payment_method_type" 
-                           invisible="cashbox_type == 'bank' or cashbox_id == False" 
-                           readonly="1" force_save="1"/>
-                           
-                    <!-- Restricted Dropdown for Banks -->
-                    <field name="payment_method_bank" 
-                           invisible="cashbox_type != 'bank'" 
-                           required="cashbox_type == 'bank'"/>
+                    <group>
+                        <field name="bill_id" readonly="1" force_save="1"/>
+                        <field name="is_wallet_payment" widget="boolean_toggle"/>
+                        
+                        <field name="cashbox_id" options="{'no_create': True, 'no_open': True}" 
+                               invisible="is_wallet_payment == True" 
+                               required="is_wallet_payment == False"/>
+                        <field name="cashbox_type" invisible="1"/>
+                        
+                        <field name="payment_method_type" 
+                               invisible="is_wallet_payment == True or cashbox_type == 'bank' or cashbox_id == False" 
+                               readonly="1" force_save="1"/>
+                               
+                        <field name="payment_method_bank" 
+                               invisible="is_wallet_payment == True or cashbox_type != 'bank'" 
+                               required="is_wallet_payment == False and cashbox_type == 'bank'"/>
+                    </group>
+                    <group>
+                        <label for="amount"/>
+                        <div class="o_row">
+                            <field name="amount" class="oe_inline"/>
+                            <field name="currency" class="oe_inline"/>
+                        </div>
+                        
+                        <field name="available_deposit" invisible="is_wallet_payment == False"/>
+                        <field name="receipt_number" invisible="is_wallet_payment == True" required="is_wallet_payment == False"/>
+                    </group>
                 </group>
                 <footer>
                     <button name="action_register_payout" string="Confirm Payout" type="object" class="btn-danger"/>

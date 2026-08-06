@@ -19,11 +19,11 @@
                 <field name="has_pl_lines" invisible="1"/>
                 <field name="packing_list_state" invisible="1"/>
                 <header>
-                    <!-- UPDATED: Restricted Validate Packing List button -->
+                    <!-- UPDATED: Removed group_ogi_logistics to hide from Logistics Manager -->
                     <button name="action_validate_packing_list" string="Validate Packing List" type="object" class="oe_highlight" 
                             invisible="type != 'lcl_home' or state == 'closed' or packing_list_state == 'validated'"
-                            groups="ogi_transit.group_ogi_operator,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
-                    
+                            groups="ogi_transit.group_ogi_operator,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+
                     <!-- UPDATED: Calculate Pro-rata (Hidden until validated) -->
                     <button name="action_calculate_prorata" string="Calculate Pro-rata" type="object" class="btn-secondary" 
                             invisible="type != 'lcl_home' or state in ('prep', 'created', 'closed') or packing_list_state == 'draft'" 
@@ -75,9 +75,10 @@
                                    groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                             
                             <field name="total_ins_usd" 
+                                   invisible="origin == 'dubai'"
                                    readonly="packing_list_state == 'validated' or state == 'closed'" 
                                    groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
-                            
+
                             <field name="total_customs_gnf" 
                                    invisible="type == 'fcl_awaye'" 
                                    readonly="packing_list_state == 'validated' or state == 'closed'" 
@@ -157,7 +158,9 @@
                                     <!-- Calculated Fields (Hidden while in Draft status) -->
                                     <field name="prorata_freight_usd" sum="Total Freight" column_invisible="parent.packing_list_state == 'draft'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     
-                                    <field name="calculated_ins_usd" sum="Total INS Fee" column_invisible="parent.packing_list_state == 'draft'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
+                                    <field name="calculated_ins_usd" sum="Total INS Fee" 
+                                           column_invisible="parent.packing_list_state == 'draft' or parent.origin == 'dubai'" 
+                                           groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     
                                     <field name="calculated_gnf" sum="Total Customs" column_invisible="parent.packing_list_state == 'draft'" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics"/>
                                     

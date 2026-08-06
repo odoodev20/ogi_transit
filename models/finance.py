@@ -2,6 +2,12 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, AccessError
 from markupsafe import Markup
 
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+    
+    supplier_deposit_usd = fields.Float(string='Supplier Advance (USD)', default=0.0)
+    supplier_deposit_gnf = fields.Float(string='Supplier Advance (GNF)', default=0.0)
+
 
 class OgiTransitCashbox(models.Model):
     _name = 'ogi.transit.cashbox'
@@ -93,7 +99,13 @@ class OgiTransitTransaction(models.Model):
     
     # Link to Customer Wallets
     partner_id = fields.Many2one('res.partner', string='Customer / Partner', tracking=True)
-    is_wallet_transaction = fields.Boolean(string='Update Customer Wallet?', default=True, help="Check this to automatically increase/decrease the customer's deposit wallet.")
+    is_wallet_transaction = fields.Boolean(string='Update Customer/Partner Wallet?', default=True, help="Check this to automatically increase/decrease the customer's or supplier's wallet.")
+    
+    # NEW: Determines which wallet math to apply
+    wallet_type = fields.Selection([
+        ('customer', 'Customer Deposit'), 
+        ('supplier', 'Supplier Advance')
+    ], string='Wallet Target', default='customer', tracking=True)
 
     invoice_id = fields.Many2one('ogi.transit.invoice', string='Related Invoice', readonly=True)
 
@@ -190,26 +202,47 @@ class OgiTransitTransaction(models.Model):
     # 4. ADD THESE THREE NEW METHODS BELOW `action_confirm`
     def _execute_financial_move(self):
         for tx in self:
+            # 1. Update Cash Register
             if tx.type == 'out' and tx.cashbox_id:
                 future_balance = tx.cashbox_id.balance - tx.amount
                 if future_balance < 0:
                     raise ValidationError(_("Insufficient funds! You cannot withdraw %s. %s only has %s available.") % (tx.amount, tx.cashbox_id.name, tx.cashbox_id.balance))
                 
+            # 2. Update Customer OR Supplier Wallets
             if tx.is_wallet_transaction and tx.partner_id:
-                if tx.currency == 'USD':
-                    if tx.type == 'in':
-                        tx.partner_id.deposit_usd += tx.amount
-                    elif tx.type == 'out':
-                        if tx.partner_id.deposit_usd < tx.amount:
-                            raise ValidationError(_("Wallet Error: %s only has %s USD.") % (tx.partner_id.name, tx.partner_id.deposit_usd))
-                        tx.partner_id.deposit_usd -= tx.amount
-                elif tx.currency == 'GNF':
-                    if tx.type == 'in':
-                        tx.partner_id.deposit_gnf += tx.amount
-                    elif tx.type == 'out':
-                        if tx.partner_id.deposit_gnf < tx.amount:
-                            raise ValidationError(_("Wallet Error: %s only has %s GNF.") % (tx.partner_id.name, tx.partner_id.deposit_gnf))
-                        tx.partner_id.deposit_gnf -= tx.amount
+                if tx.wallet_type == 'customer':
+                    if tx.currency == 'USD':
+                        if tx.type == 'in':
+                            tx.partner_id.deposit_usd += tx.amount
+                        elif tx.type == 'out':
+                            if tx.partner_id.deposit_usd < tx.amount:
+                                raise ValidationError(_("Wallet Error: %s only has %s USD.") % (tx.partner_id.name, tx.partner_id.deposit_usd))
+                            tx.partner_id.deposit_usd -= tx.amount
+                    elif tx.currency == 'GNF':
+                        if tx.type == 'in':
+                            tx.partner_id.deposit_gnf += tx.amount
+                        elif tx.type == 'out':
+                            if tx.partner_id.deposit_gnf < tx.amount:
+                                raise ValidationError(_("Wallet Error: %s only has %s GNF.") % (tx.partner_id.name, tx.partner_id.deposit_gnf))
+                            tx.partner_id.deposit_gnf -= tx.amount
+                            
+                elif tx.wallet_type == 'supplier':
+                    # Supplier Advance Logic: Outgoing = Advance Given (+), Incoming = Advance Returned (-)
+                    if tx.currency == 'USD':
+                        if tx.type == 'out':
+                            tx.partner_id.supplier_deposit_usd += tx.amount
+                        elif tx.type == 'in':
+                            if tx.partner_id.supplier_deposit_usd < tx.amount:
+                                raise ValidationError(_("Advance Error: %s only has %s USD in advance.") % (tx.partner_id.name, tx.partner_id.supplier_deposit_usd))
+                            tx.partner_id.supplier_deposit_usd -= tx.amount
+                    elif tx.currency == 'GNF':
+                        if tx.type == 'out':
+                            tx.partner_id.supplier_deposit_gnf += tx.amount
+                        elif tx.type == 'in':
+                            if tx.partner_id.supplier_deposit_gnf < tx.amount:
+                                raise ValidationError(_("Advance Error: %s only has %s GNF in advance.") % (tx.partner_id.name, tx.partner_id.supplier_deposit_gnf))
+                            tx.partner_id.supplier_deposit_gnf -= tx.amount
+
             tx.state = 'done'
 
     def action_reconcile_ok(self):
