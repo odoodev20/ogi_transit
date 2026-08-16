@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================== -->
+    <!-- CUSTOMER INVOICE PAYMENT WIZARD            -->
+    <!-- ========================================== -->
+    <record id="view_ogi_payment_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.invoice.payment.wizard.form</field>
+        <field name="model">ogi.invoice.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Register Payment">
+                <group>
+                    <group>
+                        <field name="invoice_id" readonly="1" force_save="1"/>
+                        
+                        <!-- NEW: Wallet Toggle replaces the old 'deposit' dropdown option -->
+                        <field name="is_wallet_payment" widget="boolean_toggle"/>
+                        
+                        <!-- UPDATED: Selectable Register (No longer read-only) -->
+                        <field name="cashbox_id" 
+                               invisible="is_wallet_payment" 
+                               required="not is_wallet_payment" 
+                               options="{'no_create': True, 'no_open': True}"/>
+                               
+                        <field name="cashbox_type" invisible="1"/>
+                        
+                        <!-- Read-only auto-filled field for Cash/Mobile -->
+                        <field name="payment_method_type" 
+                               invisible="is_wallet_payment == True or cashbox_type == 'bank' or cashbox_id == False" 
+                               readonly="1" force_save="1"/>
+                               
+                        <!-- Restricted Dropdown for Banks -->
+                        <field name="payment_method_bank" 
+                               invisible="is_wallet_payment == True or cashbox_type != 'bank'" 
+                               required="is_wallet_payment == False and cashbox_type == 'bank'"/>
+                        
+                        <!-- Visible field for the Receipt/Transfer ID -->
+                        <field name="receipt_number" 
+                               invisible="is_wallet_payment" 
+                               required="not is_wallet_payment"/>
+                    </group>
+                    <group>
+                        <label for="amount"/>
+                        <div class="o_row">
+                            <field name="amount" class="oe_inline"/>
+                            <field name="currency" class="oe_inline"/>
+                        </div>
+                        <field name="amount_residual"/>
+                        
+                        <!-- Permanently visible Wallet Balance -->
+                        <field name="available_deposit" readonly="1" decoration-info="1" string="Available Wallet Balance"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_register_payment" string="Validate Payment" type="object" class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Register Payment</field>
+        <field name="res_model">ogi.invoice.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- INTER-LOAN REPAYMENT WIZARD (INTACT)       -->
+    <!-- ========================================== -->
+    <record id="view_ogi_loan_repayment_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.loan.repayment.wizard.form</field>
+        <field name="model">ogi.loan.repayment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Register Loan Repayment">
+                <group>
+                    <field name="loan_id" readonly="1" force_save="1"/>
+                    <field name="receipt_number"/>
+                    <label for="amount"/>
+                    <div class="o_row">
+                        <field name="amount" class="oe_inline"/>
+                        <field name="currency" class="oe_inline"/>
+                    </div>
+                    <field name="amount_residual"/>
+                </group>
+                <footer>
+                    <button name="action_register_repayment" string="Confirm Repayment" type="object" class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_loan_repayment_wizard" model="ir.actions.act_window">
+        <field name="name">Register Repayment</field>
+        <field name="res_model">ogi.loan.repayment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

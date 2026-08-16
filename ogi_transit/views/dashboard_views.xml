@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ogi_dashboard_form" model="ir.ui.view">
+        <field name="name">ogi.transit.dashboard.form</field>
+        <field name="model">ogi.transit.dashboard</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="1" delete="0">
+                <sheet>
+                    <div style="background-color: #1a5f98; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h1 style="margin: 0; color: white;">OGI Transit Command Center</h1>
+                        <p style="margin: 0; opacity: 0.8;">Live Corporate Snapshot</p>
+                    </div>
+
+                    <div class="alert alert-danger fw-bold" role="alert" invisible="not cashbox_alert_message" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                        <i class="fa fa-warning" title="Warning Alert" aria-label="Warning Alert"></i> <field name="cashbox_alert_message" readonly="1"/>
+                    </div>
+
+                    <group groups="ogi_transit.group_ogi_admin" string="System Configuration">
+                        <field name="audit_days_threshold"/>
+                    </group>
+
+                    <div class="row text-center mt-4">
+                        
+                        <!-- LOGISTICS (Clickable) -->
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator">
+                            <button type="object" name="action_open_active_containers" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; background-color: #f8f9fa;">
+                                    <h4 style="color: #555;">Active Containers</h4>
+                                    <h2 style="color: #2c3e50; font-weight: bold;"><field name="active_containers"/></h2>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator">
+                            <button type="object" name="action_open_goods_in_field" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; background-color: #e2e3e5;">
+                                    <h4 style="color: #383d41;">Goods in the Field</h4>
+                                    <h2 style="color: #383d41; font-weight: bold;"><field name="pending_deliveries"/></h2>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- CARGO BALANCES (Detailed Financial Layout) -->
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant">
+                            <div style="border: 1px solid #0277bd; border-radius: 8px; padding: 20px; background-color: #e3f2fd; text-align: left;">
+                                <h4 style="color: #0277bd; text-align: center; border-bottom: 1px solid #0277bd; padding-bottom: 10px; margin-bottom: 15px;">CARGO BALANCE — CHINA</h4>
+                                
+                                <div class="d-flex justify-content-between mb-3 fw-bold" style="font-size: 1.1em; color: #333;">
+                                    <span>Total Amount Collected:</span>
+                                    <span>$<field name="cargo_china_collected" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1" style="color: #555;">
+                                    <span>USD China:</span>
+                                    <span>$<field name="cargo_china_usd" widget="monetary"/></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3" style="color: #555;">
+                                    <span>China Transfer Register:</span>
+                                    <span>$<field name="cargo_china_transfer" widget="monetary"/></span>
+                                </div>
+                                
+                                <div style="border-top: 1px solid #999; margin: 10px 0;"></div>
+                                
+                                <div class="d-flex justify-content-between fw-bold" style="font-size: 1.1em;">
+                                    <span>Variance:</span>
+                                    <span>
+                                        <field name="cargo_china_variance" widget="monetary" decoration-success="cargo_china_variance == 0" decoration-danger="cargo_china_variance != 0"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant">
+                            <div style="border: 1px solid #0277bd; border-radius: 8px; padding: 20px; background-color: #e3f2fd; text-align: left;">
+                                <h4 style="color: #0277bd; text-align: center; border-bottom: 1px solid #0277bd; padding-bottom: 10px; margin-bottom: 15px;">CARGO BALANCE — DUBAI</h4>
+                                
+                                <div class="d-flex justify-content-between mb-3 fw-bold" style="font-size: 1.1em; color: #333;">
+                                    <span>Total Amount Collected:</span>
+                                    <span>$<field name="cargo_dubai_collected" widget="monetary"/></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1" style="color: #555;">
+                                    <span>USD Dubai:</span>
+                                    <span>$<field name="cargo_dubai_usd" widget="monetary"/></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3" style="color: #555;">
+                                    <span>Dubai Transfer Register:</span>
+                                    <span>$<field name="cargo_dubai_transfer" widget="monetary"/></span>
+                                </div>
+                                
+                                <div style="border-top: 1px solid #999; margin: 10px 0;"></div>
+                                
+                                <div class="d-flex justify-content-between fw-bold" style="font-size: 1.1em;">
+                                    <span>Variance:</span>
+                                    <span>
+                                        <field name="cargo_dubai_variance" widget="monetary" decoration-success="cargo_dubai_variance == 0" decoration-danger="cargo_dubai_variance != 0"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SPLIT VAULTS USD (Clickable) -->
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <button type="object" name="action_open_vault_usd_china" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 2px solid #28a745; border-radius: 8px; padding: 20px; background-color: #eafaf1;">
+                                    <h4 style="color: #1e7e34;">USD China Register</h4>
+                                    <h2 style="color: #28a745; font-weight: bold;">$<field name="vault_usd_china" widget="monetary"/></h2>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <button type="object" name="action_open_vault_usd_dubai" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 2px solid #28a745; border-radius: 8px; padding: 20px; background-color: #eafaf1;">
+                                    <h4 style="color: #1e7e34;">USD Dubai Register</h4>
+                                    <h2 style="color: #28a745; font-weight: bold;">$<field name="vault_usd_dubai" widget="monetary"/></h2>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- SPLIT VAULTS GNF (Clickable) -->
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <button type="object" name="action_open_vault_gnf_china" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 2px solid #28a745; border-radius: 8px; padding: 20px; background-color: #eafaf1;">
+                                    <h4 style="color: #1e7e34;">GNF China Register</h4>
+                                    <h2 style="color: #28a745; font-weight: bold;">GNF <field name="vault_gnf_china" widget="monetary"/></h2>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <button type="object" name="action_open_vault_gnf_dubai" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 2px solid #28a745; border-radius: 8px; padding: 20px; background-color: #eafaf1;">
+                                    <h4 style="color: #1e7e34;">GNF Dubai Register</h4>
+                                    <h2 style="color: #28a745; font-weight: bold;">GNF <field name="vault_gnf_dubai" widget="monetary"/></h2>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- UNPAID INVOICES (Clickable) -->
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <button type="object" name="action_open_unpaid_usd" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 1px solid #dc3545; border-radius: 8px; padding: 20px; background-color: #fdf5f6;">
+                                    <h4 style="color: #c82333;">Unpaid Invoices (USD)</h4>
+                                    <h2 style="color: #dc3545; font-weight: bold;">$<field name="unpaid_invoices_usd" widget="monetary"/></h2>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="col-6 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <button type="object" name="action_open_unpaid_gnf" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 1px solid #dc3545; border-radius: 8px; padding: 20px; background-color: #fdf5f6;">
+                                    <h4 style="color: #c82333;">Unpaid Invoices (GNF)</h4>
+                                    <h2 style="color: #dc3545; font-weight: bold;">GNF <field name="unpaid_invoices_gnf" widget="monetary"/></h2>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- VENDORS & MARGINS -->
+                        <div class="col-4 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <button type="object" name="action_open_unpaid_ff" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 1px solid #fd7e14; border-radius: 8px; padding: 20px; background-color: #fff3cd;">
+                                    <h4 style="color: #d39e00;">Unpaid Freight Forwarders</h4>
+                                    <h2 style="color: #fd7e14; font-weight: bold;"><field name="transitaires_non_soldes"/> Bills</h2>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="col-4 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <button type="object" name="action_open_partial_ff" class="btn btn-link w-100 p-0 text-start text-decoration-none">
+                                <div style="border: 1px solid #fd7e14; border-radius: 8px; padding: 20px; background-color: #fff3cd;">
+                                    <h4 style="color: #d39e00;">Partially Paid Forwarders</h4>
+                                    <h2 style="color: #fd7e14; font-weight: bold;"><field name="ff_partially_paid"/> Bills</h2>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="col-4 mb-4" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant">
+                            <div style="border: 1px solid #6f42c1; border-radius: 8px; padding: 20px; background-color: #f3e5f5;">
+                                <h4 style="color: #6a1b9a;">Gross Margin (GNF)</h4>
+                                <h2 style="color: #4a148c; font-weight: bold;">GNF <field name="marge_brute_gnf" widget="monetary"/></h2>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <notebook>
+                        <page string="Field Merchandise" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator">
+                            <field name="terrain_delivery_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="container_id"/>
+                                    <field name="logistics_status" widget="badge" decoration-warning="logistics_status == 'unpacked'" decoration-info="logistics_status == 'storage'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="DRAFT Invoices" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <field name="draft_invoice_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="currency"/>
+                                    <field name="amount_total"/>
+                                    <field name="state" widget="badge" decoration-info="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Recent Containers" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator">
+                            <field name="recent_container_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="type"/>
+                                    <field name="origin"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <!-- FIX: Renamed the tab to reflect that it now shows all active registers -->
+                        <page string="All Active Registers" groups="ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_finance">
+                            <field name="treasury_account_ids" readonly="1">
+                                <list>
+                                    <field name="name" string="Register Name"/>
+                                    <field name="type_register" string="Type"/>
+                                    <field name="currency"/>
+                                    <field name="balance" decoration-bf="1" decoration-success="balance &gt; 0" decoration-danger="balance &lt; 0"/>
+                                </list>
+                            </field>
+                        </page>
+
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_dashboard" model="ir.actions.server">
+        <field name="name">Command Center</field>
+        <field name="model_id" ref="model_ogi_transit_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">
+action = model.get_master_dashboard()
+        </field>
+    </record>
+
+    <menuitem id="menu_ogi_dashboard" name="Command Center" parent="menu_ogi_root" action="action_ogi_dashboard" sequence="1" groups="ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_operator"/>
+</odoo>

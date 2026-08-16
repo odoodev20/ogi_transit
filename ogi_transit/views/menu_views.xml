@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu: Sequence set to 0 to override default Odoo landing pages -->
+    <menuitem id="menu_ogi_root" name="OGI Transit" sequence="0" web_icon="ogi_transit,static/description/icon.png"
+              groups="ogi_transit.group_ogi_operator,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
+
+    <!-- Operations Menu -->
+    <menuitem id="menu_ogi_operations" name="Operations" parent="menu_ogi_root" sequence="10"
+              groups="ogi_transit.group_ogi_operator,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+
+    <!-- Contacts Menu -->
+    <menuitem id="menu_ogi_contacts" name="Contacts" parent="menu_ogi_root" sequence="20"
+              action="contacts.action_contacts"
+              groups="ogi_transit.group_ogi_operator,ogi_transit.group_ogi_logistics,ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg"/>
+</odoo>

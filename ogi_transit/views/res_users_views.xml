@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Custom Role Audit Trail Tab -->
+    <record id="view_users_form_inherit_ogi_audit" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.ogi.audit</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <!-- Force it to inject exactly after the Access Rights page -->
+            <xpath expr="//page[@name='access_rights']" position="after">
+                <page string="Role Audit Trail" name="role_audit_trail">
+                    <field name="ogi_role_log_ids" readonly="1">
+                        <list decoration-muted="1">
+                            <field name="create_date" string="Date"/>
+                            <field name="admin_id" widget="many2one_avatar" string="Changed By"/>
+                            <field name="details" widget="html"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

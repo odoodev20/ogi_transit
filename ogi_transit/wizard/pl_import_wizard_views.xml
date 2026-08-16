@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ogi_pl_import_wizard_form" model="ir.ui.view">
+        <field name="name">ogi.pl.import.wizard.form</field>
+        <field name="model">ogi.pl.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Packing List">
+                <field name="has_bgda_warning" invisible="1"/>
+                
+                <div class="alert alert-info" role="alert" invisible="has_bgda_warning">
+                    Please upload the standard LCL Packing List Excel file. The system will automatically update the Master Financial totals and create missing customers using their Phone Number.
+                </div>
+                
+                <div class="alert alert-warning fw-bold" role="alert" invisible="not has_bgda_warning">
+                    <i class="fa fa-exclamation-triangle"></i> Warning: No BGDA column detected, or all BGDA values are 0.<br/>
+                    <span style="font-weight: normal;">If you proceed, all BGDA amounts will be imported as 0.0.</span>
+                </div>
+
+                <group>
+                    <field name="container_id" invisible="1"/>
+                    <field name="file_name" invisible="1"/>
+                    <field name="import_file" filename="file_name" widget="binary"/>
+                </group>
+                
+                <footer>
+                    <button name="action_import_excel" string="Process File" type="object" class="btn-primary" invisible="has_bgda_warning"/>
+                    
+                    <button name="action_force_import" string="Confirm &amp; Import Anyway" type="object" class="btn-warning" invisible="not has_bgda_warning"/>
+
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ogi_pl_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import Packing List</field>
+        <field name="res_model">ogi.pl.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
