@@ -71,7 +71,8 @@ class OgiTransitDeliveryNote(models.Model):
         ('unpaid', 'Unpaid'),
         ('partially_paid', 'Partially Paid'),
         ('paid', 'Paid')
-    ], string='Payment Status', compute='_compute_payment_status')
+    ], string='Payment Status', compute='_compute_payment_status',
+    store=True)
 
     is_authorized = fields.Boolean(string="Authorized for Unpaid Delivery", default=False, tracking=True, copy=False)
     authorization_reason = fields.Char(string="Authorization Reason", tracking=True, copy=False)
@@ -841,57 +842,56 @@ class OgiTransitContainer(models.Model):
 
     def _generate_freight_forwarder_bill(self):
         VendorBill = self.env['ogi.transit.vendor.bill']
-        
+
         for container in self:
             if not container.forwarder_id:
                 continue
 
-            bills_created = 0
+            freight_cost = container.total_freight_forwarder_gnf or 0.0
 
-            # 1. Generate Freight Forwarder Cost (Customs Clearance) Bill
-            if container.total_freight_forwarder_gnf > 0:
-                existing_customs = VendorBill.search([
-                    ('container_id', '=', container.id),
-                    ('expense_type', '=', 'customs')
-                ], limit=1)
-                
-                if not existing_customs:
-                    VendorBill.create({
-                        'partner_id': container.forwarder_id.id,
-                        'container_id': container.id,
-                        'expense_type': 'customs',
-                        'currency': 'GNF',
-                        'amount_total': container.total_freight_forwarder_gnf,
-                        'description': _('Automated Freight Forwarder Cost for %s') % container.name,
-                        'state': 'draft'
-                    })
-                    bills_created += 1
-
-            # 2. Generate BGDA Bill
             total_bgda = 0.0
             if container.type == 'fcl_home':
-                total_bgda = container.bgda
+                total_bgda = container.bgda or 0.0
             elif container.type == 'lcl_home':
                 total_bgda = sum(container.pl_line_ids.mapped('bgda'))
 
+            # Nothing to invoice → skip
+            if freight_cost <= 0 and total_bgda <= 0:
+                continue
+
+            # Avoid creating duplicates
+            existing = VendorBill.search([
+                ('container_id', '=', container.id),
+                ('partner_id', '=', container.forwarder_id.id),
+                ('expense_type', 'in', ['customs', 'bgda', 'other']),
+            ], limit=1)
+
+            if existing:
+                continue
+
+            # Build clear description with both lines
+            lines = []
             if total_bgda > 0:
-                existing_bgda = VendorBill.search([
-                    ('container_id', '=', container.id),
-                    ('expense_type', '=', 'bgda')
-                ], limit=1)
-                
-                if not existing_bgda:
-                    VendorBill.create({
-                        'partner_id': container.forwarder_id.id,
-                        'container_id': container.id,
-                        'expense_type': 'bgda',
-                        'currency': 'GNF',
-                        'amount_total': total_bgda,
-                        'description': _('Automated BGDA Cost for %s') % container.name,
-                        'state': 'draft'
-                    })
-                    bills_created += 1
+                lines.append(_("Total BGDA: %s GNF") % "{:,.0f}".format(total_bgda))
+            if freight_cost > 0:
+                lines.append(_("Freight Forwarder Cost (GNF): %s GNF") % "{:,.0f}".format(freight_cost))
 
-            if bills_created > 0:
-                container.message_post(body=Markup(_("<strong>Automation:</strong> %s Draft Vendor Bill(s) generated for Freight Forwarder.")) % bills_created)
+            description = "\n".join(lines)
 
+            total_amount = freight_cost + total_bgda
+
+            VendorBill.create({
+                'partner_id': container.forwarder_id.id,
+                'container_id': container.id,
+                'expense_type': 'customs',
+                'currency': 'GNF',
+                'amount_total': total_amount,
+                'bgda_amount': total_bgda,                     # ← NEW
+                'freight_forwarder_cost': freight_cost,        # ← NEW
+                'state': 'draft',
+            })
+
+            container.message_post(body=Markup(
+                _("<strong>Automation:</strong> 1 Draft Vendor Bill generated for Freight Forwarder "
+                "(BGDA + Freight Forwarder Cost).")
+            ))

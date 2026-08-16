@@ -46,7 +46,7 @@
                             <field name="currency" class="oe_inline"/>
                         </div>
                         
-                        <field name="available_deposit" invisible="is_wallet_payment == False"/>
+                        <field name="available_deposit" readonly="1"/>
                         <field name="receipt_number" invisible="is_wallet_payment == True" required="is_wallet_payment == False"/>
                     </group>
                 </group>
@@ -95,14 +95,21 @@
                             <field name="container_id" readonly="state != 'draft'" required="expense_type in ('freight', 'customs', 'bgda')"/>
                             <field name="partner_id" widget="many2one_avatar" readonly="state != 'draft' or not expense_type or expense_type in ('customs', 'bgda')" force_save="1"/>
                             
-                            <field name="description" 
-                                invisible="expense_type != 'other'" 
-                                required="expense_type == 'other'"
-                                readonly="state != 'draft'" 
-                                placeholder="Enter details about this supplier invoice..."/>
                         </group>
                         <group>
                             <field name="currency" readonly="state != 'draft'"/>
+                            
+                            <!-- NEW: Show the two breakdown fields -->
+                            <field name="bgda_amount" 
+                                string="Total BGDA"
+                                invisible="bgda_amount == 0"
+                                readonly="1"/>
+                                
+                            <field name="freight_forwarder_cost" 
+                                string="Freight Forwarder Cost (GNF)"
+                                invisible="freight_forwarder_cost == 0"
+                                readonly="1"/>
+                                
                             <field name="amount_total" readonly="state != 'draft'"/>
                             
                             <field name="amount_paid" invisible="state == 'draft'"/>

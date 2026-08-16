@@ -21,6 +21,9 @@ class OgiTransitVendorBill(models.Model):
 
     currency = fields.Selection([('USD', 'USD'), ('GNF', 'GNF')], string='Currency', required=True, tracking=True)
     amount_total = fields.Float(string='Total Amount', required=True, tracking=True)
+    # NEW: Breakdown fields for Freight Forwarder automated bills
+    bgda_amount = fields.Float(string='Total BGDA', readonly=True, tracking=True)
+    freight_forwarder_cost = fields.Float(string='Freight Forwarder Cost (GNF)', readonly=True, tracking=True)
     amount_paid = fields.Float(string='Amount Paid', default=0.0, tracking=True, readonly=True)
     amount_residual = fields.Float(string='Balance Due', compute='_compute_amounts', store=True)
 

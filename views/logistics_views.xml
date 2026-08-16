@@ -473,6 +473,61 @@
         </field>
     </record>
 
+
+    <!-- ========================================== -->
+    <!-- DELIVERY NOTES SEARCH VIEW                 -->
+    <!-- ========================================== -->
+    <record id="view_ogi_delivery_note_search" model="ir.ui.view">
+        <field name="name">ogi.transit.delivery.note.search</field>
+        <field name="model">ogi.transit.delivery.note</field>
+        <field name="arch" type="xml">
+            <search string="Delivery Notes">
+                <!-- Searchable fields -->
+                <field name="name"/>
+                <field name="container_id"/>
+                <field name="partner_id"/>
+                <field name="goods_description"/>
+                <field name="location_id"/>
+                <field name="logistics_status"/>
+                <field name="payment_status"/>
+
+                <!-- Custom Filters by Payment Status -->
+                <filter string="Unpaid" name="filter_unpaid"
+                        domain="[('payment_status', '=', 'unpaid')]"/>
+                <filter string="Partially Paid" name="filter_partially_paid"
+                        domain="[('payment_status', '=', 'partially_paid')]"/>
+                <filter string="Paid" name="filter_paid"
+                        domain="[('payment_status', '=', 'paid')]"/>
+
+                <separator/>
+
+                <!-- Filters by Logistics Status (useful extra) -->
+                <filter string="Pending at Port" name="filter_pending"
+                        domain="[('logistics_status', '=', 'pending')]"/>
+                <filter string="Unpacked (Depoting)" name="filter_unpacked"
+                        domain="[('logistics_status', '=', 'unpacked')]"/>
+                <filter string="In Storage" name="filter_storage"
+                        domain="[('logistics_status', '=', 'storage')]"/>
+                <filter string="Retrieved by Customer" name="filter_retrieved"
+                        domain="[('logistics_status', '=', 'retrieved')]"/>
+
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+                    <filter string="Payment Status" name="group_by_payment_status"
+                            context="{'group_by': 'payment_status'}"/>
+                    <filter string="Logistics Status" name="group_by_logistics_status"
+                            context="{'group_by': 'logistics_status'}"/>
+                    <filter string="Container" name="group_by_container"
+                            context="{'group_by': 'container_id'}"/>
+                    <filter string="Customer" name="group_by_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="Storage Location" name="group_by_location"
+                            context="{'group_by': 'location_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_ogi_delivery_note" model="ir.actions.act_window">
         <field name="name">Delivery Notes</field>
         <field name="res_model">ogi.transit.delivery.note</field>

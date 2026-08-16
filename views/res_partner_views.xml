@@ -53,11 +53,21 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='internal_notes']" position="before">
-                <page string="Transit Deposits" name="ogi_transit_deposits">
+                <page string="Transit Balances" name="ogi_transit_deposits">
                     <group>
                         <group>
-                            <field name="deposit_usd"/>
-                            <field name="deposit_gnf"/>
+                            <!-- Customer view -->
+                            <field name="deposit_usd"
+                                string="Deposit Balance (USD)"
+                                invisible="contact_type != 'customer'"/>
+                            <field name="deposit_gnf"
+                                string="Deposit Balance (GNF)"
+                                invisible="contact_type != 'customer'"/>
+
+                            <!-- Supplier / Freight Forwarder view -->
+                            <field name="deposit_gnf"
+                                string="Supplier Balance (GNF)"
+                                invisible="contact_type not in ('freight_forwarder', 'other')"/>
                         </group>
                     </group>
                 </page>
