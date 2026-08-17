@@ -31,75 +31,89 @@
         <t t-call="web.basic_layout">
             <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
             
-            <div class="page" style="font-family: 'Helvetica', 'Arial', sans-serif; color: #333;">
+            <div class="page" style="font-family: 'DejaVu Sans', Arial, sans-serif; color: #333;">
                 
-                <div class="row m-0" style="background-color: #1a5f98; color: white; padding: 30px 20px; border-radius: 4px 4px 0 0;">
-                    <div class="col-6">
-                        <h2 style="font-weight: 900; margin-bottom: 5px; font-size: 28px; letter-spacing: -1px;">OGI TRANSIT</h2>
-                        <div style="font-size: 16px; opacity: 0.9;">Bon de Livraison</div>
-                    </div>
-                    <div class="col-6 text-end">
-                        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 5px;">Bon de Livraison</div>
-                        <h3 style="font-weight: bold; font-size: 24px; margin-bottom: 15px;"><span t-field="doc.name"/></h3>
-                        
-                        <span style="background-color: #fce49c; color: #b07d12; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
-                            <t t-if="doc.logistics_status == 'pending'">EN ATTENTE</t>
-                            <t t-elif="doc.logistics_status == 'unpacked'">DÉPOTAGE</t>
-                            <t t-elif="doc.logistics_status == 'storage'">STOCKAGE</t>
-                            <t t-elif="doc.logistics_status == 'retrieved'">RÉCUPÉRÉE</t>
+                <!-- HEADER -->
+                <div style="background-color: #1a5f98; color: white; padding: 30px 20px; border-radius: 4px 4px 0 0;">
+                    <table style="width: 100%; border: none;">
+                        <tr>
+                            <td style="vertical-align: top; width: 50%;">
+                                <div style="font-weight: 900; margin-bottom: 5px; font-size: 28px; letter-spacing: -1px;">OGI TRANSIT</div>
+                                <div style="font-size: 16px; opacity: 0.9;">Bon de Livraison</div>
+                            </td>
+                            <td style="vertical-align: top; text-align: right; width: 50%;">
+                                <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 5px;">Bon de Livraison</div>
+                                <div style="font-weight: bold; font-size: 24px; margin-bottom: 15px;"><span t-field="doc.name"/></div>
+                                
+                                <span style="background-color: #fce49c; color: #b07d12; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
+                                    <t t-if="doc.logistics_status == 'pending'">EN ATTENTE</t>
+                                    <t t-elif="doc.logistics_status == 'unpacked'">D&#201;POTAGE</t>
+                                    <t t-elif="doc.logistics_status == 'storage'">STOCKAGE</t>
+                                    <t t-elif="doc.logistics_status == 'retrieved'">R&#201;CUP&#201;R&#201;E</t>
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- CLIENT -->
+                <div style="margin-top: 25px; text-align: right; padding-right: 10px;">
+                    <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Client</div>
+                    <div style="font-size: 18px; font-weight: bold; margin-top: 3px; color: #111;"><span t-field="doc.partner_id.name"/></div>
+                    <div style="font-size: 14px; margin-top: 3px;"><span t-field="doc.partner_id.phone_1"/></div>
+                    <div style="margin-top: 8px;">
+                        <span style="background-color: #f0f0f0; color: #555; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-family: monospace; font-weight: bold;">
+                            <span t-esc="doc.partner_id.ref or ('CLI-%08d' % doc.partner_id.id)"/>
                         </span>
                     </div>
                 </div>
 
-                <div class="row mt-4">
-                    <div class="col-12 text-end" style="padding-right: 20px;">
-                        <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Client</div>
-                        <div style="font-size: 18px; font-weight: bold; margin-top: 3px; color: #111;"><span t-field="doc.partner_id.name"/></div>
-                        <div style="font-size: 14px; margin-top: 3px;"><span t-field="doc.partner_id.phone_1"/></div>
-                        <div style="margin-top: 8px;">
-                            <span style="background-color: #f0f0f0; color: #555; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-family: monospace; font-weight: bold;">
-                                <span t-esc="doc.partner_id.ref or ('CLI-%08d' % doc.partner_id.id)"/>
-                            </span>
-                        </div>
-                    </div>
+                <!-- META BAND -->
+                <div style="background-color: #f4f3f0; padding: 20px 10px; margin-top: 25px;">
+                    <table style="width: 100%; border: none;">
+                        <tr>
+                            <td style="width: 33%; vertical-align: top;">
+                                <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px;">LOT</div>
+                                <div style="font-size: 16px; font-weight: bold; font-family: monospace; margin-top: 5px;"><span t-field="doc.container_id.bl_id.lot_id.name"/></div>
+                            </td>
+                            <td style="width: 34%; vertical-align: top; text-align: center;">
+                                <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px;">CONTENEUR</div>
+                                <div style="font-size: 16px; font-weight: bold; font-family: monospace; margin-top: 5px;"><span t-field="doc.container_id.name"/></div>
+                            </td>
+                            <td style="width: 33%; vertical-align: top; text-align: right;">
+                                <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px;">B/L</div>
+                                <div style="font-size: 16px; font-weight: bold; font-family: monospace; margin-top: 5px;"><span t-field="doc.container_id.bl_id.name"/></div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
-                <div class="row mt-4" style="background-color: #f4f3f0; padding: 20px 10px; margin-left: 0; margin-right: 0;">
-                    <div class="col-4">
-                        <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px;">LOT</div>
-                        <div style="font-size: 16px; font-weight: bold; font-family: monospace; margin-top: 5px;"><span t-field="doc.container_id.bl_id.lot_id.name"/></div>
-                    </div>
-                    <div class="col-4 text-center">
-                        <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px;">CONTENEUR</div>
-                        <div style="font-size: 16px; font-weight: bold; font-family: monospace; margin-top: 5px;"><span t-field="doc.container_id.name"/></div>
-                    </div>
-                    <div class="col-4 text-end">
-                        <div style="font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px;">B/L</div>
-                        <div style="font-size: 16px; font-weight: bold; font-family: monospace; margin-top: 5px;"><span t-field="doc.container_id.bl_id.name"/></div>
-                    </div>
-                </div>
-
-                <div class="row mt-5 mb-5 text-center" style="font-size: 10px; font-weight: bold; color: #ccc;">
+                <!-- STATUS STEPS -->
+                <div style="margin-top: 40px; margin-bottom: 40px; text-align: center; font-size: 10px; font-weight: bold; color: #ccc;">
                     <t t-set="s" t-value="doc.logistics_status"/>
-                    
-                    <div class="col-3">
-                        <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'pending' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'pending' else '#eee'};"></div>
-                        <span t-attf-style="color: #{'#eab308' if s == 'pending' else '#ccc'};">EN ATTENTE</span>
-                    </div>
-                    <div class="col-3">
-                        <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'unpacked' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'unpacked' else '#eee'};"></div>
-                        <span t-attf-style="color: #{'#eab308' if s == 'unpacked' else '#ccc'};">DÉPOTAGE</span>
-                    </div>
-                    <div class="col-3">
-                        <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'storage' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'storage' else '#eee'};"></div>
-                        <span t-attf-style="color: #{'#eab308' if s == 'storage' else '#ccc'};">STOCKAGE</span>
-                    </div>
-                    <div class="col-3">
-                        <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'retrieved' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'retrieved' else '#eee'};"></div>
-                        <span t-attf-style="color: #{'#eab308' if s == 'retrieved' else '#ccc'};">RÉCUPÉRÉE</span>
-                    </div>
+                    <table style="width: 100%; border: none;">
+                        <tr>
+                            <td style="width: 25%; text-align: center;">
+                                <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'pending' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'pending' else '#eee'};"></div>
+                                <span t-attf-style="color: #{'#eab308' if s == 'pending' else '#ccc'};">EN ATTENTE</span>
+                            </td>
+                            <td style="width: 25%; text-align: center;">
+                                <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'unpacked' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'unpacked' else '#eee'};"></div>
+                                <span t-attf-style="color: #{'#eab308' if s == 'unpacked' else '#ccc'};">D&#201;POTAGE</span>
+                            </td>
+                            <td style="width: 25%; text-align: center;">
+                                <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'storage' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'storage' else '#eee'};"></div>
+                                <span t-attf-style="color: #{'#eab308' if s == 'storage' else '#ccc'};">STOCKAGE</span>
+                            </td>
+                            <td style="width: 25%; text-align: center;">
+                                <div t-attf-style="width: 24px; height: 24px; border-radius: 12px; margin: 0 auto 10px auto; background-color: #{'#fce49c' if s == 'retrieved' else '#ddd'}; border: 2px solid #{'#eab308' if s == 'retrieved' else '#eee'};"></div>
+                                <span t-attf-style="color: #{'#eab308' if s == 'retrieved' else '#ccc'};">R&#201;CUP&#201;R&#201;E</span>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
+                <!-- AUTHORIZATION WARNING -->
                 <t t-if="doc.is_authorized">
                     <div style="border: 3px solid #dc3545; background-color: #fff5f5; color: #dc3545; padding: 20px; border-radius: 8px; margin-bottom: 25px; font-size: 14px;">
                         <h4 style="margin: 0 0 10px 0; font-weight: 800; font-size: 16px;">
@@ -112,22 +126,23 @@
                     </div>
                 </t>
 
-                <div style="font-size: 11px; font-weight: bold; letter-spacing: 1px; margin-bottom: 10px; color: #555;">DÉTAIL DES MARCHANDISES</div>
+                <!-- GOODS DETAIL -->
+                <div style="font-size: 11px; font-weight: bold; letter-spacing: 1px; margin-bottom: 10px; color: #555;">D&#201;TAIL DES MARCHANDISES</div>
                 <div style="border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
-                    <table class="table table-borderless mb-0">
+                    <table style="width: 100%; border-collapse: collapse;">
                         <thead style="background-color: #f4f3f0; color: #999; font-size: 10px; text-transform: uppercase;">
                             <tr>
-                                <th class="text-start" style="padding: 12px;">Description</th>
-                                <th class="text-center" style="padding: 12px;">QTY</th>
-                                <th class="text-end" style="padding: 12px;">CBM / Volume</th>
+                                <th style="text-align: left; padding: 12px;">Description</th>
+                                <th style="text-align: center; padding: 12px;">QTY</th>
+                                <th style="text-align: right; padding: 12px;">CBM / Volume</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="text-start" style="padding: 15px; font-weight: bold; font-size: 15px;">
+                                <td style="text-align: left; padding: 15px; font-weight: bold; font-size: 15px;">
                                     <span t-field="doc.goods_description"/>
                                 </td>
-                                <td class="text-center" style="padding: 15px; font-family: monospace; font-size: 14px;">
+                                <td style="text-align: center; padding: 15px; font-family: monospace; font-size: 14px;">
                                     <t t-if="doc.pl_line_id">
                                         <span t-field="doc.pl_line_id.qty"/> colis
                                     </t>
@@ -135,9 +150,9 @@
                                         <span t-field="doc.container_id.container_size"/> Conteneur
                                     </t>
                                 </td>
-                                <td class="text-end" style="padding: 15px; font-family: monospace; font-size: 14px;">
+                                <td style="text-align: right; padding: 15px; font-family: monospace; font-size: 14px;">
                                     <t t-if="doc.pl_line_id">
-                                        <span t-field="doc.pl_line_id.cbm_line"/> m³
+                                        <span t-field="doc.pl_line_id.cbm_line"/> m&#179;
                                     </t>
                                     <t t-else="">
                                         FCL
@@ -148,19 +163,20 @@
                     </table>
                 </div>
 
-                <t t-set="pay_status" t-value="'NON PAYÉ'"/>
+                <!-- PAYMENT STAMP -->
+                <t t-set="pay_status" t-value="'NON PAY&#201;'"/>
                 <t t-if="doc.payment_status == 'paid'">
-                    <t t-set="pay_status" t-value="'PAYÉE'"/>
+                    <t t-set="pay_status" t-value="'PAY&#201;E'"/>
                 </t>
                 <t t-elif="doc.payment_status == 'partially_paid'">
-                    <t t-set="pay_status" t-value="'PARTIELLEMENT PAYÉE'"/>
+                    <t t-set="pay_status" t-value="'PARTIELLEMENT PAY&#201;E'"/>
                 </t>
 
-                <div style="position: relative; margin-top: 120px; text-align: center;">
-                    <div style="display: inline-block; transform: rotate(-15deg); border: 4px solid #DE7254; border-radius: 6px; padding: 15px 40px; color: #DE7254; opacity: 0.85;">
+                <div style="margin-top: 100px; text-align: center;">
+                    <div style="display: inline-block; border: 4px solid #DE7254; border-radius: 6px; padding: 15px 40px; color: #DE7254; opacity: 0.85;">
                         <div style="font-size: 34px; font-weight: 900; letter-spacing: 1px;"><t t-esc="pay_status"/></div>
                         <div style="font-size: 12px; border-top: 1px solid #DE7254; margin-top: 5px; padding-top: 5px; letter-spacing: 2px; font-weight: bold;">
-                            OGI TRANSIT • <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d %b %Y').upper()"/>
+                            OGI TRANSIT &#8226; <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d %b %Y').upper()"/>
                         </div>
                     </div>
                 </div>
@@ -176,4 +192,5 @@
             </t>
         </t>
     </template>
+
 </odoo>
