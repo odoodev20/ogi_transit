@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report Action -->
+    <record id="action_report_vendor_bill" model="ir.actions.report">
+        <field name="name">Vendor Bill</field>
+        <field name="model">ogi.transit.vendor.bill</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">ogi_transit.report_vendor_bill_document</field>
+        <field name="report_file">ogi_transit.report_vendor_bill_document</field>
+        <field name="print_report_name">'Vendor_Bill_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_ogi_transit_vendor_bill"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Report Template - Modern Style -->
+    <template id="report_vendor_bill_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page" style="font-family: 'Helvetica', Arial, sans-serif; color: #333;">
+
+                    <!-- ========== HEADER ========== -->
+                    <div style="background-color: #165a92; color: white; padding: 25px 30px 20px 30px; border-radius: 0 0 4px 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <div style="font-size: 22px; font-weight: 700; letter-spacing: 1px;">OGI TRANSIT</div>
+                                <div style="font-size: 13px; color: #ff4d4d; font-weight: 600; margin-top: 2px;">FACTURE FOURNISSEUR</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 13px; font-weight: 600; color: #ff6b6b;">FACTURE FOURNISSEUR</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 18px;">
+                            <div style="font-size: 26px; font-weight: 700;" t-field="doc.name"/>
+                            <div style="font-size: 13px; margin-top: 4px; opacity: 0.9;">
+                                Date d'émission :
+                                <span t-field="doc.create_date" t-options='{"widget": "date"}'/>
+                                <t t-if="doc.state == 'draft'">
+                                    <span style="background:#6c757d; color:white; padding:2px 10px; border-radius:12px; font-size:11px; margin-left:10px;">BROUILLON</span>
+                                </t>
+                                <t t-if="doc.state == 'issued'">
+                                    <span style="background:#0d6efd; color:white; padding:2px 10px; border-radius:12px; font-size:11px; margin-left:10px;">APPROUVÉ</span>
+                                </t>
+                                <t t-if="doc.state == 'partial'">
+                                    <span style="background:#fd7e14; color:white; padding:2px 10px; border-radius:12px; font-size:11px; margin-left:10px;">PARTIEL</span>
+                                </t>
+                                <t t-if="doc.state == 'paid'">
+                                    <span style="background:#198754; color:white; padding:2px 10px; border-radius:12px; font-size:11px; margin-left:10px;">PAYÉ</span>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== VENDOR INFO ========== -->
+                    <div style="padding: 25px 30px 10px 30px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <div style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">FOURNISSEUR</div>
+                                <div style="font-size: 16px; font-weight: 600; margin-top: 4px;" t-field="doc.partner_id.name"/>
+                                <div style="font-size: 13px; color: #555;" t-if="doc.partner_id.phone_1" t-field="doc.partner_id.phone_1"/>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 11px; color: #888; text-transform: uppercase;">TYPE</div>
+                                <div style="font-size: 14px; font-weight: 500;" t-field="doc.expense_type"/>
+                                <div style="margin-top: 8px; font-size: 11px; color: #888; text-transform: uppercase;">DEVISE</div>
+                                <div style="font-size: 14px; font-weight: 500;" t-field="doc.currency"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== CONTAINER INFO ========== -->
+                    <div t-if="doc.container_id" style="margin: 15px 30px; background: #f5f7fa; border-radius: 6px; padding: 14px 20px; display: flex; justify-content: space-between;">
+                        <div>
+                            <div style="font-size: 11px; color: #888; text-transform: uppercase;">CONTENEUR</div>
+                            <div style="font-weight: 600;" t-field="doc.container_id.name"/>
+                        </div>
+                        <div t-if="doc.container_id.bl_id">
+                            <div style="font-size: 11px; color: #888; text-transform: uppercase;">B/L</div>
+                            <div style="font-weight: 600;" t-field="doc.container_id.bl_id.name"/>
+                        </div>
+                        <div t-if="doc.container_id.origin">
+                            <div style="font-size: 11px; color: #888; text-transform: uppercase;">ORIGINE</div>
+                            <div style="font-weight: 600;" t-field="doc.container_id.origin"/>
+                        </div>
+                    </div>
+
+                    <!-- ========== LINES ========== -->
+                    <div style="padding: 10px 30px 0 30px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #e0e0e0; color: #888; font-size: 11px; text-transform: uppercase;">
+                                    <th style="text-align: left; padding: 10px 0;">DÉSIGNATION</th>
+                                    <th style="text-align: right; padding: 10px 0;">MONTANT</th>
+                                    <th style="text-align: right; padding: 10px 0; width: 80px;">DEVISE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- BGDA Line -->
+                                <tr t-if="doc.bgda_amount" style="border-bottom: 1px solid #f0f0f0;">
+                                    <td style="padding: 14px 0;">
+                                        <div style="font-weight: 500;">Total BGDA</div>
+                                        <div style="font-size: 12px; color: #888;">Bureau Guinéen du Droit d'Auteur</div>
+                                    </td>
+                                    <td style="text-align: right; padding: 14px 0; font-weight: 500;">
+                                        <span t-esc="'{:,.0f}'.format(doc.bgda_amount).replace(',', ' ')"/>
+                                    </td>
+                                    <td style="text-align: right; padding: 14px 0; color: #666;">
+                                        <span t-field="doc.currency"/>
+                                    </td>
+                                </tr>
+
+                                <!-- Freight Forwarder Cost -->
+                                <tr t-if="doc.freight_forwarder_cost" style="border-bottom: 1px solid #f0f0f0;">
+                                    <td style="padding: 14px 0;">
+                                        <div style="font-weight: 500;">Freight Forwarder Cost</div>
+                                        <div style="font-size: 12px; color: #888;">Frais de transit / douane</div>
+                                    </td>
+                                    <td style="text-align: right; padding: 14px 0; font-weight: 500;">
+                                        <span t-esc="'{:,.0f}'.format(doc.freight_forwarder_cost).replace(',', ' ')"/>
+                                    </td>
+                                    <td style="text-align: right; padding: 14px 0; color: #666;">
+                                        <span t-field="doc.currency"/>
+                                    </td>
+                                </tr>
+
+                                <!-- Fallback single line -->
+                                <tr t-if="not doc.bgda_amount and not doc.freight_forwarder_cost" style="border-bottom: 1px solid #f0f0f0;">
+                                    <td style="padding: 14px 0;">
+                                        <div style="font-weight: 500;">
+                                            <span t-field="doc.expense_type"/>
+                                        </div>
+                                        <div t-if="doc.description" style="font-size: 12px; color: #888;">
+                                            <span t-field="doc.description"/>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: right; padding: 14px 0; font-weight: 500;">
+                                        <span t-esc="'{:,.0f}'.format(doc.amount_total).replace(',', ' ')"/>
+                                    </td>
+                                    <td style="text-align: right; padding: 14px 0; color: #666;">
+                                        <span t-field="doc.currency"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ========== TOTAL ========== -->
+                    <div style="margin: 25px 30px 0 30px; background: #f8f9fb; border-radius: 6px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 16px; font-weight: 700; text-transform: uppercase;">TOTAL DÛ</div>
+                        <div style="font-size: 22px; font-weight: 700; color: #e74c3c;">
+                            <span t-esc="'{:,.0f}'.format(doc.amount_total).replace(',', ' ')"/>
+                            <span style="font-size: 16px; margin-left: 6px;" t-field="doc.currency"/>
+                        </div>
+                    </div>
+
+                    <!-- ========== ACCOUNT STATUS ========== -->
+                    <div style="margin: 20px 30px 40px 30px; font-size: 13px;">
+                        <div style="font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">ÉTAT DU COMPTE</div>
+                        
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0;">
+                            <span>Total facturé</span>
+                            <span>
+                                <span t-esc="'{:,.0f}'.format(doc.amount_total).replace(',', ' ')"/>
+                                <span t-field="doc.currency"/>
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0;">
+                            <span>Total payé</span>
+                            <span>
+                                <span t-esc="'{:,.0f}'.format(doc.amount_paid).replace(',', ' ')"/>
+                                <span t-field="doc.currency"/>
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; font-weight: 600;">
+                            <span>Reste à payer</span>
+                            <span style="color: #e74c3c;">
+                                <span t-esc="'{:,.0f}'.format(doc.amount_residual).replace(',', ' ')"/>
+                                <span t-field="doc.currency"/>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

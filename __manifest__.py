@@ -17,6 +17,7 @@
         'wizard/reminder_wizard_views.xml',
         'report/delivery_note_report.xml',
         'report/ogi_reports.xml',
+        'report/vendor_bill_report.xml',
         'views/res_partner_views.xml',
         'views/menu_views.xml',          
         'views/dashboard_views.xml',

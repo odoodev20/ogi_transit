@@ -81,7 +81,11 @@
                     <button name="action_reconcile_ko" string="Reco KO" type="object" class="btn-danger" invisible="state != 'to_reconcile'" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
                     
                     <button name="%(ogi_transit.action_ogi_transit_vendor_payment_wizard)d" string="Register Payout" type="action" class="btn-danger" invisible="state not in ('issued', 'partial')" context="{'default_bill_id': id}" groups="ogi_transit.group_ogi_finance,ogi_transit.group_ogi_gerant,ogi_transit.group_ogi_pdg,ogi_transit.group_ogi_admin"/>
-                    
+                    <button name="%(ogi_transit.action_report_vendor_bill)d" 
+                            string="Print Vendor Bill" 
+                            type="action" 
+                            class="btn-primary" 
+                            icon="fa-print"/>
                     <!-- UPDATED: Added to_reconcile to status bar -->
                     <field name="state" widget="statusbar" statusbar_visible="draft,issued,to_reconcile,partial,paid"/>
                 </header>

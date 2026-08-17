@@ -27,6 +27,14 @@ class ResPartner(models.Model):
     deposit_usd = fields.Float(string='Deposit Balance (USD)', default=0.0, readonly=True, tracking=True)
     deposit_gnf = fields.Float(string='Deposit Balance (GNF)', default=0.0, readonly=True, tracking=True)
 
+    # NEW: Supplier Advance field
+    supplier_deposit_gnf = fields.Float(
+        string='Supplier Balance (GNF)',
+        default=0.0,
+        readonly=True,
+        tracking=True
+    )
+
     # ==========================================
     # NEW: Smart Button Fields & Compute Methods
     # ==========================================

@@ -36,13 +36,26 @@ class OgiTransitVendorPaymentWizard(models.TransientModel):
     @api.depends('bill_id', 'currency')
     def _compute_available_deposit(self):
         for wiz in self:
-            if wiz.bill_id and wiz.bill_id.partner_id:
-                if wiz.currency == 'USD':
-                    wiz.available_deposit = wiz.bill_id.partner_id.supplier_deposit_usd
-                else:
-                    wiz.available_deposit = wiz.bill_id.partner_id.supplier_deposit_gnf
-            else:
+            partner = wiz.bill_id.partner_id if wiz.bill_id else False
+            if not partner:
                 wiz.available_deposit = 0.0
+                continue
+
+            # ==========================================
+            # SUPPLIERS (Freight Forwarder / Other)
+            # Always use the dedicated supplier field
+            # ==========================================
+            if partner.contact_type in ('freight_forwarder', 'other'):
+                wiz.available_deposit = partner.supplier_deposit_gnf
+                continue
+
+            # ==========================================
+            # CUSTOMERS
+            # ==========================================
+            if wiz.currency == 'USD':
+                wiz.available_deposit = partner.deposit_usd
+            else:
+                wiz.available_deposit = partner.deposit_gnf
 
     @api.onchange('cashbox_id', 'payment_method_bank')
     def _onchange_cashbox_type(self):
@@ -95,10 +108,14 @@ class OgiTransitVendorPaymentWizard(models.TransientModel):
             })
             txn.action_confirm()
             
-            if is_usd:
-                partner.supplier_deposit_usd -= self.amount
-            else:
+            # Deduct from the correct field
+            if partner.contact_type in ('freight_forwarder', 'other'):
                 partner.supplier_deposit_gnf -= self.amount
+            else:
+                if is_usd:
+                    partner.deposit_usd -= self.amount
+                else:
+                    partner.deposit_gnf -= self.amount
                 
             self.bill_id.amount_paid += self.amount
             self.bill_id._compute_amounts()

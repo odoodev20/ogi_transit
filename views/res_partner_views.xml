@@ -64,8 +64,8 @@
                                 string="Deposit Balance (GNF)"
                                 invisible="contact_type != 'customer'"/>
 
-                            <!-- Supplier / Freight Forwarder view -->
-                            <field name="deposit_gnf"
+                            <!-- Freight Forwarder / Other Suppliers -->
+                            <field name="supplier_deposit_gnf"
                                 string="Supplier Balance (GNF)"
                                 invisible="contact_type not in ('freight_forwarder', 'other')"/>
                         </group>
